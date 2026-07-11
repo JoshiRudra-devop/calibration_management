@@ -11,21 +11,6 @@ $stmt = $db->prepare("SELECT * FROM instrument_types WHERE slug = 'ctm' LIMIT 1"
 $stmt->execute();
 $instrument = $stmt->fetch();
 $instrumentId = $instrument['id'] ?? null;
-
-// Load proving ring standards from DB
-$ringRows = $db->query(
-    "SELECT ring_key, ring_label, ring_no, load_steps, deflection_steps
-     FROM ctm_proving_rings WHERE active = 1 ORDER BY sort_order"
-)->fetchAll();
-$ringData = [];
-foreach ($ringRows as $r) {
-    $ringData[$r['ring_key']] = [
-        'label'       => $r['ring_label'],
-        'ring_no'     => $r['ring_no'],
-        'loads'       => json_decode($r['load_steps'],       true),
-        'deflections' => json_decode($r['deflection_steps'], true),
-    ];
-}
 ?>
 
 <?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
@@ -52,7 +37,7 @@ foreach ($ringRows as $r) {
       </div>
       <div class="title_input_pair">
         <label for="operated">Type of Machine:</label>
-        <select  id="operated">
+        <select id="operated">
           <option value="ELECTRICAL OPERATED">Electrical Operated</option>
           <option value="HAND OPERATED">HAND Operated</option>
         </select>
@@ -82,9 +67,9 @@ foreach ($ringRows as $r) {
         <label for="ring">PROVIRING WANT TO SELECT:</label>
         <select id="ring" onchange="showInputBoxes()">
           <option value="">SELECT PROVIRING</option>
-          <?php foreach ($ringData as $key => $ring): ?>
-          <option value="<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($ring['label']) ?></option>
-          <?php endforeach; ?>
+          <option value='1000KN'>1000 KN</option>
+          <option value='2000KN'>2000 KN</option>
+          <option value='2000KN new'>2000 KN NEW</option>
         </select>
       </div>
       <div class="READING-container">
@@ -181,7 +166,6 @@ foreach ($ringRows as $r) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const INSTRUMENT_SLUG = 'ctm';
-    const CTM_RING_DATA = <?= json_encode($ringData, JSON_UNESCAPED_UNICODE) ?>;
     let stickerPdfBlob = null;
     let pdfSaved = false;
 
@@ -214,11 +198,13 @@ foreach ($ringRows as $r) {
       const nextCalibrationDateRaw = document.getElementById("nextCalibrationDate").value;
       const nextCalibrationDate = nextCalibrationDateRaw.split("-").reverse().join("/");
       const serialNo = document.getElementById("serialNo").value;
+      
       const primaryBlue = [19, 52, 165];
       const accentRed = [228, 34, 21];
       doc.setDrawColor(...primaryBlue);
       doc.setLineWidth(3);
       doc.rect(5, 5, width - 10, height - 10);
+      
       const logoImg = new Image();
       logoImg.src = "../assets/images/logo.png";
       await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
@@ -233,6 +219,7 @@ foreach ($ringRows as $r) {
       doc.setFontSize(4);
       doc.setTextColor(...primaryBlue);
       doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      
       const tableLeft = 15;
       const tableTop = 20;
       const tableWidth = width - 30;
@@ -244,6 +231,7 @@ foreach ($ringRows as $r) {
         { label: "CALIB. DATE", value: calibrationDate || "N/A" },
         { label: "NEXT DATE", value: nextCalibrationDate || "N/A" },
       ];
+      
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(1);
       doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
@@ -311,25 +299,6 @@ foreach ($ringRows as $r) {
       };
     }
 
-    function addImg(doc, details) {
-      if (!doc) return;
-      const img = new Image();
-      img.src = '../assets/images/footer.jpeg';
-      doc.addImage(img, 'PNG', 0, 255, 210, 27);
-
-      const img3 = new Image();
-      img3.src = '../assets/images/sign.jpeg';
-      doc.addImage(img3, 'PNG', 160, 232, 40, 10);
-
-      const img1 = new Image();
-      img1.src = '../assets/images/stamp.jpeg';
-      doc.addImage(img1, 'PNG', 100, 217, 35, 35);
-
-      const img2 = new Image();
-      img2.src = '../assets/images/header.jpeg';
-      doc.addImage(img2, 'PNG', 3, 3, 210, 30);
-    }
-
     function addCertificateDetails(doc, details) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
@@ -349,51 +318,135 @@ foreach ($ringRows as $r) {
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
-      const RING = String(details.ring);
-      const ringMeta = CTM_RING_DATA[RING];
+      let RING = String(details.ring);
 
-      if (ringMeta) {
-        const capacityLabel = RING.startsWith('1000') ? '1000KN' : '2000KN';
-        const userInputs = RING.startsWith('1000') ? details.inputs1000 : details.inputs2000;
-
-        doc.text(`CALIBRATION INSTRUMENT ${capacityLabel}`, 14, 120);
-        doc.text(`PROVING RING NO:${ringMeta.ring_no}`, 14, 125);
-        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);
-
+      if(RING === "1000KN"){
+        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, 120);  
+        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, 125);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
-        const startX  = 13;
-        const startY  = 142;
-        const cellWidth  = 30;
+        const startX = 13;
+        const startY = 142;
+        const cellWidth = 30;
         const cellHeight = 7;
 
         doc.text(`IN DIVISIONS`, 16, 141);
         doc.text(`KN`, 174, 141);
 
         const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
         for (let k = 0; k < 6; k++) {
           const x = startX + k * cellWidth;
           doc.rect(x, 132, cellWidth, 10);
           doc.text(fixedTexts[k], x + 2, 137);
         }
 
-        for (let i = 0; i < ringMeta.deflections.length; i++) {
+        const fixedValuesColumn1 = ["79.1", "155.2", "232.3", "308.1", "384.4", "460.1","536.7", "613.4", "689.7", "766.1"];
+        const fixedValuesColumn2 = ["100", "200", "300", "400", "500", "600", "700", "800", "900", "1000"];
+
+        for (let i = 0; i < 10; i++) {
           for (let j = 0; j < 6; j++) {
             const x = startX + j * cellWidth;
             const y = startY + i * cellHeight;
             doc.rect(x, y, cellWidth, cellHeight);
 
             let textValue = "";
-            if (j === 0) textValue = ringMeta.deflections[i];
-            else if (j === 1) textValue = ringMeta.loads[i];
-            else textValue = userInputs[i] || '';
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs1000[i] || "";
 
-            const textWidth  = doc.getTextWidth(textValue);
-            const centeredX  = x + (cellWidth - textWidth) / 2;
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
             doc.text(textValue, centeredX, y + 6);
           }
         }
       }
+      else if(RING === "2000KN"){
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 120);  
+        doc.text(`PROVING RING NO:2000KN 094 IS 4169:2014`, 14, 125);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        const startX = 13;
+        const startY = 142;
+        const cellWidth = 30;
+        const cellHeight = 7;
+
+        doc.text(`IN DIVISIONS`, 16, 141);
+        doc.text(`KN`, 174, 141);
+
+        const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
+        for (let k = 0; k < 6; k++) {
+          const x = startX + k * cellWidth;
+          doc.rect(x, 132, cellWidth, 10);
+          doc.text(fixedTexts[k], x + 2, 137);
+        }
+
+        const fixedValuesColumn1 = ["84.1", "168.6", "254.7", "342.1", "429.1", "513.9", "600.9", "689.2", "776.7", "865.8"];
+        const fixedValuesColumn2 = ["200", "400", "600", "800", "1000", "1200", "1400", "1600", "1800", "2000"];
+
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 6; j++) {
+            const x = startX + j * cellWidth;
+            const y = startY + i * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+
+            let textValue = "";
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs2000[i] || "";
+
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
+            doc.text(textValue, centeredX, y + 6);
+          }
+        }
+      }
+      else if(RING === "2000KN new"){
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 120);  
+        doc.text(`PROVING RING NO:2000KN 381 IS 4169:2014`, 14, 125);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        const startX = 13;
+        const startY = 142;
+        const cellWidth = 30;
+        const cellHeight = 7;
+
+        doc.text(`IN DIVISIONS`, 16, 141);
+        doc.text(`KN`, 174, 141);
+
+        const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
+        for (let k = 0; k < 6; k++) {
+          const x = startX + k * cellWidth;
+          doc.rect(x, 132, cellWidth, 10);
+          doc.text(fixedTexts[k], x + 2, 137);
+        }
+
+        const fixedValuesColumn1 = ["73.1","145.1","215.2","284.7","356.1","427.4","498.1","569.4","641.3","714.1"];
+        const fixedValuesColumn2 = ["200", "400", "600", "800", "1000", "1200", "1400", "1600", "1800", "2000"];
+
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 6; j++) {
+            const x = startX + j * cellWidth;
+            const y = startY + i * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+
+            let textValue = "";
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs2000[i] || "";
+
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
+            doc.text(textValue, centeredX, y + 6);
+          }
+        }
+      }
+      
       doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 225); 
       doc.setFontSize(12);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
