@@ -585,7 +585,7 @@ $types = $db->query("SELECT slug, label FROM instrument_types ORDER BY sort_orde
         <i class="fas fa-share-alt"></i> Share Combined PDF
       </button>
       <button class="global-btn btn-save-all" type="button" onclick="saveAllCertificates()">
-        <i class="fas fa-save"></i> Save All to DB & Folder
+        <i class="fas fa-save"></i> Save All
       </button>
     </div>
   </div>
@@ -1114,38 +1114,12 @@ async function saveAllCertificates() {
     return;
   }
   
-  // Request directory permission on parent level first to satisfy user gesture requirement!
-  /* Disabled local folder saving by user request
-  if ('showDirectoryPicker' in window) {
-    try {
-      let dirHandle = await window.getSavedDirectoryHandle();
-      if (!dirHandle) {
-        dirHandle = await window.promptForDirectorySelection();
-      }
-      if (dirHandle) {
-        const hasPerm = await window.verifyPermission(dirHandle, true);
-        if (!hasPerm) {
-           alert('Write permission is required to save certificates locally.');
-           return;
-        }
-      } else {
-        alert('Local storage base folder is required to save certificates.');
-        return;
-      }
-    } catch (err) {
-      if (window.SHREEJI_DEBUG) console.error('Local storage authorization failed on parent:', err);
-      alert('Local storage access error: ' + err.message);
-      return;
-    }
-  }
-  */
-  
-  Loader.show('Saving all certificates to database and folders...');
+  Loader.show('Saving all certificates to database...');
   let successCount = 0;
   let errorCount = 0;
   const errors = [];
   
-  // 1. Sequentially save each instrument certificate to local folders & DB
+  // 1. Sequentially save each instrument certificate to DB
   for (let i = 0; i < iframes.length; i++) {
     const iframe = iframes[i];
     const cardHeader = iframe.closest('.instrument-wrapper-card').querySelector('h3').textContent.trim();
@@ -1382,38 +1356,6 @@ function initEmbeddedIframe(iframeId) {
     iframeWindow.showLoader = function(msg) { Loader.show(msg); };
     iframeWindow.hideLoader = function() { Loader.hide(); };
     iframeWindow.showLoaderSuccess = function(msg) { Loader.success(msg); };
-
-    // Override local FS functions inside iframe to bypass permission checks (already authorized on parent)
-    iframeWindow.verifyPermission = async function() {
-      return true;
-    };
-    iframeWindow.promptForDirectorySelection = async function() {
-      return await window.getSavedDirectoryHandle();
-    };
-
-    // Intercept saveCertificateOfflineFirst to communicate save success/error back to parent page
-    let attempts = 0;
-    const hookSave = () => {
-      const originalSave = iframeWindow.saveCertificateOfflineFirst;
-      if (originalSave) {
-        if (iframeWindow.saveCertificateOfflineFirst.__isHooked) return;
-        iframeWindow.saveCertificateOfflineFirst = async function(payload, pdfBlob, details) {
-          try {
-            const result = await originalSave(payload, pdfBlob, details);
-            iframe.dispatchEvent(new CustomEvent('iframeSaveSuccess', { detail: result }));
-            return result;
-          } catch (err) {
-            iframe.dispatchEvent(new CustomEvent('iframeSaveError', { detail: err }));
-            throw err;
-          }
-        };
-        iframeWindow.saveCertificateOfflineFirst.__isHooked = true;
-      } else if (attempts < 20) {
-        attempts++;
-        setTimeout(hookSave, 100);
-      }
-    };
-    hookSave();
 
     // Hide repeated fields inside the iframe (Name of Party, Site Location, Calibration Date, Next Suggested Date)
     const fieldsToHide = ['partyName', 'partyname', 'siteLocation', 'calibrationDate', 'nextCalibrationDate'];

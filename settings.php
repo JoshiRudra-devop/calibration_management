@@ -306,20 +306,6 @@ $totalTypes = (int) $db->query("SELECT COUNT(*) FROM instrument_types")->fetchCo
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const btnPick = document.getElementById('btnSettingsFolderPick');
-  if (btnPick) {
-    btnPick.addEventListener('click', async () => {
-      if (typeof window.promptForDirectorySelection === 'function') {
-        const handle = await window.promptForDirectorySelection();
-        if (handle) {
-          alert('Local storage directory connected successfully! Folder is active.');
-          location.reload();
-        }
-      } else {
-        alert('File System Access utilities not loaded. Please use a modern browser.');
-      }
-    });
-  }
 
   // --- PDF Company Name Logic ---
   const pdfSelect = document.getElementById('pdfCompanySelect');

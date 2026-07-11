@@ -424,7 +424,7 @@ async function prefillForm() {
   }
 }
 
-// â”€â”€ Upload Certificate to Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────────────────────────── Upload Certificate to Backend ─────────────
 document.addEventListener('DOMContentLoaded', function() {
   const dock = document.getElementById('sideDock');
   if (dock) {
@@ -544,18 +544,42 @@ document.addEventListener('DOMContentLoaded', function() {
           };
 
           try {
-            const result = await window.saveCertificateOfflineFirst(payload, pdfBlob, details);
+            if (typeof Loader !== 'undefined') Loader.show('Saving certificate...');
+            const response = await fetch((typeof SHREEJI_CONFIG !== 'undefined' ? SHREEJI_CONFIG.apiBase : '/api') + '/save_certificates.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': payload.csrf_token },
+              body: JSON.stringify(payload)
+            });
+            const result = await response.json();
 
             if (result.success) {
+              if (window.frameElement) {
+                window.frameElement.dispatchEvent(new CustomEvent('iframeSaveSuccess', { detail: result }));
+              }
+              if (typeof UnsavedTracker !== 'undefined') UnsavedTracker.markSaved();
+              if (typeof Loader !== 'undefined') Loader.success('Certificate Saved Successfully! 💾');
+
               pdfSaved = true;
               formModified = false;
               updateDockState();
               const reminder = document.getElementById('unsavedReminder');
               if (reminder) reminder.classList.remove('show');
               showLoaderSuccess('Certificate Saved Successfully! 💾');
+              
+              setTimeout(() => {
+                if (result.pdf_url) {
+                  window.open(result.pdf_url, '_blank');
+                }
+              }, 1500);
+            } else {
+              throw new Error(result.message || 'Server rejected saving.');
             }
           } catch (error) {
-            if (window.SHREEJI_DEBUG) console.error('Offline-first saving failed:', error);
+            if (window.frameElement) {
+              window.frameElement.dispatchEvent(new CustomEvent('iframeSaveError', { detail: error }));
+            }
+            if (typeof Loader !== 'undefined') Loader.error('Save failed: ' + error.message);
+            console.error('Saving failed:', error);
           }
         };
 
@@ -584,4 +608,3 @@ window.generatePDF = generatePDF;
 window.generatePDFblankpg = generatePDFblankpg;
 window.printBlankCertificate = printBlankCertificate;
 window.sharePDF = sharePDF;
-window.savePDFWithLocation = savePDFWithLocation;
