@@ -1191,9 +1191,7 @@ async function saveAllCertificates() {
       errors.push(`${cardHeader}: ${err.message || err}`);
     }
   }
-  
-  }
-  
+
   Loader.hide();
   
   const saveBtn = document.querySelector('.btn-save-all');
