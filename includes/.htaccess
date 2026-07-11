@@ -1,0 +1,2 @@
+# Block all direct browser access to includes/ — PHP includes only
+Require all denied

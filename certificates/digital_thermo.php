@@ -1,0 +1,269 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+requireLogin();
+
+$pageTitle  = 'Digital Thermometer Calibration';
+$activePage = 'certificate';
+include __DIR__ . '/../includes/header.php';
+
+$db = getDB();
+$stmt = $db->prepare("SELECT * FROM instrument_types WHERE slug = 'digital_thermo' LIMIT 1");
+$stmt->execute();
+$instrument = $stmt->fetch();
+$instrumentId = $instrument['id'] ?? null;
+?>
+
+<?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
+<div class="container">
+    <h2 class="centered">DIGITAL THERMOMETER CALIBRATION CERTIFICATE</h2>
+    <form id="calibrationForm">
+      <div class="title_input_pair">
+        <label for="certificateNumber">Certificate No:</label>
+        <input type="text" id="certificateNumber" required>
+      </div>
+      <div class="date">
+        <div class="title_input_pair">
+          <label for="calibrationDate">Date of Calibration:</label>
+          <input type="date" id="calibrationDate" onchange="calculateNextDate()" required>
+        </div>
+        <div class="title_input_pair">
+          <label for="nextCalibrationDate">Next Suggested Date:</label>
+          <input type="date" id="nextCalibrationDate" required>
+        </div>
+      </div>
+      <div class="title_input_pair">
+        <label for="partyName">Company Name:</label>
+        <input type="text" id="partyName" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="siteLocation">Site Location:</label>
+        <input type="text" id="siteLocation" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="capacity">Capacity:</label>
+        <input type="text" id="capacity" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="make">Make:</label>
+        <input type="text" id="make" required>
+      </div>
+      <div class="unsaved-reminder" id="unsavedReminder">
+        <span>⚠️ Please save your certificate before leaving this page.</span>
+      </div>
+      <div class="sticker-section">
+        <div class="sticker-preview-container">
+          <h3 style="color: #00796b; margin-top: 0;">Info Sticker Preview</h3>
+          <iframe id="stickerPreviewFrame"></iframe>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="<?= APP_URL ?>/assets/js/general.js?v=1.8"></script>
+  <script>
+    const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
+    const INSTRUMENT_SLUG = 'digital_thermo';
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    let stickerPdfBlob = null;
+    
+    function getFormDetails() {
+      return {
+        certificateNumber: document.getElementById("certificateNumber").value,
+        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
+        siteLocation: document.getElementById("siteLocation").value,
+        partyName: document.getElementById("partyName").value,
+        make: document.getElementById("make").value,
+        capacity: document.getElementById("capacity").value,
+        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
+      };
+    }
+    
+    function addCertificateDetails(doc, details) {
+      let Yalign = 50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      doc.text(`REF NO                         :-      SI-${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY         :-     ${details.partyName}`, 14, Yalign += 10);
+      doc.text(`EQUIPEMENT NAME    :-     DIGITAL THERMOMETER`, 14, Yalign += 10);
+      doc.text(`CAPACITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+      doc.text(`SERIAL NO                    :-     SI-${details.certificateNumber}`, 14, Yalign += 10);
+      doc.text(`NEXT DUE DATE           :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+      doc.text(`SITE LOCATION            :-     ${details.siteLocation}`, 14, Yalign += 10);
+      const tableStartY = Yalign;
+      const data = [
+        [ "1", " 50"," 50"],
+        [ "2", " 100"," 100" ],
+        [ "3", " 150"," 150" ],
+        [ "4", " 200"," 200" ],
+        [ "5", " 250"," 250" ],
+        [ "6", " 300"," 300" ]
+      ];
+      doc.autoTable({
+        head: [['SR.NO', 'STANDARD TEMPERATURE', 'STANDARD TEMPERATURE BY 1 St BUCKET “A”']],
+        body: data,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 12 ,
+          textColor:[0,0,0],
+          lineColor:[0,0,0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fontSize: 15,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2 = doc.autoTable.previous.finalY;
+      doc.setFontSize(12); 
+      doc.setFont("helvetica", "bold"); 
+      doc.text("CALIBRATED BY       :-     YOGESH B JOSHI", 14, tableStartY2 += 5);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 137, tableStartY2 += 15);
+      doc.text("PROPRIETOR", 170, tableStartY2 += 20);
+    }
+    
+    // --- Sticker logic ---
+async function generateInfoSticker() {
+    if (!document.getElementById("calibrationForm").reportValidity()) return;
+    const stickerPreviewFrame = document.getElementById("stickerPreviewFrame");
+    stickerPreviewFrame.style.display = "block";
+    const downloadButton = document.getElementById("downloadStickerBtn");
+    downloadButton.style.display = "block";
+    stickerPdfBlob = null; // Reset previous blob
+    const details = getFormDetails();
+  const { jsPDF } = window.jspdf;
+  // A4 size in points
+  const a4Width = 210 * 2.83465;
+  const a4Height = 297 * 2.83465;
+  // Sticker size
+  const stickerWidth = 60 * 2.83465;
+  const stickerHeight = 30 * 2.83465;
+  // Desired position on A4 (e.g., 5cm left, 10cm top)
+  const posX = 5 * 2.83465;
+  const posY = 10 * 2.83465;
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: [a4Width, a4Height]
+  });
+
+  // Draw sticker (same code as in generateInfoSticker, but use posX/posY as offsets)
+  const primaryBlue = [19, 52, 165];
+  const accentRed = [228, 34, 21];
+
+  // Blue border at specific spot
+  doc.setDrawColor(...primaryBlue);
+  doc.setLineWidth(3);
+  doc.rect(posX, posY, stickerWidth, stickerHeight);
+
+  // Logo
+  const logoImg = new Image();
+  logoImg.src = "logo.jpeg";
+  await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+  if (logoImg.width) {
+    doc.addImage(logoImg, "JPEG", posX + 8, posY + 4, 12, 16);
+  }
+
+  // Header text
+  doc.setFont("times", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(...accentRed);
+  doc.text(window.PDF_COMPANY_NAME, posX + 30, posY + 13);
+
+  doc.setFont("times", "normal");
+  doc.setFontSize(6);
+  doc.setTextColor(...primaryBlue);
+  doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", posX + 30, posY + 20, { align: "left" });
+
+  // Table
+  const tableLeft = posX + 5;
+  const tableTop = posY + 22;
+  const tableWidth = stickerWidth - 10;
+  const rowHeight = 14;
+  const labelWidth = tableWidth * 0.4;
+  const tableData = [
+    { label: "INST ID NO.", value: details.certificateNumber || "N/A" },
+    { label: "CAPACITY", value: details.capacity || "N/A" },
+    { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+    { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+  ];
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(1);
+  doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+  tableData.forEach((row, index) => {
+    const rowY = tableTop + (index * rowHeight);
+    if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+    doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+    doc.setFillColor(255, 255, 255);
+    doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+    const labelY = rowY + rowHeight / 2;
+    const valueY = rowY + rowHeight / 2;
+    doc.setFont("times", "bold");
+    doc.setFontSize(9.4);
+    doc.setTextColor(...primaryBlue);
+    doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+  });
+
+  // Print window
+  const pdfBlob = doc.output('blob');
+  const pdfURL = URL.createObjectURL(pdfBlob);
+  const printWindow = window.open(pdfURL, '_blank');
+  if (printWindow) {
+    printWindow.onload = function () { printWindow.print(); };
+  }
+}
+async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+    async function sharePDF() {
+      if (!document.getElementById("calibrationForm").reportValidity()) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      addCertificateDetails(doc, getFormDetails());
+      addImg(doc, getFormDetails());
+      const pdfBlob = doc.output('blob');
+      const pdfFile = new File([pdfBlob], "certificate.pdf", { type: "application/pdf" });
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: 'Calibration Certificate',
+            text: 'Here is your calibration certificate PDF.'
+          });
+        } catch (err) {
+          alert('Sharing cancelled or not supported.');
+        }
+      } else {
+        alert('Web Share API not supported or file sharing not available in your browser.');
+      }
+    }
+  </script>
+
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

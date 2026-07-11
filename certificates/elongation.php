@@ -1,0 +1,232 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+requireLogin();
+
+$pageTitle  = 'Elongation Calibration';
+$activePage = 'certificate';
+include __DIR__ . '/../includes/header.php';
+
+$db = getDB();
+$stmt = $db->prepare("SELECT * FROM instrument_types WHERE slug = 'elongation' LIMIT 1");
+$stmt->execute();
+$instrument = $stmt->fetch();
+$instrumentId = $instrument['id'] ?? null;
+?>
+
+<?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
+<div class="container">
+    <h2 class="centered">ELOGATION GAUGE CALIBRATION CERTIFICATE</h2>
+    <form id="calibrationForm">
+      <div class="title_input_pair">
+        <label for="certificateNumber">Certificate No:</label>
+        <input type="text" id="certificateNumber" required>
+      </div>
+      <div class="date">
+          <div class="title_input_pair">
+              <label for="calibrationDate">Date of Calibration:</label>
+              <input type="date" id="calibrationDate" onchange="calculateNextDate()" required>
+          </div>
+          <div class="title_input_pair">
+              <label for="nextCalibrationDate">Next Suggested Date:</label>
+              <input type="date" id="nextCalibrationDate" required>
+          </div>
+      </div>
+      <div class="title_input_pair">
+        <label for="partyName">Company Name:</label>
+        <input type="text" id="partyName" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="siteLocation">Site Location:</label>
+        <input type="text" id="siteLocation" required>
+      </div>
+      <div class="unsaved-reminder" id="unsavedReminder">
+        <span>⚠️ Please save your certificate before leaving this page.</span>
+      </div>
+      <div class="sticker-section">
+        <div class="sticker-preview-container">
+          <h3 style="color: #00796b; margin-top: 0;">Info Sticker Preview</h3>
+          <iframe id="stickerPreviewFrame"></iframe>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+  <script src="<?= APP_URL ?>/assets/js/general.js?v=1.8"></script>
+  <script>
+    const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
+    const INSTRUMENT_SLUG = 'elongation';
+  </script>
+  <script>
+
+ 
+    function getFormDetails() {
+      return {
+        certificateNumber: document.getElementById("certificateNumber").value,
+        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
+        siteLocation: document.getElementById("siteLocation").value,
+        partyName: document.getElementById("partyName").value,
+        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
+      };
+    }
+    
+    function addCertificateDetails(doc, details) {
+      let Yalign=50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
+      doc.text(`REPORT NO                 :-     SHREEJI/${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign+=10);
+      doc.text(`EQUIPMENT NAME     :-     ELOGATION GAUGE`, 14, Yalign+=10);
+      doc.text(`SERIAL NO:- SI-${details.certificateNumber}`, 150, Yalign);
+      doc.text(`AS PER IS                    :-     IS 2386-1`, 14, Yalign+=10);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
+      doc.text(`SITE LOCATION          :-     ${details.siteLocation}`, 14, Yalign+=10);
+
+      const tableStartY =100;
+      const sieveData = [
+        ['50.00 MM', '40.00 MM', '81.00 MM', '81.00 MM'],
+        ['40.00 MM', '31.50 MM', '64.40 MM', '64.40 MM'],
+        ['31.50 MM', '25.00 MM', '40.50 MM', '40.50 MM'],
+        ['25.00 MM', '20.00 MM', '32.40 MM', '32.40 MM'],
+        ['20.00 MM', '16.00 MM', '25.60 MM', '25.60 MM'],
+        ['16.00 MM', '12.50 MM', '20.00 MM', '20.20 MM'],
+        ['12.50 MM', '10.00 MM', '14.67 MM', '14.67 MM'],
+        ['10.00 MM', '6.30 MM', '81.00 MM', '81.00 MM']
+      ];
+      doc.autoTable({
+        head: [['PASSING SIEVE', 'RATAINED SIEVE', 'REQUIRED GAUGE', 'ACTUAL GAUGE SIZE']],
+        body: sieveData,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 8,
+          textColor:[0,0,0],
+          lineColor:[87, 86, 85],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fontSize: 10,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2=doc.autoTable.previous.finalY;
+      doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION',  doc.internal.pageSize.getWidth() / 2, tableStartY2+=10, { align: 'center' });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text('EQUIPMENT NAME  :-DIGITAL VERNIER CALIPER', 14, tableStartY2+=7);
+      doc.text('CALIBRATION BY :-ARSHI ENTERPRISE, AHMEDABAD', 100,  tableStartY2);
+      doc.text('CALIBRATION DATE :-01/08/2024', 14,tableStartY2+=7);
+      doc.text('NEXT DUE DATE  :-31/08/2025', 100, tableStartY2);
+
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(12); 
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
+      doc.text("PROPRIETOR", 170, 245);
+    }
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      // 60mm width (increased by 2cm), 30mm height
+      const width = 60 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+
+      // Blue border starting at 0, no white margin
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(0, 0, width, height);
+
+      // Logo
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 8, 4, 12, 16); // enlarged logo
+      }
+
+      // Header text
+      doc.setFont("times", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 30, 13);
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(6);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", 30, 20, { align: "left" });
+
+      // Table
+      const tableLeft = 5;
+      const tableTop = 22;
+      const tableWidth = width - 10;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "CERT NO.", value: details.certificateNumber || "N/A" },
+        { label: "PARTY", value: details.partyName || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2;
+        const valueY = rowY + rowHeight / 2;
+        doc.setFont("times", "bold");
+        doc.setFontSize(9.4);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+     </script>
+
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

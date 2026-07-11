@@ -1,0 +1,44 @@
+# Shreeji Instruments — Root Apache Configuration
+# Requires mod_headers and mod_rewrite to be enabled (default on XAMPP).
+
+# --- Block direct access to sensitive files ---
+# setup.php is blocked once the DB is initialised.
+# To re-run setup: temporarily remove setup.php from this list, then add it back.
+<FilesMatch "^(\.env|\.env\.example|database\.sql|reset-db\.php|setup\.php)$">
+    Require all denied
+</FilesMatch>
+
+# --- Request Body Size Limit (DoS protection) ---
+# 50 MB cap — prevents unbounded POST bodies before PHP runs.
+# LimitRequestLine / LimitRequestFields / TimeOut are server-config-only; set them in httpd.conf.
+LimitRequestBody 52428800
+
+# --- Block common attack patterns in query strings ---
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Path traversal attempts
+    RewriteCond %{QUERY_STRING} (\.\./|\.\.%2f|%2e%2e%2f|%252e%252e) [NC]
+    RewriteRule ^ - [F,L]
+
+    # SQL injection — two SQL keywords together reduces false positives
+    RewriteCond %{QUERY_STRING} (union.{0,20}select|select.{0,20}from|insert.{0,20}into|drop.{0,20}table|delete.{0,20}from|update.{0,20}set) [NC]
+    RewriteRule ^ - [F,L]
+
+    # XSS patterns in query strings
+    RewriteCond %{QUERY_STRING} (<script|%3cscript|javascript:|vbscript:|on(load|error|click|mouse)=) [NC]
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+# --- Security Headers (belt-and-suspenders with PHP headers in config.php) ---
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    # Remove PHP version disclosure
+    Header always unset X-Powered-By
+</IfModule>
+
+# --- Hide server signature ---
+ServerSignature Off

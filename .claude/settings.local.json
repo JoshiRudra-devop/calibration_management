@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:/Users/RUDRA WIN/.claude/projects/c--xampp-htdocs-calibration-certificate/memory/\" 2>/dev/null && echo \"exists\" || echo \"empty\")",
+      "Read(//c/Users/RUDRA WIN/.claude/projects/c--xampp-htdocs-calibration-certificate/memory/**)",
+      "Bash(mkdir -p \"c:/xampp/htdocs/calibration_backups\")",
+      "Read(//c/xampp/htdocs/**)",
+      "Bash(zip -r \"calibration_backups/calibration_certificate_backup_$\\(date +%Y%m%d_%H%M%S\\).zip\" \"calibration certificate/\")",
+      "Bash(tar -czf \"calibration_backups/calibration_certificate_backup_$\\(date +%Y%m%d_%H%M%S\\).tar.gz\" \"calibration certificate/\")",
+      "Bash(python3)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(npm install -g @anthropic-ai/claude-code)",
+      "PowerShell(claude --version)"
+    ]
+  }
+}

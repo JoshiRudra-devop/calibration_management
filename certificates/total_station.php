@@ -1,0 +1,211 @@
+<?php
+require_once __DIR__ . '/../includes/config.php';
+requireLogin();
+
+$pageTitle  = 'Total Station Calibration';
+$activePage = 'certificate';
+include __DIR__ . '/../includes/header.php';
+
+$db = getDB();
+$stmt = $db->prepare("SELECT * FROM instrument_types WHERE slug = 'total_station' LIMIT 1");
+$stmt->execute();
+$instrument = $stmt->fetch();
+$instrumentId = $instrument['id'] ?? null;
+?>
+
+<?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
+<div class="container">
+    <h2 class="centered">ELECTRONIC TOTAL STATION CALIBRATION CERTIFICATE</h2>
+    <form id="calibrationForm">
+      <div class="title_input_pair">
+        <label for="certificateNumber">Certificate No:</label>
+        <input type="text" id="certificateNumber" required>
+      </div>
+      <div class="date">
+        <div class="title_input_pair">
+          <label for="calibrationDate">Date of Calibration:</label>
+          <input type="date" id="calibrationDate" onchange="calculateNextDate()" required>
+        </div>
+        <div class="title_input_pair">
+          <label for="nextCalibrationDate">Next Suggested Date:</label>
+          <input type="date" id="nextCalibrationDate" required>
+        </div>
+      </div>
+      <div class="title_input_pair">
+        <label for="partyName">Company Name:</label>
+        <input type="text" id="partyName" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="make">Make:</label>
+        <input type="text" id="make" required>
+      </div>  
+      <div class="title_input_pair">
+        <label for="serialNo">Serial No:</label>
+        <input type="text" id="serialNo" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="modelNo">MODEL No:</label>
+        <input type="text" id="modelNo" required>
+      </div>
+      <div class="unsaved-reminder" id="unsavedReminder">
+        <span>⚠️ Please save your certificate before leaving this page.</span>
+      </div>
+      <div class="sticker-section">
+        <div class="sticker-preview-container">
+          <h3 style="color: #00796b; margin-top: 0;">Info Sticker Preview</h3>
+          <iframe id="stickerPreviewFrame"></iframe>
+        </div>
+      </div>
+    </form>
+  </div>
+    <script src="<?= APP_URL ?>/assets/js/general.js?v=1.8"></script>
+  <script>
+    const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
+    const INSTRUMENT_SLUG = 'total_station';
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    let stickerPdfBlob = null;
+  
+    function getFormDetails() {
+      return {
+        certificateNumber: document.getElementById("certificateNumber").value,
+        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
+        partyName: document.getElementById("partyName").value,
+        make: document.getElementById("make").value,
+        serialNo: document.getElementById("serialNo").value,
+        modelNo: document.getElementById("modelNo").value,
+        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
+        saveentry: `${document.getElementById("make").value} ${document.getElementById("modelNo").value}  ${document.getElementById("serialNo").value || "Unknown"} `
+
+      };
+    }
+   
+    function addCertificateDetails(doc, details) {
+      doc.setFont("helvetica", "bold");
+      let Yalign=48;
+      const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(15);
+      doc.text(`TEST CERTIFICATE FOR`,  doc.internal.pageSize.getWidth() / 2, Yalign,{ align: 'center' });
+      doc.text("ELECTRONIC TOTAL STATION", doc.internal.pageSize.getWidth() /2,Yalign+=7,{ align: 'center' });
+      doc.setFontSize(25);   
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=9, { align: 'center' });
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(15);  
+      doc.text(`REF NO                          :     SI-${details.certificateNumber}`, 14, Yalign+=10);
+      doc.text(`NAME OF PARTY          :     ${details.partyName}`, 14, Yalign+=8);
+      doc.text(`EQUIPMENT NAME       :     ELECTRONIC TOTAL STATION`, 14, Yalign+=8);
+      doc.text(`MAKE                              :     ${details.make}`, 14, Yalign+=8);
+      doc.text(`MODEL NO                     :     ${details.modelNo} `, 14, Yalign+=8);
+      doc.text(`SERIAL NO                     :     ${details.serialNo}`, 14, Yalign+=8);
+      doc.text(`DATE                               :     ${details.calibrationDate}`, 14, Yalign+=8);
+      doc.text(`NEXT DUE DATE            :     ${details.nextCalibrationDate}`, 14, Yalign+=8);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(`i. GENERAL CHECKING AS UNDER. `, 14, Yalign+=8);
+      doc.text(`•Diaphragm of the Instrument checked. Found Satisfactory.`, 14, Yalign+=5);
+      doc.text(`•Optical Plummet checked in all 360 Degrees. Found Satisfactory.`, 14, Yalign+=5);
+      doc.text(`•Bubble checked in all 360 degrees. Found Accurate.`, 14, Yalign+=5);
+      doc.text(`ii. HORIZONTAL CIRCLE CHECKED AS UNDER. `, 14, Yalign+=8);
+      doc.text(`•Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`, 14, Yalign+=5);
+      doc.text(`•Telescope reversed. Point sighted Y' approx. 15 meter away from instrument. `, 14, Yalign+=5);
+      doc.text(`•Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again. `, 14, Yalign+=5);
+      doc.text(`•Telescope reversed. It automatically sighted point 'Y' Error - Nil.`, 14, Yalign+=5);
+      doc.text(`iii. VERTICAL CIRCLE CHECKED AS UNDER.`, 14, Yalign+=8);
+      doc.text(`•Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument). `, 14, Yalign+=5);
+      doc.text(`•Vertical Circle reading was 90 degree, O minute, O second.`, 14, Yalign+=5);
+      doc.text(`•Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270  `, 14, Yalign+=5);
+      doc.text(` degrees, 0 minutes, 0 seconds, Hence Error-Nil. `, 14, Yalign+=5);
+      doc.text(`•Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign+=5);
+      doc.setFontSize(12);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
+      doc.text("PROPRIETOR", 170, 245);
+    }
+    
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.serialNo || "N/A" },
+        { label: "MODEL", value: details.modelNo || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+
+  
+  </script>
+
+
+<?php include __DIR__ . '/../includes/footer.php'; ?>

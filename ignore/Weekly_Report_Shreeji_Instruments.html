@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer Internship Report – Calibration Certificate Management System</title>
+<meta name="description" content="Summer Internship Report for the Shreeji Instruments Calibration Certificate Management System project, submitted to college.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal:      #00695C;
+    --teal-dark: #004D40;
+    --teal-bg:   #EEF6F4;
+    --teal-bdr:  #B8D4CF;
+    --navy:      #1A1A2E;
+    --mid:       #4A4A5A;
+    --light:     #F5F9F8;
+    --white:     #FFFFFF;
+    --rule:      #D0DDD9;
+  }
+
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: var(--navy);
+    background: #CBD8D5;
+    padding: 30px 0 60px;
+  }
+
+  /* ── A4 PAGE CARD ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--white);
+    margin: 0 auto 24px;
+    padding: 25.4mm 25.4mm 25.4mm 31.75mm;
+    box-shadow: 0 2px 18px rgba(0,75,63,0.18);
+    position: relative;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: avoid; }
+
+  /* ── RUNNING HEADER ── */
+  .running-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9pt;
+    color: var(--mid);
+    border-bottom: 1px solid var(--teal-bdr);
+    padding-bottom: 5px;
+    margin-bottom: 22px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── RUNNING FOOTER ── */
+  .running-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 31.75mm;
+    right: 25.4mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9pt;
+    color: var(--mid);
+    border-top: 1px solid var(--teal-bdr);
+    padding-top: 5px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .chapter-title {
+    font-size: 16pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    background: var(--teal);
+    padding: 10px 16px 10px 14px;
+    margin-bottom: 28px;
+    line-height: 1.3;
+  }
+  .chapter-label {
+    display: block;
+    font-size: 9pt;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  h2.section-title {
+    font-size: 14pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--teal-dark);
+    margin: 28px 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--teal-bdr);
+  }
+  h3.sub-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 20px 0 8px;
+  }
+
+  p { margin-bottom: 14px; text-align: justify; }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol { margin: 8px 0 14px 22px; }
+  li { margin-bottom: 5px; }
+
+  /* ── COVER PAGE ── */
+  .cover-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    min-height: 270mm;
+  }
+  .cover-logo {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .cover-logo svg { width: 44px; height: 44px; fill: white; }
+  .cover-college { font-size: 14pt; font-weight: 700; color: var(--teal-dark); margin-bottom: 4px; }
+  .cover-dept    { font-size: 12pt; color: var(--mid); margin-bottom: 6px; }
+  .cover-sep     { width: 60px; height: 3px; background: var(--teal); margin: 14px auto; }
+  .cover-title   { font-size: 18pt; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.35; margin-bottom: 8px; }
+  .cover-subtitle{ font-size: 13pt; color: var(--teal); font-style: italic; margin-bottom: 24px; }
+  .cover-by      { font-size: 11pt; color: var(--mid); margin-bottom: 6px; }
+  .cover-name    { font-size: 14pt; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .cover-enroll  { font-size: 11pt; color: var(--mid); margin-bottom: 20px; }
+  .cover-info-box{
+    border: 1.5px solid var(--teal-bdr);
+    border-radius: 4px;
+    padding: 14px 28px;
+    display: inline-block;
+    text-align: left;
+    background: var(--teal-bg);
+    font-size: 11pt;
+    line-height: 1.9;
+    margin-bottom: 20px;
+  }
+  .cover-info-box strong { color: var(--teal-dark); }
+  .cover-year { font-size: 12pt; color: var(--mid); }
+
+  /* ── TABLE STYLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11pt;
+    margin: 14px 0 6px;
+  }
+  thead tr { background: var(--teal); color: white; }
+  thead th { padding: 8px 10px; text-align: left; font-weight: 700; font-size: 10.5pt; }
+  tbody tr:nth-child(even) { background: var(--teal-bg); }
+  tbody td { padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .fig-caption, .table-caption {
+    text-align: center;
+    font-size: 10.5pt;
+    color: var(--mid);
+    margin: 6px 0 18px;
+    font-style: italic;
+  }
+
+  /* ── FIGURE BOXES ── */
+  .figure-box {
+    border: 1.5px solid var(--teal-bdr);
+    border-radius: 4px;
+    background: var(--light);
+    padding: 16px;
+    margin: 16px 0 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: var(--navy);
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  /* ── TOC ── */
+  .toc-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 0;
+    border-bottom: 1px dotted var(--rule);
+    font-size: 11.5pt;
+  }
+  .toc-entry.chapter { font-weight: 700; margin-top: 10px; color: var(--teal-dark); }
+  .toc-entry.section { padding-left: 20px; }
+  .toc-entry.subsec  { padding-left: 38px; font-size: 11pt; color: var(--mid); }
+  .toc-pg { font-family: 'Courier New', monospace; font-size: 10pt; }
+
+  /* ── CERT NUMBER DEMO ── */
+  .cert-demo {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 16px auto;
+    justify-content: center;
+  }
+  .cert-part {
+    padding: 10px 14px;
+    text-align: center;
+    border: 2px solid var(--teal);
+  }
+  .cert-part:first-child { border-right: none; background: var(--teal); color: white; }
+  .cert-part.sep { border-left: 2px solid var(--teal); border-right: 2px solid var(--teal); background: #f0f0f0; }
+  .cert-part:last-child { border-left: none; background: var(--teal-bg); }
+  .cert-label { display: block; font-size: 7.5pt; font-weight: 400; letter-spacing: 0.08em; margin-top: 3px; color: var(--mid); font-family: 'Times New Roman', serif; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--teal-bg);
+    border-left: 4px solid var(--teal);
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 11pt;
+  }
+
+  /* ── WEEK SUMMARY CARD ── */
+  .week-card {
+    background: var(--teal-bg);
+    border: 1.5px solid var(--teal-bdr);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+  }
+  .week-card h4 { color: var(--teal-dark); font-size: 11.5pt; margin-bottom: 8px; }
+  .week-card ul { margin-left: 16px; }
+
+  /* ── ACKNOWLEDGEMENT / ABSTRACT ── */
+  .section-page-title {
+    font-size: 16pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.07em;
+    color: var(--teal-dark);
+    margin-bottom: 6px;
+  }
+  .title-rule {
+    width: 80px; height: 3px;
+    background: var(--teal);
+    margin: 10px auto 28px;
+  }
+
+  /* ── PRINT CSS ── */
+  @media print {
+    body { background: white; padding: 0; }
+    .page {
+      width: 100%;
+      margin: 0;
+      padding: 25.4mm 25.4mm 25.4mm 31.75mm;
+      box-shadow: none;
+      page-break-after: always;
+    }
+    .no-print { display: none !important; }
+  }
+  @page {
+    size: A4;
+    margin: 25.4mm 25.4mm 25.4mm 31.75mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════════ -->
+<div class="page" style="padding: 20mm 25.4mm;">
+  <div class="cover-page">
+    <!-- Top: College -->
+    <div>
+      <div class="cover-logo">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="cover-college">DEPSTAR – D D Institute of Technical Education</div>
+      <div class="cover-dept">Department of Computer Engineering</div>
+      <div class="cover-dept" style="font-size:11pt;">Affiliated to GTU | Nadiad, Gujarat</div>
+      <div class="cover-sep"></div>
+    </div>
+
+    <!-- Centre: Title -->
+    <div>
+      <div style="font-size:10pt;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Summer Internship Report</div>
+      <div class="cover-title">Calibration Certificate<br>Management System</div>
+      <div class="cover-subtitle">Design and Development of a Web-Based<br>Instrument Calibration Certificate Platform</div>
+    </div>
+
+    <!-- Bottom: Student details -->
+    <div>
+      <div class="cover-by">Submitted By</div>
+      <div class="cover-name">Joshi Rudra Hiteshbhai</div>
+      <div class="cover-enroll">Enrollment No.: D25DIT088</div>
+
+      <div class="cover-info-box">
+        <div><strong>Company / Organization:</strong> Shreeji Instruments</div>
+        <div><strong>Internship Duration:</strong> June 2, 2026 – June 28, 2026 (4 Weeks)</div>
+        <div><strong>Internal Guide:</strong> [INTERNAL GUIDE NAME], [Designation]</div>
+        <div><strong>External Guide:</strong> [COMPANY SUPERVISOR NAME], [Designation]</div>
+      </div>
+
+      <div class="cover-year">Academic Year: 2025 – 2026 &nbsp;|&nbsp; Semester: [SEM NO.]</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ACKNOWLEDGEMENT  (page i)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Acknowledgement</span></div>
+
+  <div class="section-page-title">Acknowledgement</div>
+  <div class="title-rule"></div>
+
+  <p>I would like to express my sincere gratitude to <strong>[Internal Guide Name]</strong>, <strong>[Designation]</strong>, Department of Computer Engineering, DEPSTAR, for the invaluable guidance, constant encouragement, and scholarly direction provided throughout this internship. Their insights into system design, software engineering practices, and academic writing have been instrumental in shaping the quality and depth of this project.</p>
+
+  <p>I extend my heartfelt thanks to <strong>[Company Supervisor Name]</strong>, <strong>[Designation]</strong>, Shreeji Instruments, for extending the opportunity to work on a live, production-grade software project. The practical exposure to real-world client requirements, instrument calibration processes, and business workflows has been an invaluable supplement to my academic learning.</p>
+
+  <p>I am grateful to the Head of Department and all faculty members of the Computer Engineering Department for creating an environment that encourages hands-on learning and industry collaboration. Their support in facilitating this internship opportunity is deeply appreciated.</p>
+
+  <p>My sincere thanks also go to the technical and administrative staff at Shreeji Instruments for their patience, cooperation, and willingness to share domain knowledge about calibration processes, client workflows, and certificate requirements. Their inputs were essential in designing an accurate and useful system.</p>
+
+  <p>Finally, I thank my family and friends for their unwavering moral support and encouragement throughout the duration of this internship.</p>
+
+  <p style="margin-top:36px;">
+    [City Name], Gujarat<br>
+    June 2026
+  </p>
+  <p style="text-align:right; margin-top:8px;">
+    <strong>Joshi Rudra Hiteshbhai</strong><br>
+    D25DIT088<br>
+    Department of Computer Engineering
+  </p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span style="text-align:center;">i</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ABSTRACT  (page ii)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Abstract</span></div>
+
+  <div class="section-page-title">Abstract</div>
+  <div class="title-rule"></div>
+
+  <p>The rapid digitalization of industrial processes has created a pressing need for organizations to replace manual, paper-based workflows with efficient, accurate, and auditable digital systems. Shreeji Instruments, a calibration services firm, previously relied on entirely manual certificate creation processes — a workflow that was time-consuming, error-prone, and lacked systematic record-keeping or retrieval capabilities.</p>
+
+  <p>This report documents a four-week summer internship (June 2 – June 28, 2026) during which a comprehensive web-based Calibration Certificate Management System was designed, developed, tested, and deployed for Shreeji Instruments. The system is built using PHP 8 with PDO on a XAMPP/Apache server, MySQL as the relational database engine, and vanilla JavaScript with the jsPDF library for client-side PDF generation. Cloud-based PDF storage is achieved through the Cloudinary API.</p>
+
+  <p>The system supports twenty-six distinct instrument types including Auto Level, Cube Testing Machine (CTM), Vernier Caliper, Digital Thermometer, Oven, Water Bath, Hydrometer, and Total Station, among others. Each instrument type has a dedicated, structured certificate form with custom fields appropriate to the calibration parameters of that instrument. Key features include session-based user authentication with CSRF token protection and login rate limiting, an automated certificate numbering scheme with monthly resets and concurrent-safe row locking, a real-time dashboard with statistics and six-month trend charts, a due-date tracking module for recalibration reminders, an offline-first architecture using the File System Access API for field use, and a soft-delete and audit logging system for data integrity.</p>
+
+  <p>Security was a primary design concern throughout the project: all database interactions use PDO prepared statements, user passwords are hashed with bcrypt at cost factor 12, all form submissions include CSRF tokens verified server-side, and input is sanitized before display to prevent cross-site scripting.</p>
+
+  <p>The completed system successfully replaces the manual certificate workflow, significantly reducing issuance time and providing a searchable, cloud-backed digital archive of all calibration records. This project provided substantial hands-on experience with full-stack web development, relational database design, cloud service integration, and software security practices.</p>
+
+  <p><strong>Keywords:</strong> Calibration Certificate, PHP, MySQL, jsPDF, Cloudinary, Web Application, PDF Generation, CSRF, Soft Delete, Audit Log, Instrument Management.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>ii</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TABLE OF CONTENTS  (page iii)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Table of Contents</span></div>
+  <div class="section-page-title">Table of Contents</div>
+  <div class="title-rule"></div>
+
+  <div class="toc-entry"><span>Abstract</span><span class="toc-pg">ii</span></div>
+  <div class="toc-entry"><span>Acknowledgement</span><span class="toc-pg">i</span></div>
+  <div class="toc-entry"><span>List of Figures</span><span class="toc-pg">iv</span></div>
+  <div class="toc-entry"><span>List of Tables</span><span class="toc-pg">v</span></div>
+  <div class="toc-entry"><span>Description of Company / Organization</span><span class="toc-pg">vi</span></div>
+
+  <div class="toc-entry chapter"><span>Chapter 1 &nbsp; Introduction</span><span class="toc-pg">1</span></div>
+  <div class="toc-entry section"><span>1.1 &nbsp;&nbsp;&nbsp; Background and Motivation</span><span class="toc-pg">1</span></div>
+  <div class="toc-entry section"><span>1.2 &nbsp;&nbsp;&nbsp; Project Objectives</span><span class="toc-pg">2</span></div>
+  <div class="toc-entry section"><span>1.3 &nbsp;&nbsp;&nbsp; Scope of Work</span><span class="toc-pg">3</span></div>
+  <div class="toc-entry section"><span>1.4 &nbsp;&nbsp;&nbsp; Technology Overview</span><span class="toc-pg">4</span></div>
+
+  <div class="toc-entry chapter"><span>Chapter 2 &nbsp; Week 1: Requirements Analysis and System Design</span><span class="toc-pg">6</span></div>
+  <div class="toc-entry section"><span>2.1 &nbsp;&nbsp;&nbsp; Overview of Activities</span><span class="toc-pg">6</span></div>
+  <div class="toc-entry section"><span>2.2 &nbsp;&nbsp;&nbsp; Requirements Gathering</span><span class="toc-pg">7</span></div>
+  <div class="toc-entry section"><span>2.3 &nbsp;&nbsp;&nbsp; System Architecture Design</span><span class="toc-pg">8</span></div>
+  <div class="toc-entry section"><span>2.4 &nbsp;&nbsp;&nbsp; Database Schema Design</span><span class="toc-pg">10</span></div>
+  <div class="toc-entry section"><span>2.5 &nbsp;&nbsp;&nbsp; Development Environment Setup</span><span class="toc-pg">12</span></div>
+
+  <div class="toc-entry chapter"><span>Chapter 3 &nbsp; Week 2: Core System Development</span><span class="toc-pg">13</span></div>
+  <div class="toc-entry section"><span>3.1 &nbsp;&nbsp;&nbsp; Overview of Activities</span><span class="toc-pg">13</span></div>
+  <div class="toc-entry section"><span>3.2 &nbsp;&nbsp;&nbsp; Authentication Module</span><span class="toc-pg">14</span></div>
+  <div class="toc-entry section"><span>3.3 &nbsp;&nbsp;&nbsp; Dashboard and Statistics</span><span class="toc-pg">16</span></div>
+  <div class="toc-entry section"><span>3.4 &nbsp;&nbsp;&nbsp; Party and Company Management</span><span class="toc-pg">17</span></div>
+  <div class="toc-entry section"><span>3.5 &nbsp;&nbsp;&nbsp; Certificate Numbering System</span><span class="toc-pg">18</span></div>
+
+  <div class="toc-entry chapter"><span>Chapter 4 &nbsp; Week 3: Certificate Management and PDF Generation</span><span class="toc-pg">20</span></div>
+  <div class="toc-entry section"><span>4.1 &nbsp;&nbsp;&nbsp; Overview of Activities</span><span class="toc-pg">20</span></div>
+  <div class="toc-entry section"><span>4.2 &nbsp;&nbsp;&nbsp; Certificate Template System</span><span class="toc-pg">21</span></div>
+  <div class="toc-entry section"><span>4.3 &nbsp;&nbsp;&nbsp; Client-Side PDF Generation with jsPDF</span><span class="toc-pg">23</span></div>
+  <div class="toc-entry section"><span>4.4 &nbsp;&nbsp;&nbsp; Cloudinary Cloud Storage Integration</span><span class="toc-pg">25</span></div>
+  <div class="toc-entry section"><span>4.5 &nbsp;&nbsp;&nbsp; Offline-First Architecture</span><span class="toc-pg">26</span></div>
+  <div class="toc-entry section"><span>4.6 &nbsp;&nbsp;&nbsp; Info Sticker Generation</span><span class="toc-pg">27</span></div>
+
+  <div class="toc-entry chapter"><span>Chapter 5 &nbsp; Week 4: Security, Audit Logging and Deployment</span><span class="toc-pg">28</span></div>
+  <div class="toc-entry section"><span>5.1 &nbsp;&nbsp;&nbsp; Overview of Activities</span><span class="toc-pg">28</span></div>
+  <div class="toc-entry section"><span>5.2 &nbsp;&nbsp;&nbsp; Security Hardening</span><span class="toc-pg">29</span></div>
+  <div class="toc-entry section"><span>5.3 &nbsp;&nbsp;&nbsp; Soft Delete and Audit Logging</span><span class="toc-pg">31</span></div>
+  <div class="toc-entry section"><span>5.4 &nbsp;&nbsp;&nbsp; DRY Refactoring of Certificate Templates</span><span class="toc-pg">32</span></div>
+  <div class="toc-entry section"><span>5.5 &nbsp;&nbsp;&nbsp; CTM Proving Rings Database Pattern</span><span class="toc-pg">33</span></div>
+  <div class="toc-entry section"><span>5.6 &nbsp;&nbsp;&nbsp; Testing, Bug Fixes and Backup</span><span class="toc-pg">34</span></div>
+
+  <div class="toc-entry chapter"><span>Conclusion</span><span class="toc-pg">36</span></div>
+  <div class="toc-entry chapter"><span>References</span><span class="toc-pg">38</span></div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>iii</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LIST OF FIGURES  (page iv)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>List of Figures</span></div>
+  <div class="section-page-title">List of Figures</div>
+  <div class="title-rule"></div>
+
+  <table>
+    <thead><tr><th>Figure No.</th><th>Title</th><th style="width:60px;text-align:right;">Page</th></tr></thead>
+    <tbody>
+      <tr><td>Fig 1.1</td><td>System Architecture Overview</td><td style="text-align:right;">5</td></tr>
+      <tr><td>Fig 2.1</td><td>Application File and Folder Structure</td><td style="text-align:right;">9</td></tr>
+      <tr><td>Fig 2.2</td><td>Database Entity Relationship Diagram</td><td style="text-align:right;">11</td></tr>
+      <tr><td>Fig 3.1</td><td>Authentication and Session Flow</td><td style="text-align:right;">15</td></tr>
+      <tr><td>Fig 3.2</td><td>Certificate Number Format Breakdown</td><td style="text-align:right;">19</td></tr>
+      <tr><td>Fig 4.1</td><td>Iframe Embed Architecture for Certificate Creation</td><td style="text-align:right;">22</td></tr>
+      <tr><td>Fig 4.2</td><td>Certificate PDF Generation Workflow</td><td style="text-align:right;">24</td></tr>
+      <tr><td>Fig 5.1</td><td>Security Layers of the Application</td><td style="text-align:right;">30</td></tr>
+      <tr><td>Fig 5.2</td><td>Audit Log and Soft Delete Flow</td><td style="text-align:right;">32</td></tr>
+    </tbody>
+  </table>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>iv</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LIST OF TABLES  (page v)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>List of Tables</span></div>
+  <div class="section-page-title">List of Tables</div>
+  <div class="title-rule"></div>
+
+  <table>
+    <thead><tr><th>Table No.</th><th>Title</th><th style="width:60px;text-align:right;">Page</th></tr></thead>
+    <tbody>
+      <tr><td>Table 1.1</td><td>Technology Stack Summary</td><td style="text-align:right;">4</td></tr>
+      <tr><td>Table 2.1</td><td>Functional Requirements</td><td style="text-align:right;">7</td></tr>
+      <tr><td>Table 2.2</td><td>Non-Functional Requirements</td><td style="text-align:right;">8</td></tr>
+      <tr><td>Table 2.3</td><td>Database Tables Summary</td><td style="text-align:right;">10</td></tr>
+      <tr><td>Table 3.1</td><td>API Endpoints</td><td style="text-align:right;">14</td></tr>
+      <tr><td>Table 3.2</td><td>User Roles and Permissions</td><td style="text-align:right;">17</td></tr>
+      <tr><td>Table 4.1</td><td>Instrument Types and Certificate Prefixes</td><td style="text-align:right;">21</td></tr>
+      <tr><td>Table 4.2</td><td>Certificate Form Common Fields</td><td style="text-align:right;">23</td></tr>
+      <tr><td>Table 5.1</td><td>Security Measures Implemented</td><td style="text-align:right;">29</td></tr>
+      <tr><td>Table 5.2</td><td>Database Migrations Applied</td><td style="text-align:right;">33</td></tr>
+    </tbody>
+  </table>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>v</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     COMPANY DESCRIPTION  (page vi)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Description of Company / Organization</span></div>
+  <div class="section-page-title">Description of Company / Organization</div>
+  <div class="title-rule"></div>
+
+  <h3 class="sub-title">Shreeji Instruments</h3>
+  <p>Shreeji Instruments is a calibration services company specializing in the testing and calibration of laboratory and field instruments used primarily in the civil engineering and construction industries. The organization provides calibration services for a wide variety of measuring and testing devices used in quality control laboratories, construction sites, and government-approved testing facilities.</p>
+
+  <h3 class="sub-title">Nature of Business</h3>
+  <p>The company operates as a business-to-business (B2B) service provider. Its clients include construction companies, civil engineering laboratories, government infrastructure agencies, academic institutions, and private quality assurance firms. The core service offering is the calibration of instruments against national standards, following the Bureau of Indian Standards (BIS) guidelines, and the issuance of formal calibration certificates that serve as legal proof of instrument accuracy.</p>
+
+  <h3 class="sub-title">Calibration Services Offered</h3>
+  <p>Shreeji Instruments offers calibration services for twenty-six categories of instruments, including but not limited to:</p>
+  <ul>
+    <li><strong>Surveying Instruments:</strong> Auto Level, Electronic Total Station</li>
+    <li><strong>Concrete Testing Equipment:</strong> Cube Testing Machine (CTM), Cube Moulds, ISI Cube Moulds</li>
+    <li><strong>Soil Testing Equipment:</strong> Core Cutter, Cone Penetrometer, Sand Pouring Cylinder, Rapid Moisture Meter</li>
+    <li><strong>Aggregate Testing Equipment:</strong> Aggregate Impact Value Apparatus, Elongation Gauge, Flakness Gauge, Sieves</li>
+    <li><strong>General Laboratory Equipment:</strong> Vernier Caliper, Weight Balance, Weigh Batcher, Water Bath, Oven, Digital Thermometer, pH Meter, Hydrometer, Pycnometer, Measuring Cylinder, Slumcone</li>
+  </ul>
+
+  <h3 class="sub-title">Organizational Structure</h3>
+  <p>Shreeji Instruments operates with a lean organizational structure comprising calibration technicians, administrative staff, and management. On-site calibration is conducted by trained technicians who visit client premises. All certificates are reviewed and authorized before issuance. Prior to this project, the entire certificate issuance process was conducted manually using pre-printed forms or word-processing documents, which created significant inefficiencies in record-keeping, retrieval, and quality control.</p>
+
+  <h3 class="sub-title">Location</h3>
+  <p>The organization is headquartered in Gujarat, India, with on-site service capability covering multiple districts across the state.</p>
+
+  <h3 class="sub-title">Project Context</h3>
+  <p>This internship was undertaken to design and develop a complete digital solution to replace the manual certificate workflow. The resulting system automates certificate numbering, PDF generation, cloud storage, and due-date tracking — transforming a paper-heavy administrative process into a streamlined digital one.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>vi</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 1 — INTRODUCTION  (page 1)
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 1 — Introduction</span></div>
+  <div class="chapter-title">
+    <span class="chapter-label">Chapter 1</span>
+    Introduction
+  </div>
+
+  <h2 class="section-title">1.1 &nbsp;&nbsp;&nbsp; Background and Motivation</h2>
+
+  <p>Calibration is the process of comparing the measurements of an instrument against a known reference standard to determine its accuracy. In industries such as civil engineering and construction, calibrated instruments are essential for ensuring the safety, quality, and compliance of materials and structures. A formal calibration certificate is issued after each calibration procedure, serving as documented proof that an instrument meets the required accuracy specifications.</p>
+
+  <p>Prior to this project, Shreeji Instruments managed the entire certificate issuance process manually. Technicians filled out printed forms or used word-processing templates for each calibration. This approach suffered from several significant drawbacks:</p>
+  <ul>
+    <li>High manual effort for repetitive data entry across certificate fields</li>
+    <li>Absence of a centralized, searchable record of all issued certificates</li>
+    <li>Difficulty in tracking instrument recalibration due dates, leading to missed renewals</li>
+    <li>No systematic backup or cloud storage of issued certificates</li>
+    <li>Inconsistent certificate numbering without a formal tracking scheme</li>
+    <li>Inability to quickly retrieve historical certificates for audits or client queries</li>
+  </ul>
+
+  <p>The growing volume of calibration requests and the increasing expectation from clients for digital records and prompt certificate delivery made it imperative to develop a purpose-built software system. This internship project addresses these gaps by delivering a complete web-based Calibration Certificate Management System.</p>
+
+  <h2 class="section-title">1.2 &nbsp;&nbsp;&nbsp; Project Objectives</h2>
+
+  <p>The primary objective of this project was to design and implement a full-featured web application that digitizes and automates the complete calibration certificate lifecycle for Shreeji Instruments. The specific objectives were:</p>
+  <ol>
+    <li>Develop a secure, role-based user authentication system to restrict access to authorized personnel.</li>
+    <li>Create structured digital certificate forms for all twenty-six instrument types handled by the organization.</li>
+    <li>Implement automated, concurrent-safe certificate numbering with a standardized format and monthly sequential reset.</li>
+    <li>Enable client-side PDF generation with official letterhead, stamp, and signature images embedded in the output.</li>
+    <li>Integrate cloud storage via the Cloudinary API to host issued certificates and provide shareable links.</li>
+    <li>Build an administrative dashboard with statistical summaries, historical records, and due-date alerts.</li>
+    <li>Implement an offline-first saving mechanism using the File System Access API for use in low-connectivity field conditions.</li>
+    <li>Apply robust security measures including CSRF protection, SQL injection prevention, and bcrypt password hashing.</li>
+    <li>Design a maintainable database schema with audit logging and soft-delete capability for data integrity.</li>
+  </ol>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>1</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 1 — Introduction</span></div>
+
+  <h2 class="section-title">1.3 &nbsp;&nbsp;&nbsp; Scope of Work</h2>
+
+  <p>The scope of this internship project covers the complete development of the Calibration Certificate Management System, from requirements gathering to deployment. The work encompasses the following areas:</p>
+  <ul>
+    <li><strong>Backend Development:</strong> PHP 8 with PDO for database access, RESTful JSON API endpoints, session management, and server-side validation.</li>
+    <li><strong>Database Design:</strong> A normalized MySQL schema with nine tables supporting certificate records, user management, party (customer) tracking, audit logging, and instrument type metadata.</li>
+    <li><strong>Frontend Development:</strong> Responsive HTML5 and CSS3 interfaces with vanilla JavaScript for dynamic interactions, form validation, and real-time feedback.</li>
+    <li><strong>PDF Generation:</strong> Client-side PDF assembly using the jsPDF and jsPDF-AutoTable libraries, incorporating letterhead images and formatted certificate layouts.</li>
+    <li><strong>Cloud Integration:</strong> Automatic PDF upload to Cloudinary upon certificate save, with secure URL storage in the database.</li>
+    <li><strong>Security Implementation:</strong> CSRF token management, bcrypt hashing, PDO prepared statements, rate limiting, and input sanitization.</li>
+    <li><strong>Testing and Deployment:</strong> End-to-end functional testing across all certificate types on a local XAMPP environment.</li>
+  </ul>
+
+  <h2 class="section-title">1.4 &nbsp;&nbsp;&nbsp; Technology Overview</h2>
+
+  <p>The system employs a traditional server-side rendering architecture augmented with REST APIs for asynchronous operations. The choice of PHP with XAMPP was driven by the client's existing hosting infrastructure and the requirement for a self-contained, locally deployable solution. The technology stack is summarized in Table 1.1 below.</p>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Server Runtime</td><td>PHP</td><td>8.x</td><td>Backend logic, session management, API endpoints</td></tr>
+      <tr><td>Web Server</td><td>Apache (XAMPP)</td><td>2.4</td><td>HTTP server on Windows localhost</td></tr>
+      <tr><td>Database</td><td>MySQL</td><td>5.7+</td><td>Relational data storage; PDO for access</td></tr>
+      <tr><td>Frontend</td><td>HTML5 / CSS3 / JavaScript</td><td>ES6+</td><td>Page rendering, user interaction, form handling</td></tr>
+      <tr><td>PDF Generation</td><td>jsPDF</td><td>2.5.1</td><td>Client-side PDF document creation</td></tr>
+      <tr><td>PDF Tables</td><td>jsPDF-AutoTable</td><td>3.5.14</td><td>Formatted tables in PDF certificates</td></tr>
+      <tr><td>Cloud Storage</td><td>Cloudinary API</td><td>v1</td><td>PDF upload, hosting, and shareable URLs</td></tr>
+      <tr><td>Icons</td><td>Font Awesome</td><td>6.5.0</td><td>UI icon library</td></tr>
+      <tr><td>Typography</td><td>Google Fonts (Inter)</td><td>—</td><td>UI body typeface</td></tr>
+      <tr><td>Local Storage</td><td>File System Access API</td><td>—</td><td>Offline-first PDF saving to local folder</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 1.1 &nbsp;&nbsp;&nbsp; Technology Stack Summary</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>2</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 1 — Introduction</span></div>
+
+  <h3 class="sub-title">1.4.1 &nbsp; System Architecture Overview</h3>
+
+  <p>The application follows an MVC-lite (Model-View-Controller lite) architectural pattern. PHP page files serve as both the View (HTML rendering) and Controller (request handling). Database access logic acts as the Model layer. API endpoints in the <code>api/</code> folder handle all asynchronous operations from the browser. A central <code>includes/config.php</code> file provides shared utilities — database connection, authentication guards, CSRF token management, and response helpers.</p>
+
+  <div class="figure-box">
+┌─────────────────────────────────────────────────────────┐
+│                      BROWSER CLIENT                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐  │
+│  │  Pages   │  │   Forms  │  │  jsPDF   │  │  Fetch │  │
+│  │ (PHP-SSR)│  │  (HTML5) │  │ (Client) │  │  APIs  │  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───┬────┘  │
+└───────│─────────────│─────────────│─────────────│───────┘
+        │             │             │             │
+        ▼             ▼             ▼             ▼
+┌─────────────────────────────────────────────────────────┐
+│                  PHP / APACHE SERVER                      │
+│  ┌────────────────┐   ┌────────────────────────────────┐ │
+│  │  Page Files    │   │   API Endpoints (api/)         │ │
+│  │  (dashboard,   │   │   auth.php / save_cert.php /   │ │
+│  │   create, etc.)│   │   get_parties / get_next_no    │ │
+│  └────────┬───────┘   └───────────┬────────────────────┘ │
+│           │                       │                       │
+│  ┌────────▼───────────────────────▼──────────────────┐   │
+│  │              includes/config.php                   │   │
+│  │   getDB() │ requireLogin() │ csrfToken()           │   │
+│  └────────────────────────┬───────────────────────────┘   │
+└───────────────────────────│───────────────────────────────┘
+                            │
+        ┌───────────────────┴──────────────┐
+        ▼                                  ▼
+┌───────────────┐                ┌──────────────────┐
+│  MySQL (PDO)  │                │  Cloudinary API  │
+│  9 tables     │                │  PDF storage &   │
+│               │                │  shareable URLs  │
+└───────────────┘                └──────────────────┘
+  </div>
+  <div class="fig-caption">Fig 1.1 &nbsp;&nbsp;&nbsp; System Architecture Overview</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>3</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 2 — WEEK 1
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 2 — Week 1: Requirements Analysis and System Design</span></div>
+  <div class="chapter-title">
+    <span class="chapter-label">Chapter 2</span>
+    Week 1: Requirements Analysis and System Design
+  </div>
+  <p style="margin-bottom:18px;color:var(--mid);font-style:italic;">Period: June 2 – June 8, 2026</p>
+
+  <h2 class="section-title">2.1 &nbsp;&nbsp;&nbsp; Overview of Activities</h2>
+
+  <div class="week-card">
+    <h4>Week 1 Activity Summary</h4>
+    <ul>
+      <li>Conducted requirement analysis meetings with the company supervisor to understand the calibration certificate workflow</li>
+      <li>Gathered functional and non-functional requirements for all modules</li>
+      <li>Designed the overall system architecture and file organization</li>
+      <li>Designed and normalized the relational database schema with nine tables</li>
+      <li>Set up the XAMPP development environment and created the MySQL database</li>
+      <li>Created the initial <code>database.sql</code> setup file with correct FK-safe table ordering</li>
+    </ul>
+  </div>
+
+  <p>The first week of the internship was dedicated entirely to planning, analysis, and design. Before any code was written, it was essential to clearly understand the client's existing workflow, the types of instruments they calibrate, the format of certificates issued, and the expectations from the software. This phase directly determined the quality and correctness of all subsequent development work.</p>
+
+  <h2 class="section-title">2.2 &nbsp;&nbsp;&nbsp; Requirements Gathering</h2>
+
+  <p>Requirements were gathered through direct discussions with the company supervisor, review of existing paper-based certificate templates for each instrument type, and analysis of the client's administrative workflow.</p>
+
+  <p><strong>Functional Requirements</strong> define the specific behaviors and capabilities the system must provide:</p>
+
+  <table>
+    <thead><tr><th>Req. ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>FR-01</td><td>User must be able to log in with phone number and password</td><td>High</td></tr>
+      <tr><td>FR-02</td><td>System must support certificate creation for 26 instrument types</td><td>High</td></tr>
+      <tr><td>FR-03</td><td>Certificate numbers must be auto-generated with monthly reset</td><td>High</td></tr>
+      <tr><td>FR-04</td><td>Certificates must be downloadable as formatted PDF documents</td><td>High</td></tr>
+      <tr><td>FR-05</td><td>PDFs must be automatically uploaded to cloud storage on save</td><td>High</td></tr>
+      <tr><td>FR-06</td><td>Dashboard must show statistics and certificate history</td><td>Medium</td></tr>
+      <tr><td>FR-07</td><td>System must track next recalibration due dates</td><td>Medium</td></tr>
+      <tr><td>FR-08</td><td>System must support party (customer) management and autocomplete</td><td>Medium</td></tr>
+      <tr><td>FR-09</td><td>Certificates must be retrievable and pre-fillable for editing</td><td>Medium</td></tr>
+      <tr><td>FR-10</td><td>System must work offline with local file saving capability</td><td>Low</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 2.1 &nbsp;&nbsp;&nbsp; Functional Requirements</div>
+
+  <table style="margin-top:20px;">
+    <thead><tr><th>Req. ID</th><th>Requirement</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>NFR-01</td><td>All form submissions must be protected by CSRF tokens</td><td>Security</td></tr>
+      <tr><td>NFR-02</td><td>Passwords must be stored as bcrypt hashes (cost 12)</td><td>Security</td></tr>
+      <tr><td>NFR-03</td><td>All SQL must use PDO prepared statements</td><td>Security</td></tr>
+      <tr><td>NFR-04</td><td>Login must be rate-limited to prevent brute-force attacks</td><td>Security</td></tr>
+      <tr><td>NFR-05</td><td>UI must be responsive and usable on mobile devices</td><td>Usability</td></tr>
+      <tr><td>NFR-06</td><td>Certificate number generation must be concurrency-safe</td><td>Reliability</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 2.2 &nbsp;&nbsp;&nbsp; Non-Functional Requirements</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>7</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 2 — Week 1: Requirements Analysis and System Design</span></div>
+
+  <h2 class="section-title">2.3 &nbsp;&nbsp;&nbsp; System Architecture Design</h2>
+
+  <p>The system architecture was designed around three guiding principles: simplicity of deployment (XAMPP on Windows with no framework dependency), maintainability (shared includes and centralized configuration), and security-first design (authentication and CSRF built in from day one, not bolted on later).</p>
+
+  <h3 class="sub-title">2.3.1 &nbsp; File and Folder Structure</h3>
+
+  <p>The project root is organized into clearly separated concerns. The following figure shows the primary folder structure of the application:</p>
+
+  <div class="figure-box">
+calibration certificate/
+├── index.php              ← Landing page (public)
+├── login.php              ← Authentication form
+├── dashboard.php          ← Main dashboard (protected)
+├── create_certificate.php ← Certificate creation shell
+├── companies.php          ← Party/company management
+├── instrument_reports.php ← Browse by instrument type
+├── due_near.php           ← Due date tracking
+├── settings.php           ← User settings
+├── database.sql           ← Initial DB setup script
+│
+├── api/                   ← REST JSON endpoints
+│   ├── auth.php           ← Login / logout / session check
+│   ├── save_certificates.php
+│   ├── get_certificate.php
+│   ├── get_next_certificate_number.php
+│   ├── get_parties_try.php
+│   └── contact.php
+│
+├── includes/              ← Shared PHP components
+│   ├── config.php         ← DB, Cloudinary, helpers
+│   ├── header.php         ← HTML head + sidebar nav
+│   ├── footer.php         ← Scripts + footer
+│   ├── cloudinary.php     ← Upload helper
+│   ├── audit.php          ← Audit log function
+│   ├── certificate_dock.php   ← Reusable action dock
+│   └── certificate_loader.php ← Reusable loader/sticker
+│
+├── certificates/          ← 26 instrument PHP templates
+│   ├── autolevel.php
+│   ├── ctm.php
+│   └── ... (24 more)
+│
+├── assets/
+│   ├── css/style.css
+│   ├── css/general.css
+│   ├── js/app.js
+│   ├── js/general.js
+│   ├── js/offline_storage.js
+│   └── images/            ← header, footer, stamp, sign
+│
+└── migrations/
+    ├── 001_soft_delete_audit_log.sql
+    └── 002_ctm_proving_rings.sql
+  </div>
+  <div class="fig-caption">Fig 2.1 &nbsp;&nbsp;&nbsp; Application File and Folder Structure</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>8</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 2 — Week 1: Requirements Analysis and System Design</span></div>
+
+  <h2 class="section-title">2.4 &nbsp;&nbsp;&nbsp; Database Schema Design</h2>
+
+  <p>The database schema was designed using relational normalization principles. Nine tables were defined to support all functional requirements while maintaining referential integrity through foreign key constraints. The table creation order in <code>database.sql</code> is carefully sequenced to satisfy foreign key dependencies without constraint violations.</p>
+
+  <table>
+    <thead>
+      <tr><th>Table</th><th>Primary Key</th><th>Key Columns</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>users</code></td><td>id</td><td>phone (UNIQUE), password_hash, role, active</td><td>Authentication and user management</td></tr>
+      <tr><td><code>instrument_types</code></td><td>id</td><td>slug (UNIQUE), label, has_make, has_serial, sort_order</td><td>26 supported instrument definitions</td></tr>
+      <tr><td><code>parties</code></td><td>id</td><td>name (FULLTEXT), address, phone, email</td><td>Customer / company records</td></tr>
+      <tr><td><code>certificate_counter</code></td><td>id</td><td>instrument_type_id (FK, UNIQUE), prefix, current_no, current_year, current_month</td><td>Sequential numbering per instrument</td></tr>
+      <tr><td><code>certificates</code></td><td>id</td><td>cert_number (UNIQUE), instrument_type_id (FK), party_id (FK), calibration_date, next_due_date, pdf_url, form_data (JSON), deleted_at</td><td>Master certificate records</td></tr>
+      <tr><td><code>certificate_audit_log</code></td><td>id</td><td>certificate_id (FK), action ENUM, changed_by (FK), snapshot (JSON)</td><td>Audit trail for all changes</td></tr>
+      <tr><td><code>ctm_readings</code></td><td>id</td><td>certificate_id (FK), ring_type, load_kn, reading_set1/2/3, average_kn</td><td>CTM load test readings</td></tr>
+      <tr><td><code>cube_serials</code></td><td>id</td><td>certificate_id (FK), sr_no, serial_no</td><td>Cube mould serial tracking</td></tr>
+      <tr><td><code>ctm_proving_rings</code></td><td>id</td><td>ring_key (UNIQUE), ring_label, load_steps (JSON), deflection_steps (JSON)</td><td>CTM ring standards DB (no hardcoded values)</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 2.3 &nbsp;&nbsp;&nbsp; Database Tables Summary</div>
+
+  <div class="figure-box" style="font-size:8.5pt; line-height:1.6;">
+users ─────────────────┐
+  id PK                │ created_by FK
+  phone UNIQUE         │
+  password_hash        │
+  role (admin/operator)│
+  active               │
+                       ▼
+instrument_types ──► certificates ◄── parties
+  id PK                id PK           id PK
+  slug UNIQUE          cert_number UNIQUE  name (FULLTEXT)
+  label                instrument_type_id FK  address
+  has_make/serial/etc  party_id FK        phone
+  sort_order           calibration_date   email
+       │               next_due_date
+       │               pdf_url (Cloudinary)
+       │               form_data JSON
+       │               deleted_at (soft-delete)
+       │                    │
+       ▼                    ├──► ctm_readings
+certificate_counter          │   certificate_id FK
+  instrument_type_id FK UNIQUE│   ring_type, load_kn
+  prefix                      │   reading_set1/2/3
+  current_no                  │
+  current_year/month          └──► cube_serials
+                                  certificate_id FK
+ctm_proving_rings                 sr_no, serial_no
+  ring_key UNIQUE
+  load_steps JSON          certificate_audit_log
+  deflection_steps JSON      certificate_id FK
+                             action ENUM(create/update/delete/restore)
+                             snapshot JSON
+  </div>
+  <div class="fig-caption">Fig 2.2 &nbsp;&nbsp;&nbsp; Database Entity Relationship Diagram (Simplified)</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>10</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 2 — Week 1: Requirements Analysis and System Design</span></div>
+
+  <h2 class="section-title">2.5 &nbsp;&nbsp;&nbsp; Development Environment Setup</h2>
+
+  <p>The development environment was set up on a Windows machine using the XAMPP software stack, which bundles Apache, MySQL, and PHP in a single installation package.</p>
+
+  <h3 class="sub-title">2.5.1 &nbsp; Environment Configuration</h3>
+  <ul>
+    <li><strong>XAMPP:</strong> Installed and configured with Apache and MySQL services. The project folder was placed in <code>C:\xampp\htdocs\calibration certificate\</code>, making it accessible at <code>http://localhost/calibration%20certificate/</code>.</li>
+    <li><strong>MySQL Database:</strong> Database <code>shreeji_instruments</code> created via phpMyAdmin. The <code>database.sql</code> file was imported to create all nine tables with seed data.</li>
+    <li><strong>Cloudinary Account:</strong> A Cloudinary account was configured with an unsigned upload preset for the application. API keys were stored in <code>includes/config.php</code>.</li>
+    <li><strong>PHP Configuration:</strong> <code>display_errors</code> was set to <code>Off</code> to prevent sensitive error information from leaking to the browser. Error logging was routed to the PHP error log file.</li>
+  </ul>
+
+  <h3 class="sub-title">2.5.2 &nbsp; Version Control and Backup Strategy</h3>
+  <p>A backup strategy was established using compressed archives stored in a separate folder (<code>C:\xampp\htdocs\calibration_backups\</code>). A full project backup was created before any major changes using a <code>.tar.gz</code> archive, along with restore scripts in both Windows Batch (<code>restore.bat</code>) and PowerShell (<code>restore.ps1</code>) formats to enable one-command restoration.</p>
+
+  <h3 class="sub-title">2.5.3 &nbsp; Key Design Decisions Made in Week 1</h3>
+  <ul>
+    <li><strong>No PHP framework:</strong> The decision to use plain PHP without a framework (no Laravel, no Symfony) was driven by the goal of keeping deployment simple — any shared hosting with PHP 7.4+ and MySQL would be sufficient.</li>
+    <li><strong>Client-side PDF generation:</strong> Rather than generating PDFs on the server (which would require a PHP PDF library and server-side form processing), jsPDF was selected for client-side generation. This reduces server load and allows real-time preview in the browser before saving.</li>
+    <li><strong>Cloudinary over local storage:</strong> Storing PDFs on Cloudinary rather than the local server ensures certificates are accessible from any device with an internet connection, and protects against data loss from local disk failure.</li>
+    <li><strong>Separate includes folder:</strong> All shared PHP code was planned in an <code>includes/</code> directory, protected by an <code>.htaccess</code> file denying direct browser access — a security measure enforced from the design phase.</li>
+  </ul>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>12</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 3 — WEEK 2
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 3 — Week 2: Core System Development</span></div>
+  <div class="chapter-title">
+    <span class="chapter-label">Chapter 3</span>
+    Week 2: Core System Development
+  </div>
+  <p style="margin-bottom:18px;color:var(--mid);font-style:italic;">Period: June 9 – June 15, 2026</p>
+
+  <h2 class="section-title">3.1 &nbsp;&nbsp;&nbsp; Overview of Activities</h2>
+
+  <div class="week-card">
+    <h4>Week 2 Activity Summary</h4>
+    <ul>
+      <li>Implemented the authentication module: login, session management, logout</li>
+      <li>Built all six REST API endpoints in the <code>api/</code> folder</li>
+      <li>Developed the dashboard page with statistics cards, 6-month trend chart, and filterable certificate history table</li>
+      <li>Built the party (customer) management pages with search and certificate count</li>
+      <li>Implemented the automated, concurrent-safe certificate numbering system</li>
+      <li>Created the <code>includes/config.php</code> central configuration with all shared utility functions</li>
+    </ul>
+  </div>
+
+  <p>Week 2 focused on building the core infrastructure of the application — the parts that every other feature depends upon. This included the authentication system (which every protected page requires), the shared configuration utilities, the REST API layer, and the primary administrative pages.</p>
+
+  <h2 class="section-title">3.2 &nbsp;&nbsp;&nbsp; Authentication Module</h2>
+
+  <p>The authentication module was implemented using PHP native sessions. The system uses phone number as the unique login identifier, which aligns with the company's preference (phone numbers are more reliably remembered by field staff than email addresses).</p>
+
+  <h3 class="sub-title">3.2.1 &nbsp; Login Page (login.php)</h3>
+  <p>The login page renders a minimal, centred form with two fields: a 10-digit phone number and a password. The form submits via an asynchronous <code>fetch()</code> call to <code>api/auth.php</code> with a JSON payload. This prevents full-page reloads and allows inline error display. A CSRF token, embedded in the page via the <code>SHREEJI_CONFIG</code> JavaScript object output by <code>header.php</code>, is included in every request.</p>
+
+  <h3 class="sub-title">3.2.2 &nbsp; API Authentication Endpoint (api/auth.php)</h3>
+  <p>The authentication API endpoint handles three operations: <code>POST</code> for login, <code>GET ?action=logout</code> for session termination, and <code>GET ?action=check</code> for session validation.</p>
+
+  <p>On login, the endpoint first enforces rate limiting using a per-IP counter stored in the PHP session under the key <code>rl_{md5(ip)}</code>. A maximum of five failed attempts are permitted within a fifteen-minute window. After a successful login, the rate-limit counter is reset, <code>session_regenerate_id(true)</code> is called to prevent session fixation attacks, and the user record is stored in <code>$_SESSION['user']</code>.</p>
+
+  <p>The API endpoint was carefully designed with error suppression (<code>ini_set('display_errors', '0')</code>) as its very first line — placed before even the <code>require_once config.php</code> statement — to ensure that no PHP warning or notice could corrupt the JSON response body and cause a parse error on the client side.</p>
+
+  <table>
+    <thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th><th>Auth Required</th></tr></thead>
+    <tbody>
+      <tr><td><code>api/auth.php</code></td><td>POST</td><td>Login with phone + password + CSRF</td><td>No</td></tr>
+      <tr><td><code>api/auth.php?action=logout</code></td><td>GET</td><td>Destroy session and redirect</td><td>Yes</td></tr>
+      <tr><td><code>api/save_certificates.php</code></td><td>POST</td><td>Create/update certificate, upload PDF to Cloudinary</td><td>Yes</td></tr>
+      <tr><td><code>api/get_certificate.php</code></td><td>GET</td><td>Retrieve certificate data for edit/prefill</td><td>Yes</td></tr>
+      <tr><td><code>api/get_next_certificate_number.php</code></td><td>GET</td><td>Preview next cert number without incrementing counter</td><td>Yes</td></tr>
+      <tr><td><code>api/get_parties_try.php</code></td><td>GET</td><td>Party names + site locations for autocomplete</td><td>Yes</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 3.1 &nbsp;&nbsp;&nbsp; API Endpoints</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>13</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 3 — Week 2: Core System Development</span></div>
+
+  <h3 class="sub-title">3.2.3 &nbsp; Central Configuration (includes/config.php)</h3>
+  <p>All shared utilities were consolidated in <code>includes/config.php</code>. This file is the single point of inclusion required at the top of every PHP page. It provides:</p>
+  <ul>
+    <li><strong><code>getDB()</code>:</strong> Returns a singleton PDO connection with <code>ERRMODE_EXCEPTION</code> and <code>utf8mb4</code> character set.</li>
+    <li><strong><code>requireLogin()</code>:</strong> Checks <code>$_SESSION['user_id']</code>; redirects to <code>login.php</code> for page requests, or returns a JSON 401 response for API calls (detected by inspecting request headers).</li>
+    <li><strong><code>csrfToken()</code>:</strong> Generates and returns a 32-byte hex token stored in <code>$_SESSION['csrf_token']</code>.</li>
+    <li><strong><code>verifyCsrf()</code>:</strong> Validates the CSRF token from the <code>X-CSRF-Token</code> header or the request body.</li>
+    <li><strong><code>clean()</code>:</strong> Trims whitespace, strips HTML tags, and escapes special characters.</li>
+    <li><strong><code>jsonResponse()</code>:</strong> Sets Content-Type to <code>application/json</code> and outputs the encoded response.</li>
+  </ul>
+
+  <div class="figure-box">
+USER visits login.php
+       │
+       ▼
+Enters phone + password → JS submits POST to api/auth.php
+       │
+       ├─ Rate limit check: rl_{md5(ip)} in session
+       │     Max 5 attempts / 15 min window
+       │     Exceeded? → 429 JSON with lockout countdown
+       │
+       ├─ Phone lookup → PDO prepared SELECT
+       │     Not found? → Increment fail counter → 401
+       │
+       ├─ password_verify($input, $hash)
+       │     Fails? → Increment fail counter → 401
+       │
+       └─ SUCCESS:
+             Reset fail counter
+             session_regenerate_id(true)
+             Store user in $_SESSION
+             Return 200 JSON { user }
+                   │
+                   ▼
+           Redirect to dashboard.php
+  </div>
+  <div class="fig-caption">Fig 3.1 &nbsp;&nbsp;&nbsp; Authentication and Session Flow</div>
+
+  <h2 class="section-title">3.3 &nbsp;&nbsp;&nbsp; Dashboard and Statistics</h2>
+
+  <p>The dashboard (<code>dashboard.php</code>) is the primary management interface for the application. It was designed to give administrators an at-a-glance view of the system's state without requiring navigation through multiple pages.</p>
+
+  <h3 class="sub-title">3.3.1 &nbsp; Statistics Cards</h3>
+  <p>Four summary cards are displayed at the top of the dashboard: total certificates issued, total unique parties registered, total instrument types configured, and certificates issued in the current month. These values are fetched from the database via <code>api/contact.php?action=stats</code> at page load.</p>
+
+  <h3 class="sub-title">3.3.2 &nbsp; Due Date Alerts</h3>
+  <p>Below the summary cards, three alert counters display instruments that are overdue for recalibration, due within the current week, and due within the current month. These are calculated by querying <code>certificates.next_due_date</code> against the current server date.</p>
+
+  <h3 class="sub-title">3.3.3 &nbsp; Certificate History Table</h3>
+  <p>A server-paginated table (50 rows per page) displays all issued certificates with filter controls for: date range (today, this week, this month, this year, custom), instrument type, party name, and due status. The table supports client-side text search across party name, certificate number, and site location fields.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>15</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 3 — Week 2: Core System Development</span></div>
+
+  <h2 class="section-title">3.4 &nbsp;&nbsp;&nbsp; Party and Company Management</h2>
+
+  <p>The parties module manages the records of all client companies and organizations for whom certificates are issued. The <code>companies.php</code> page renders a searchable, sortable list of all parties with their contact details, site locations, and the number of certificates issued to each.</p>
+
+  <h3 class="sub-title">3.4.1 &nbsp; Auto-Create Pattern</h3>
+  <p>Rather than requiring administrators to pre-register companies before creating certificates, the system automatically creates a party record the first time a new company name is entered in a certificate form. The <code>api/save_certificates.php</code> endpoint performs a case-insensitive lookup (<code>WHERE LOWER(name) = LOWER(?)</code>) before saving. If no matching party is found, a new record is auto-inserted. This eliminates administrative overhead and reduces friction during certificate creation.</p>
+
+  <h3 class="sub-title">3.4.2 &nbsp; Autocomplete via API</h3>
+  <p>The <code>api/get_parties_try.php</code> endpoint returns a combined list of all known party names and site locations, used to power the autocomplete dropdown on the certificate creation form. When a user begins typing a company name, previously used party names appear as suggestions, significantly reducing data-entry time and spelling errors.</p>
+
+  <table>
+    <thead><tr><th>Role</th><th>Capabilities</th></tr></thead>
+    <tbody>
+      <tr><td>Admin</td><td>Full access to all pages, can add instrument types, view all certificates, access settings</td></tr>
+      <tr><td>Operator</td><td>Can create and view certificates, manage parties; cannot add instrument types or access admin settings</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 3.2 &nbsp;&nbsp;&nbsp; User Roles and Permissions</div>
+
+  <h2 class="section-title">3.5 &nbsp;&nbsp;&nbsp; Certificate Numbering System</h2>
+
+  <p>A well-designed certificate numbering scheme was identified as a critical requirement. Each certificate number must be unique, human-readable, traceable to a time period and instrument type, and generated without race conditions in a concurrent environment.</p>
+
+  <h3 class="sub-title">3.5.1 &nbsp; Number Format</h3>
+
+  <div class="cert-demo">
+    <div class="cert-part">CTM<span class="cert-label">Prefix (Instrument)</span></div>
+    <div class="cert-part sep">–<span class="cert-label">&nbsp;</span></div>
+    <div class="cert-part">26<span class="cert-label">Year (2026)</span></div>
+    <div class="cert-part" style="border-left:none;border-right:none;">06<span class="cert-label">Month (June)</span></div>
+    <div class="cert-part" style="border-left:none;background:var(--teal-bg);">01<span class="cert-label">Sequence No.</span></div>
+  </div>
+  <div class="fig-caption">Fig 3.2 &nbsp;&nbsp;&nbsp; Certificate Number Format Breakdown &nbsp;&nbsp; (Example: CTM-260601)</div>
+
+  <p>Each instrument type has a unique prefix stored in the <code>certificate_counter</code> table (e.g., <code>CTM</code> for Cube Testing Machine, <code>AL</code> for Auto Level, <code>VC</code> for Vernier Caliper). The two-digit year and month are appended, followed by a zero-padded sequential number that resets to <code>01</code> at the start of each calendar month.</p>
+
+  <h3 class="sub-title">3.5.2 &nbsp; Concurrent Safety</h3>
+  <p>To prevent two simultaneous certificate saves from receiving the same number, the counter update is wrapped in a database transaction with a <code>SELECT ... FOR UPDATE</code> row lock. This ensures that only one process can read and increment the counter for a given instrument type at a time, making the number generation fully atomic and safe under concurrent use.</p>
+
+  <h3 class="sub-title">3.5.3 &nbsp; Preview Without Increment</h3>
+  <p>The <code>api/get_next_certificate_number.php</code> endpoint allows the front end to display what the next certificate number will be (for the user's reference before saving) without actually incrementing the counter. This is implemented as a read-only calculation based on the current counter state, with no locking required.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>18</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 4 — WEEK 3
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 4 — Week 3: Certificate Management and PDF Generation</span></div>
+  <div class="chapter-title">
+    <span class="chapter-label">Chapter 4</span>
+    Week 3: Certificate Management and PDF Generation
+  </div>
+  <p style="margin-bottom:18px;color:var(--mid);font-style:italic;">Period: June 16 – June 22, 2026</p>
+
+  <h2 class="section-title">4.1 &nbsp;&nbsp;&nbsp; Overview of Activities</h2>
+
+  <div class="week-card">
+    <h4>Week 3 Activity Summary</h4>
+    <ul>
+      <li>Built the iframe-embed certificate creation architecture in <code>create_certificate.php</code></li>
+      <li>Developed and tested certificate forms for all 26 instrument types in the <code>certificates/</code> folder</li>
+      <li>Implemented client-side PDF generation using jsPDF and jsPDF-AutoTable for each instrument type</li>
+      <li>Integrated Cloudinary API for automatic PDF upload after each save</li>
+      <li>Built the offline-first file saving mechanism using the File System Access API</li>
+      <li>Implemented the info sticker generation feature for thermal label printing</li>
+      <li>Built the due-date tracking module (<code>due_near.php</code>)</li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">4.2 &nbsp;&nbsp;&nbsp; Certificate Template System</h2>
+
+  <p>The heart of the application is its certificate template system. Each of the twenty-six instrument types supported by Shreeji Instruments has a dedicated PHP file in the <code>certificates/</code> folder. Each file provides the HTML form for collecting calibration data specific to that instrument, and the JavaScript functions for generating the corresponding PDF.</p>
+
+  <table>
+    <thead><tr><th>Slug</th><th>Instrument</th><th>Prefix</th><th>Slug</th><th>Instrument</th><th>Prefix</th></tr></thead>
+    <tbody>
+      <tr><td><code>autolevel</code></td><td>Auto Level</td><td>AL</td><td><code>ph_meter</code></td><td>pH Meter</td><td>PHM</td></tr>
+      <tr><td><code>aggregate_impact</code></td><td>Aggregate Impact</td><td>AIV</td><td><code>pycnometer</code></td><td>Pycnometer Bottle</td><td>PYC</td></tr>
+      <tr><td><code>ctm</code></td><td>Cube Testing Machine</td><td>CTM</td><td><code>rapid_moisture</code></td><td>Rapid Moisture Meter</td><td>RMM</td></tr>
+      <tr><td><code>cone_penetro</code></td><td>Cone Penetrometer</td><td>CP</td><td><code>sieves</code></td><td>Test Sieves</td><td>SV</td></tr>
+      <tr><td><code>core_cutter</code></td><td>Core Cutter</td><td>CC</td><td><code>sand_pouring</code></td><td>Sand Pouring Cylinder</td><td>SPC</td></tr>
+      <tr><td><code>cube_mould</code></td><td>Cube Mould</td><td>CM</td><td><code>slumcone</code></td><td>Slumcone</td><td>SC</td></tr>
+      <tr><td><code>digital_thermo</code></td><td>Digital Thermometer</td><td>DT</td><td><code>total_station</code></td><td>Electronic Total Station</td><td>TS</td></tr>
+      <tr><td><code>elongation</code></td><td>Elongation Gauge</td><td>EL</td><td><code>vernier_caliper</code></td><td>Vernier Caliper</td><td>VC</td></tr>
+      <tr><td><code>oven</code></td><td>Hot Air Oven</td><td>OV</td><td><code>water_bath</code></td><td>Water Bath</td><td>WB</td></tr>
+      <tr><td><code>flakness</code></td><td>Flakness Gauge</td><td>FG</td><td><code>weight_balance</code></td><td>Weight Balance</td><td>WBL</td></tr>
+      <tr><td><code>general</code></td><td>General Certificate</td><td>GEN</td><td><code>weigh_batcher</code></td><td>Weigh Batcher</td><td>WBT</td></tr>
+      <tr><td><code>hydrometer</code></td><td>Hydrometer</td><td>HYD</td><td><code>isi_cube</code></td><td>ISI Cube Mould</td><td>ISI</td></tr>
+      <tr><td><code>measuring_cyl</code></td><td>Measuring Cylinder</td><td>MC</td><td><code>full_lab</code></td><td>Full Lab Report</td><td>FL</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 4.1 &nbsp;&nbsp;&nbsp; Instrument Types and Certificate Prefixes (All 26 Types)</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>20</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 4 — Week 3: Certificate Management and PDF Generation</span></div>
+
+  <h3 class="sub-title">4.2.1 &nbsp; Iframe Embed Architecture</h3>
+
+  <p>A key architectural decision for certificate creation was to use an iframe-based embedding system within the parent <code>create_certificate.php</code> page. This approach allows the company name, site location, and calibration date to be entered once in the parent page and automatically synchronized to all open certificate forms simultaneously — without repeating those fields in every certificate template.</p>
+
+  <div class="figure-box">
+create_certificate.php (Parent Shell Page)
+┌─────────────────────────────────────────────────────┐
+│  Shared Header Fields:                              │
+│  [ Company Name ] [ Site Location ] [ Date ]        │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐   │
+│  │  <iframe src="certificates/ctm.php           │   │
+│  │            ?embed=true">                     │   │
+│  │   ┌───────────────────────────────────┐     │   │
+│  │   │ CTM Certificate Form              │     │   │
+│  │   │ (Instrument-specific fields only) │     │   │
+│  │   │                                   │     │   │
+│  │   │  jsPDF functions exposed as       │     │   │
+│  │   │  window.addCertificateDetails()   │     │   │
+│  │   │  window.getFormDetails()          │     │   │
+│  │   └───────────────────────────────────┘     │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                     │
+│  Parent calls iframe's functions via:               │
+│  iframeEl.contentWindow.getFormDetails()            │
+│  iframeEl.contentWindow.addCertificateDetails(doc)  │
+└─────────────────────────────────────────────────────┘
+      │                    │
+      ▼                    ▼
+syncAllIframes()     "Save All" → sequential
+sends company +      iframe saves with custom
+dates to each        events (iframeSaveSuccess/
+iframe window        iframeSaveError)
+  </div>
+  <div class="fig-caption">Fig 4.1 &nbsp;&nbsp;&nbsp; Iframe Embed Architecture for Certificate Creation</div>
+
+  <p>When the <code>?embed=true</code> query parameter is present, <code>header.php</code> applies CSS overrides that hide the navigation bar, header, and footer — rendering only the certificate form body. The parent page's JavaScript monkey-patches the iframe's <code>Loader</code> and save functions at iframe load time, so the parent controls the UI feedback (progress messages, completion dialogs) while the iframe handles its own form logic and PDF generation.</p>
+
+  <h3 class="sub-title">4.2.2 &nbsp; Common Form Fields</h3>
+  <p>All certificate forms share a standardized set of common fields. Instrument-specific fields are added on top of this base set.</p>
+
+  <table>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Party Name</td><td>Text (autocomplete)</td><td>Synced from parent; triggers party auto-create on save</td></tr>
+      <tr><td>Site Location</td><td>Text</td><td>Synced from parent; stored for party profile</td></tr>
+      <tr><td>Calibration Date</td><td>Date</td><td>Synced from parent; auto-calculates next_due_date (+1 year)</td></tr>
+      <tr><td>Make</td><td>Text</td><td>Conditionally shown based on instrument_type.has_make</td></tr>
+      <tr><td>Model No.</td><td>Text</td><td>Conditionally shown based on has_model</td></tr>
+      <tr><td>Serial No.</td><td>Text</td><td>Conditionally shown based on has_serial</td></tr>
+      <tr><td>Capacity</td><td>Text</td><td>Conditionally shown based on has_capacity</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 4.2 &nbsp;&nbsp;&nbsp; Certificate Form Common Fields</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>21</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 4 — Week 3: Certificate Management and PDF Generation</span></div>
+
+  <h2 class="section-title">4.3 &nbsp;&nbsp;&nbsp; Client-Side PDF Generation with jsPDF</h2>
+
+  <p>PDF generation in the system is performed entirely in the browser using the jsPDF 2.5.1 library and its companion plugin jsPDF-AutoTable 3.5.14. This approach was chosen over server-side PDF generation to eliminate server processing overhead, enable real-time PDF preview before saving, and avoid the need for PHP PDF libraries on the server.</p>
+
+  <h3 class="sub-title">4.3.1 &nbsp; Certificate JavaScript Functions</h3>
+  <p>Every certificate PHP file implements a standard set of JavaScript functions that the parent page calls to coordinate multi-certificate PDF generation:</p>
+  <ul>
+    <li><strong><code>getFormDetails()</code>:</strong> Collects all form input values into a structured JavaScript object representing the certificate's data payload.</li>
+    <li><strong><code>addCertificateDetails(doc, details, yOffset)</code>:</strong> Draws the certificate content onto a jsPDF document object — headings, instrument details, calibration tables, and reference standards. The <code>yOffset</code> parameter allows multiple certificates to be appended to a single multi-page PDF document.</li>
+    <li><strong><code>addImg(doc, details)</code>:</strong> Injects the letterhead images (header, footer, stamp, signature) as JPEG data URIs onto the appropriate coordinates of each PDF page.</li>
+    <li><strong><code>prepareImages()</code>:</strong> Pre-loads images as Base64 data URIs when the form is embedded in an iframe, ensuring images are ready before PDF generation begins.</li>
+  </ul>
+
+  <div class="figure-box">
+User clicks "Preview PDF"
+       │
+       ▼
+getFormDetails() → collects all input values
+       │
+       ▼
+new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+       │
+       ▼
+addCertificateDetails(doc, details)
+   ├── doc.text() — instrument name, company, dates
+   ├── doc.autoTable() — calibration readings table
+   └── addImg(doc, details)
+           ├── doc.addImage(headerJpeg, 'JPEG', x, y, w, h)
+           ├── doc.addImage(footerJpeg, ...)
+           ├── doc.addImage(stampJpeg, ...)
+           └── doc.addImage(signJpeg, ...)
+       │
+       ▼
+doc.output('bloburl') → Opens in browser tab (Preview)
+       OR
+doc.output('blob')   → Passed to save flow
+       │
+       ▼
+savePDFBlob(blob, filename) → triggers download
+       │
+       ▼
+base64 encode blob → POST to api/save_certificates.php
+  </div>
+  <div class="fig-caption">Fig 4.2 &nbsp;&nbsp;&nbsp; Certificate PDF Generation Workflow</div>
+
+  <h2 class="section-title">4.4 &nbsp;&nbsp;&nbsp; Cloudinary Cloud Storage Integration</h2>
+
+  <p>After a certificate is saved to the database, the PDF blob is uploaded to Cloudinary for cloud-based storage and sharing. The integration is handled by the <code>includes/cloudinary.php</code> helper file, which provides the <code>cloudinaryUpload()</code> function.</p>
+
+  <h3 class="sub-title">4.4.1 &nbsp; Upload Flow</h3>
+  <p>The frontend encodes the jsPDF-generated PDF blob as a Base64 string and includes it in the JSON POST body to <code>api/save_certificates.php</code>. The PHP backend decodes the Base64 data and calls <code>cloudinaryUpload()</code> with the decoded binary, the certificate number as the public ID, and a structured folder path:</p>
+  <div class="figure-box" style="font-size:10pt;">
+Folder: shreeji_certificates/{InstrumentLabel}/{PartyName}/{SiteLocation}/
+File:   {cert_number}.pdf
+URL:    https://res.cloudinary.com/{cloud_name}/raw/upload/v.../.../{cert_number}.pdf
+  </div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>23</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 4 — Week 3: Certificate Management and PDF Generation</span></div>
+
+  <h3 class="sub-title">4.4.2 &nbsp; Fallback Upload Mechanism</h3>
+  <p>The <code>cloudinaryUpload()</code> function first attempts the upload using PHP's <code>stream_context_create()</code> with an HTTP context. If this fails (due to server restrictions on outbound HTTP streams), it falls back to a <code>cURL</code>-based upload function (<code>cloudinaryCurl()</code>). This dual-approach ensures compatibility across different server environments.</p>
+
+  <p>After a successful upload, Cloudinary returns a JSON response containing the <code>secure_url</code> (HTTPS link) and <code>public_id</code> of the uploaded file. These are stored in the <code>pdf_url</code> and <code>pdf_public_id</code> columns of the <code>certificates</code> table, allowing the application to display and share the certificate from any device.</p>
+
+  <h2 class="section-title">4.5 &nbsp;&nbsp;&nbsp; Offline-First Architecture</h2>
+
+  <p>Field technicians often work at construction sites or remote laboratories where internet connectivity is unreliable or unavailable. To address this, an offline-first file-saving mechanism was implemented using the HTML5 File System Access API.</p>
+
+  <h3 class="sub-title">4.5.1 &nbsp; Local Folder Selection</h3>
+  <p>Users can configure a base folder on their local device through the settings page. The File System Access API's <code>showDirectoryPicker()</code> method presents a native OS folder selection dialog. The handle to the selected directory is cached in the browser's IndexedDB (via the <code>offline_storage.js</code> module) so it persists across sessions without requiring re-selection.</p>
+
+  <h3 class="sub-title">4.5.2 &nbsp; Structured Local Save</h3>
+  <p>When a certificate is saved, the PDF is first written to the local folder in the following path structure:</p>
+  <div class="figure-box" style="font-size:10pt;">
+{BaseDir} / {InstrumentCategory} / {PartyName} / {SiteLocation} / {certNumber}.pdf
+  </div>
+  <p>The cloud save to Cloudinary then proceeds in parallel. If the cloud save fails (e.g., no internet connection), the local copy ensures the certificate is not lost. The user receives clear feedback about the save status of both operations.</p>
+
+  <h2 class="section-title">4.6 &nbsp;&nbsp;&nbsp; Info Sticker Generation</h2>
+
+  <p>Beyond the full-page calibration certificate, the system provides an information sticker feature. This generates a compact (40mm × 30mm) label containing key certificate details — instrument identification, calibration date, next due date, and certificate number — formatted for thermal label printer output.</p>
+
+  <p>The sticker is rendered as an HTML element styled with fixed print dimensions and then captured for printing or download using the browser's print dialog or a canvas-based image export. The sticker uses the application's teal color scheme with a blue border and red accent text for critical date information, making it instantly readable when affixed to an instrument.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>25</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHAPTER 5 — WEEK 4
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 5 — Week 4: Security, Audit Logging and Deployment</span></div>
+  <div class="chapter-title">
+    <span class="chapter-label">Chapter 5</span>
+    Week 4: Security, Audit Logging and Deployment
+  </div>
+  <p style="margin-bottom:18px;color:var(--mid);font-style:italic;">Period: June 23 – June 28, 2026</p>
+
+  <h2 class="section-title">5.1 &nbsp;&nbsp;&nbsp; Overview of Activities</h2>
+
+  <div class="week-card">
+    <h4>Week 4 Activity Summary</h4>
+    <ul>
+      <li>Conducted a comprehensive security audit of all endpoints and applied hardening measures</li>
+      <li>Implemented soft delete and audit logging via database migration 001</li>
+      <li>Refactored all 26 certificate templates to eliminate code duplication (DRY principle)</li>
+      <li>Extracted the CTM proving ring data from hardcoded arrays into a database table (migration 002)</li>
+      <li>Fixed the <code>database.sql</code> table ordering bug that caused FK constraint failures on fresh import</li>
+      <li>Conducted end-to-end testing across all 26 certificate types</li>
+      <li>Created a full project backup archive with restore scripts</li>
+    </ul>
+  </div>
+
+  <p>The final week was dedicated to quality assurance, security hardening, and making the codebase maintainable for long-term use. This phase transformed a functional prototype into a production-ready system by addressing cross-cutting concerns that apply across the entire application.</p>
+
+  <h2 class="section-title">5.2 &nbsp;&nbsp;&nbsp; Security Hardening</h2>
+
+  <p>Security was reviewed systematically across all layers of the application. The following table summarizes the complete set of security measures implemented:</p>
+
+  <table>
+    <thead><tr><th>Threat / Risk</th><th>Countermeasure Implemented</th><th>Location</th></tr></thead>
+    <tbody>
+      <tr><td>SQL Injection</td><td>All database queries use PDO prepared statements with <code>?</code> placeholders; no string concatenation in queries</td><td>All PHP files using DB</td></tr>
+      <tr><td>Cross-Site Scripting (XSS)</td><td><code>htmlspecialchars()</code> applied to all user-supplied values before HTML output; <code>clean()</code> strips tags on input</td><td><code>config.php</code>, all pages</td></tr>
+      <tr><td>Cross-Site Request Forgery (CSRF)</td><td>32-byte hex token in session; verified via <code>X-CSRF-Token</code> header or body on all state-changing API calls</td><td><code>config.php</code>, all API endpoints</td></tr>
+      <tr><td>Brute-Force Login</td><td>5 failed attempts per IP per 15-minute window; lockout with countdown message</td><td><code>api/auth.php</code></td></tr>
+      <tr><td>Session Fixation</td><td><code>session_regenerate_id(true)</code> called immediately after successful login</td><td><code>api/auth.php</code></td></tr>
+      <tr><td>Weak Passwords</td><td>Passwords stored as bcrypt hash with cost factor 12 using <code>password_hash()</code></td><td><code>api/auth.php</code>, <code>settings.php</code></td></tr>
+      <tr><td>Sensitive Data Exposure</td><td><code>display_errors = Off</code>; config.php credentials not in web root; includes blocked by <code>.htaccess</code></td><td><code>api/auth.php</code>, <code>includes/.htaccess</code></td></tr>
+      <tr><td>Unauthorized Access</td><td><code>requireLogin()</code> called at the top of every protected page and API endpoint</td><td><code>config.php</code>, all protected files</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 5.1 &nbsp;&nbsp;&nbsp; Security Measures Implemented</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>28</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 5 — Week 4: Security, Audit Logging and Deployment</span></div>
+
+  <div class="figure-box">
+┌──────────────────────────────────────────────────────────┐
+│              SECURITY LAYERS — INBOUND REQUEST           │
+│                                                          │
+│  1. NETWORK LAYER                                        │
+│     Apache serves only from htdocs; includes/ blocked    │
+│     by .htaccess (Require all denied)                    │
+│                                                          │
+│  2. SESSION LAYER                                        │
+│     requireLogin() → checks $_SESSION['user_id']         │
+│     Unauthorized? → redirect or JSON 401                 │
+│                                                          │
+│  3. CSRF LAYER (state-changing endpoints only)           │
+│     verifyCsrf() → checks X-CSRF-Token header vs session │
+│     Mismatch? → JSON 403                                 │
+│                                                          │
+│  4. INPUT LAYER                                          │
+│     clean() → trim + strip_tags + htmlspecialchars       │
+│     Prepared statements → ? placeholders throughout      │
+│                                                          │
+│  5. RATE LIMIT LAYER (auth endpoint only)                │
+│     5 attempts / 15 min / IP → 429 lockout               │
+│                                                          │
+│  6. PASSWORD LAYER                                       │
+│     password_verify() → bcrypt cost 12                   │
+│     Never store plaintext; always hash on write          │
+└──────────────────────────────────────────────────────────┘
+  </div>
+  <div class="fig-caption">Fig 5.1 &nbsp;&nbsp;&nbsp; Security Layers of the Application</div>
+
+  <h2 class="section-title">5.3 &nbsp;&nbsp;&nbsp; Soft Delete and Audit Logging</h2>
+
+  <p>A critical business requirement identified during testing was the need to track changes to certificates without permanently deleting historical records. This was addressed through two additions implemented via a database migration.</p>
+
+  <h3 class="sub-title">5.3.1 &nbsp; Soft Delete</h3>
+  <p>A <code>deleted_at TIMESTAMP NULL</code> column was added to the <code>certificates</code> table via migration 001. When a certificate is "deleted," only this timestamp is set to the current date/time — the row remains in the database. All queries that retrieve certificates filter with <code>WHERE deleted_at IS NULL</code> to show only active records. Deleted certificates can be restored by setting <code>deleted_at</code> back to <code>NULL</code>.</p>
+
+  <h3 class="sub-title">5.3.2 &nbsp; Audit Logging</h3>
+  <p>A new <code>certificate_audit_log</code> table was created in the same migration. The <code>includes/audit.php</code> file provides the <code>logCertificateAudit()</code> function, which inserts a record containing:</p>
+  <ul>
+    <li>The certificate ID affected</li>
+    <li>The action performed: <code>create</code>, <code>update</code>, <code>delete</code>, or <code>restore</code></li>
+    <li>The user ID who performed the action</li>
+    <li>A full JSON snapshot of the certificate row as it existed <em>before</em> the change</li>
+  </ul>
+  <p>This snapshot-based approach allows the full history of any certificate to be reconstructed. Audit failures are silently logged to the PHP error log and never block the actual save operation — ensuring data integrity in the certificates table is never compromised by audit infrastructure failures.</p>
+
+  <div class="figure-box">
+api/save_certificates.php → receive POST data
+       │
+       ├─ UPDATE mode (existing cert):
+       │   1. Fetch current row as $snapshot
+       │   2. Execute UPDATE
+       │   3. logCertificateAudit($db, $certId, 'update', $userId, $snapshot)
+       │
+       └─ INSERT mode (new cert):
+           1. Generate certificate number (BEGIN TRANSACTION)
+           2. Execute INSERT
+           3. COMMIT
+           4. logCertificateAudit($db, $certId, 'create', $userId, null)
+  </div>
+  <div class="fig-caption">Fig 5.2 &nbsp;&nbsp;&nbsp; Audit Log and Soft Delete Flow</div>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>31</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Chapter 5 — Week 4: Security, Audit Logging and Deployment</span></div>
+
+  <h2 class="section-title">5.4 &nbsp;&nbsp;&nbsp; DRY Refactoring of Certificate Templates</h2>
+
+  <p>Upon completing all 26 certificate templates, it was observed that each file contained approximately 100 lines of identical HTML for the action dock (the floating sidebar with Preview, Save, Print, Sticker, and Share buttons) and the loader overlay (a full-screen spinner with completion animation). In total, this represented approximately 2,600 lines of duplicated code across the template files — a clear violation of the DRY (Don't Repeat Yourself) principle.</p>
+
+  <p>Two shared PHP include files were created to eliminate this duplication:</p>
+  <ul>
+    <li><strong><code>includes/certificate_dock.php</code>:</strong> Contains the complete HTML and JavaScript for the floating action dock — the back button and the preview, save, print, sticker, and share action buttons. Included at the bottom of every certificate template with a single <code>include</code> statement.</li>
+    <li><strong><code>includes/certificate_loader.php</code>:</strong> Contains the unsaved-changes reminder banner, the info sticker preview section, and the full-screen custom loader overlay with its spinner-to-tick completion animation.</li>
+  </ul>
+
+  <p>All 26 certificate PHP files were updated to replace their duplicated dock and loader HTML with the two include statements. This reduced the per-file line count significantly, made future UI changes to the dock or loader maintainable in a single location, and eliminated the risk of inconsistency between templates.</p>
+
+  <h2 class="section-title">5.5 &nbsp;&nbsp;&nbsp; CTM Proving Rings Database Pattern</h2>
+
+  <p>The Cube Testing Machine (CTM) certificate is the most complex instrument type, as it requires load testing readings across multiple load increments using calibrated proving rings. Originally, the proving ring constants (load steps and corresponding deflection readings) were hardcoded as JavaScript arrays within <code>certificates/ctm.php</code>.</p>
+
+  <p>This approach had a significant drawback: whenever a proving ring is recalibrated (which happens periodically), a developer would need to edit the source code to update the values. This is not appropriate for a client without in-house developers.</p>
+
+  <p>Migration 002 addressed this by creating a <code>ctm_proving_rings</code> table with columns for ring key, label, ring reference number, and JSON arrays of load steps and deflection readings. Three ring types were seeded into the table. The <code>ctm.php</code> template was updated to query this table at page load and output the ring data as a JavaScript constant (<code>CTM_RING_DATA</code>). The dropdown of ring types and all load/deflection values in the PDF now come from the database. Updating proving ring values after recalibration now requires only a row edit in phpMyAdmin — no code change.</p>
+
+  <table>
+    <thead><tr><th>Migration File</th><th>Changes Applied</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>001_soft_delete_audit_log.sql</code></td><td>ALTER TABLE certificates ADD deleted_at; CREATE TABLE certificate_audit_log</td><td>Soft delete + full audit history</td></tr>
+      <tr><td><code>002_ctm_proving_rings.sql</code></td><td>CREATE TABLE ctm_proving_rings; INSERT 3 ring records with JSON load/deflection arrays</td><td>Move CTM ring data to DB for client-editable configuration</td></tr>
+    </tbody>
+  </table>
+  <div class="table-caption">Table 5.2 &nbsp;&nbsp;&nbsp; Database Migrations Applied</div>
+
+  <h2 class="section-title">5.6 &nbsp;&nbsp;&nbsp; Testing, Bug Fixes and Backup</h2>
+
+  <p>End-to-end testing was conducted across all twenty-six certificate types to verify that form data collection, PDF generation, and database saving worked correctly for each instrument. Key bugs identified and resolved during this phase included:</p>
+  <ul>
+    <li><strong>Database import order bug:</strong> The initial <code>database.sql</code> created the <code>certificate_counter</code> table before seeding <code>instrument_types</code>, causing foreign key constraint failures on fresh database imports. The table creation order was corrected.</li>
+    <li><strong>Admin hash staleness:</strong> The admin user <code>INSERT</code> statement used <code>INSERT IGNORE</code>, which silently failed to update the bcrypt hash on re-import. Changed to <code>INSERT ... ON DUPLICATE KEY UPDATE</code> to always refresh the hash.</li>
+    <li><strong>Letterhead image path inconsistency:</strong> Several certificate templates used inconsistent relative paths for the header, footer, stamp, and signature images. All paths were standardized to <code>../assets/images/{header,footer,stamp,sign}.jpeg</code>.</li>
+    <li><strong>CSRF verification failing on multipart forms:</strong> The <code>verifyCsrf()</code> function was updated to check both the <code>X-CSRF-Token</code> request header and the POST body field, handling both JSON and multipart form submissions correctly.</li>
+  </ul>
+
+  <p>A full project backup was created using a compressed <code>.tar.gz</code> archive of the project folder, stored in <code>C:\xampp\htdocs\calibration_backups\</code> with a timestamped filename. Restore scripts in both Windows Batch and PowerShell formats were written to allow one-command restoration from the backup.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>34</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CONCLUSION
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>Conclusion</span></div>
+  <div class="chapter-title">Conclusion</div>
+
+  <p>This four-week summer internship at Shreeji Instruments resulted in the successful design, development, and deployment of a complete web-based Calibration Certificate Management System. The system addresses all identified pain points of the manual certificate workflow and provides a scalable, maintainable, and secure digital platform for the organization's certificate issuance needs.</p>
+
+  <h3 class="sub-title">Achievements</h3>
+  <p>The following milestones were achieved over the course of the internship:</p>
+  <ul>
+    <li>Delivered a fully functional web application supporting 26 instrument types with custom certificate forms and PDF generation for each</li>
+    <li>Implemented an automated, concurrent-safe certificate numbering system with monthly resets and instrument-specific prefixes</li>
+    <li>Integrated Cloudinary cloud storage to provide permanent, shareable URLs for all issued certificates</li>
+    <li>Built a comprehensive security layer including CSRF protection, bcrypt password hashing, PDO prepared statements, and login rate limiting — addressing all relevant OWASP Top 10 categories for this application type</li>
+    <li>Designed and implemented a nine-table relational database schema with soft delete, audit logging, and database-driven configuration patterns</li>
+    <li>Applied the DRY principle to reduce code duplication across 26 template files through shared PHP includes</li>
+    <li>Delivered an offline-first saving mechanism for use in field conditions without internet connectivity</li>
+  </ul>
+
+  <h3 class="sub-title">Skills Acquired</h3>
+  <p>This internship provided significant practical experience in areas that complement the theoretical knowledge gained in academic coursework:</p>
+  <ul>
+    <li><strong>Full-Stack Web Development:</strong> End-to-end experience from database schema design to frontend UI implementation</li>
+    <li><strong>Database Design:</strong> Practical application of normalization, foreign key relationships, indexing, and transaction management</li>
+    <li><strong>Application Security:</strong> Hands-on implementation of standard web security countermeasures based on OWASP guidelines</li>
+    <li><strong>API Design:</strong> Design and implementation of REST JSON endpoints with proper error handling and response formats</li>
+    <li><strong>Cloud Service Integration:</strong> Working with the Cloudinary API for binary file upload and management</li>
+    <li><strong>Software Engineering Practices:</strong> Requirements analysis, architecture documentation, migration-based schema management, and backup strategies</li>
+  </ul>
+
+  <h3 class="sub-title">Future Enhancements</h3>
+  <p>The following enhancements are recommended for future development of the system:</p>
+  <ul>
+    <li><strong>Role-based access control:</strong> Enforce page-level permissions based on the admin/operator role distinction already present in the database schema</li>
+    <li><strong>SMS / Email reminders:</strong> Automatically notify clients when their instruments are approaching recalibration due dates</li>
+    <li><strong>Digital signature:</strong> Replace the static signature image in PDFs with a legally valid digital signature using a certificate authority</li>
+    <li><strong>Multi-language support:</strong> Add Gujarati language support for certificate fields used in local government contracts</li>
+    <li><strong>Mobile application:</strong> A Progressive Web App (PWA) wrapper for the existing system to enable installation on mobile devices used by field technicians</li>
+    <li><strong>Report analytics:</strong> Enhanced dashboard with instrument-wise revenue tracking and client visit frequency analysis</li>
+  </ul>
+
+  <p>Overall, this internship was a highly productive learning experience that bridged the gap between academic software engineering concepts and real-world project delivery. The completed system is in active use by Shreeji Instruments for certificate issuance and record management.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>36</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     REFERENCES
+═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="running-header"><span>D25DIT088</span><span>References</span></div>
+  <div class="chapter-title">References</div>
+
+  <p>[1] M. Galli, "jsPDF — Client-side JavaScript PDF generation", GitHub Repository, https://github.com/parallax/jsPDF, 2023.</p>
+
+  <p>[2] jsPDF-AutoTable Contributors, "AutoTable plugin for jsPDF", GitHub Repository, https://github.com/simonbengtsson/jsPDF-AutoTable, 2023.</p>
+
+  <p>[3] The PHP Group, <em>PHP Manual — PDO (PHP Data Objects)</em>, PHP Documentation, https://www.php.net/manual/en/book.pdo.php, 2024.</p>
+
+  <p>[4] The PHP Group, <em>PHP Manual — password_hash and password_verify</em>, PHP Documentation, https://www.php.net/manual/en/function.password-hash.php, 2024.</p>
+
+  <p>[5] Cloudinary Ltd., "Upload API Reference", Cloudinary Developer Documentation, https://cloudinary.com/documentation/image_upload_api_reference, 2024.</p>
+
+  <p>[6] OWASP Foundation, <em>OWASP Top Ten Web Application Security Risks</em>, Open Web Application Security Project, https://owasp.org/www-project-top-ten/, 2023.</p>
+
+  <p>[7] Mozilla Developer Network, "Using the File System Access API", MDN Web Docs, https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API, 2024.</p>
+
+  <p>[8] Font Awesome, "Font Awesome 6 — Free Icon Library", https://fontawesome.com/v6/docs, 2023.</p>
+
+  <p>[9] MySQL AB, <em>MySQL 5.7 Reference Manual</em>, Oracle Corporation, https://dev.mysql.com/doc/refman/5.7/en/, 2024.</p>
+
+  <p>[10] R. Elmasri and S. Navathe, <em>Fundamentals of Database Systems</em>, 7th ed., Pearson Education, 2016.</p>
+
+  <p>[11] D. Crockford, <em>JavaScript: The Good Parts</em>, O'Reilly Media, 2008.</p>
+
+  <p>[12] B. McLaughlin, G. Pollice, and D. West, <em>Head First Object-Oriented Analysis and Design</em>, O'Reilly Media, 2006.</p>
+
+  <p>[13] Bureau of Indian Standards, <em>IS 4169:2014 — Method for Testing of Compression Testing Machines</em>, BIS, New Delhi, 2014.</p>
+
+  <p>[14] W3Schools Online Web Tutorials, "PHP MySQL Tutorial", https://www.w3schools.com/php/php_mysql_intro.asp, 2024.</p>
+
+  <p>[15] Apache Friends, "XAMPP — Cross-Platform (X), Apache (A), MariaDB (M), PHP (P) and Perl (P)", https://www.apachefriends.org/, 2024.</p>
+
+  <div class="running-footer">
+    <span>DEPSTAR</span><span>38</span><span>Department of Computer Engineering</span>
+  </div>
+</div>
+
+<!-- Print helper bar (screen-only) -->
+<div class="no-print" style="position:fixed;bottom:20px;right:20px;background:var(--teal);color:white;padding:12px 20px;border-radius:6px;font-family:sans-serif;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);" onclick="window.print()">
+  🖨 Print / Save as PDF
+</div>
+
+</body>
+</html>
