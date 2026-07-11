@@ -17,40 +17,40 @@ $instrumentId = $instrument['id'] ?? null;
 <div class="container">
     <h2 class="centered">CUBE TESTING MACHINE CALIBRATION CERTIFICATE</h2>
     <form id="calibrationForm">
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="certificateNumber">Certificate No:</label>
         <input type="text" id="certificateNumber" required>
       </div>
-      <div class="date">
-        <div class="title_input_pair">
+      <div class="form-row">
+        <div class="form-group">
             <label for="calibrationDate">Date of Calibration:</label>
             <input type="date" id="calibrationDate" onchange="calculateNextDate()" required>
         </div>
-        <div class="title_input_pair">
+        <div class="form-group">
             <label for="nextCalibrationDate">Next Suggested Date:</label>
             <input type="date" id="nextCalibrationDate" required>
         </div>
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="partyName">Company Name:</label>
         <input type="text" id="partyName" required>
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="operated">Type of Machine:</label>
         <select id="operated">
           <option value="ELECTRICAL OPERATED">Electrical Operated</option>
           <option value="HAND OPERATED">HAND Operated</option>
         </select>
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="make">Make:</label>
         <input type="text" id="make" required>
       </div>  
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="serialNo">Serial No:</label>
         <input type="text" id="serialNo" required>
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="capacity">Capacity:</label>
         <select id="capacity">
           <option value="1000 KN">1000 KN</option>
@@ -59,11 +59,11 @@ $instrumentId = $instrument['id'] ?? null;
           <option value="2000 KN">2000 KN</option>
         </select> 
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="siteLocation">Site Location:</label>
         <input type="text" id="siteLocation" required>
       </div>
-      <div class="title_input_pair">
+      <div class="form-group">
         <label for="ring">PROVIRING WANT TO SELECT:</label>
         <select id="ring" onchange="showInputBoxes()">
           <option value="">SELECT PROVIRING</option>
@@ -72,87 +72,87 @@ $instrumentId = $instrument['id'] ?? null;
           <option value='2000KN new'>2000 KN NEW</option>
         </select>
       </div>
-      <div class="READING-container">
-            <div id="reading1000" class="reading1000" style="display: none;">
-                <div class="title_input_pair">
+      <div class="form-row">
+            <div id="reading1000" class="form-row" style="display: none;">
+                <div class="form-group">
                   <label for="i1">100</label>
                   <input type="text" id="i1" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i2">200</label>
                   <input type="text" id="i2" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i3">300</label>
                   <input type="text" id="i3" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i4">400</label>
                   <input type="text" id="i4" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i5">500</label>
                   <input type="text" id="i5" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i6">600</label>
                   <input type="text" id="i6" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i7">700</label>
                   <input type="text" id="i7" maxlength="7" >
                 </div>  
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i8">800</label>
                   <input type="text" id="i8" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i9">900</label>
                   <input type="text" id="i9" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i10"> 1000</label>
                   <input type="text" id="i10" maxlength="7" >
                 </div>
             </div>  
-            <div id="reading2000" class="reading2000" style="display: none;">
-                <div class="title_input_pair">
+            <div id="reading2000" class="form-row" style="display: none;">
+                <div class="form-group">
                   <label for="i21">200</label>
                   <input type="text" id="i21" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i22">400</label>
                   <input type="text" id="i22" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i23">600</label>
                   <input type="text" id="i23" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i24">800</label>
                   <input type="text" id="i24" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i25">1000</label>
                   <input type="text" id="i25" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i26">1200</label>
                   <input type="text" id="i26" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i27">1400</label>
                   <input type="text" id="i27" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i28">1600</label>
                   <input type="text" id="i28" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i29">1800</label>
                   <input type="text" id="i29" maxlength="7" >
                 </div>
-                <div class="title_input_pair">
+                <div class="form-group">
                   <label for="i210"> 2000</label>
                   <input type="text" id="i210" maxlength="7" >
                 </div>

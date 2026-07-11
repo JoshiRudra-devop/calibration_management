@@ -608,3 +608,142 @@ window.generatePDF = generatePDF;
 window.generatePDFblankpg = generatePDFblankpg;
 window.printBlankCertificate = printBlankCertificate;
 window.sharePDF = sharePDF;
+
+// ── Global Custom Autocomplete ──
+document.addEventListener('DOMContentLoaded', async () => {
+  const nameInput = document.getElementById('partyName') || document.getElementById('parentCompanyName');
+  const locInput = document.getElementById('siteLocation') || document.getElementById('parentSiteLocation');
+  
+  if (!nameInput) return;
+
+  // Turn off native autocomplete
+  nameInput.setAttribute('autocomplete', 'off');
+
+  // Wrap the input if it's not already wrapped
+  if (!nameInput.parentElement.classList.contains('autocomplete-wrapper')) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'autocomplete-wrapper';
+    nameInput.parentNode.insertBefore(wrapper, nameInput);
+    wrapper.appendChild(nameInput);
+  }
+  
+  const wrapper = nameInput.parentElement;
+  let dropdown = wrapper.querySelector('.autocomplete-dropdown');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.className = 'autocomplete-dropdown';
+    wrapper.appendChild(dropdown);
+  }
+
+  let companiesList = [];
+  try {
+    const res = await fetch(SHREEJI_CONFIG.apiBase + '/get_parties_try.php');
+    const data = await res.json();
+    if (data.success && data.parties) {
+      companiesList = data.parties;
+    }
+  } catch (err) {
+    if (window.SHREEJI_DEBUG) console.error('Failed to load companies autocomplete:', err);
+  }
+
+  function renderDropdown() {
+    const query = nameInput.value.toLowerCase().trim();
+    dropdown.innerHTML = '';
+    
+    let matches = [];
+    if (query.length === 0) {
+      matches = companiesList;
+    } else {
+      const startsWithMatches = [];
+      const containsMatches = [];
+      companiesList.forEach(item => {
+        const nameLower = item.name.toLowerCase();
+        if (nameLower.startsWith(query)) {
+          startsWithMatches.push(item);
+        } else if (nameLower.includes(query)) {
+          containsMatches.push(item);
+        }
+      });
+      matches = startsWithMatches.concat(containsMatches);
+    }
+    
+    if (matches.length === 0) {
+      dropdown.classList.remove('active');
+      return;
+    }
+    
+    matches.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = item.name;
+      div.appendChild(nameSpan);
+      
+      if (item.site_location) {
+        const locTag = document.createElement('span');
+        locTag.className = 'loc-tag';
+        locTag.textContent = item.site_location;
+        div.appendChild(locTag);
+      }
+      
+      // Use mousedown instead of click to fire before the input loses focus on mobile
+      div.addEventListener('mousedown', function(e) {
+        e.preventDefault(); // Prevent input from losing focus immediately
+        nameInput.value = item.name;
+        if (locInput) locInput.value = item.site_location || '';
+        dropdown.classList.remove('active');
+        
+        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (locInput) locInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      
+      dropdown.appendChild(div);
+    });
+    
+    dropdown.classList.add('active');
+  }
+
+  let _acDebounce;
+  nameInput.addEventListener('input', () => {
+    clearTimeout(_acDebounce);
+    _acDebounce = setTimeout(renderDropdown, 280);
+  });
+  
+  nameInput.addEventListener('focus', renderDropdown);
+  nameInput.addEventListener('click', renderDropdown);
+
+  let _acIndex = -1;
+  nameInput.addEventListener('keydown', function(e) {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (!dropdown.classList.contains('active') || items.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _acIndex = Math.min(_acIndex + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _acIndex = Math.max(_acIndex - 1, -1);
+    } else if (e.key === 'Enter' && _acIndex >= 0) {
+      e.preventDefault();
+      items[_acIndex]?.dispatchEvent(new MouseEvent('mousedown'));
+      _acIndex = -1;
+      return;
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('active');
+      _acIndex = -1;
+      return;
+    } else {
+      return;
+    }
+    items.forEach((el, i) => el.classList.toggle('autocomplete-item--active', i === _acIndex));
+    if (_acIndex >= 0) items[_acIndex].scrollIntoView({ block: 'nearest' });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!nameInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('active');
+      _acIndex = -1;
+    }
+  });
+});

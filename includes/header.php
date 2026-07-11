@@ -91,42 +91,7 @@ $activePage = $activePage ?? '';
       setTimeout(() => modalOverlay.classList.add('show'), 10);
     };
     
-    // Global Company Autocomplete for all instrument forms
-    document.addEventListener('DOMContentLoaded', async () => {
-      const partyInput = document.getElementById('partyName') || document.getElementById('parentCompanyName');
-      if (partyInput) {
-        try {
-          const res = await fetch(SHREEJI_CONFIG.apiBase + '/get_parties_try.php');
-          const data = await res.json();
-          if (data.success && data.parties) {
-            const datalist = document.createElement('datalist');
-            datalist.id = 'globalPartyList';
-            data.parties.forEach(p => {
-              const opt = document.createElement('option');
-              opt.value = p.name;
-              datalist.appendChild(opt);
-            });
-            document.body.appendChild(datalist);
-            partyInput.setAttribute('list', 'globalPartyList');
-            // partyInput.setAttribute('autocomplete', 'off'); // Allow browser default autofill as fallback
-            
-            // Auto-fill site location if available
-            const siteInput = document.getElementById('siteLocation') || document.getElementById('parentSiteLocation');
-            if (siteInput) {
-               partyInput.addEventListener('change', () => {
-                 const selected = data.parties.find(x => x.name === partyInput.value);
-                 if (selected && selected.site_location && !siteInput.value) {
-                   siteInput.value = selected.site_location;
-                   siteInput.dispatchEvent(new Event('input', { bubbles: true })); // trigger sync
-                 }
-               });
-            }
-          }
-        } catch (err) {
-          if (window.SHREEJI_DEBUG) console.error('Failed to load companies datalist:', err);
-        }
-      }
-    });
+
   </script>
 <?php
 $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
