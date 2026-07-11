@@ -846,6 +846,7 @@ document.querySelectorAll('.modal-card').forEach(card => {
         src="certificates/${slug}.php?embed=true" 
         id="${uniqueId}" 
         class="instrument-iframe" 
+        loading="lazy"
         onload="initEmbeddedIframe('${uniqueId}')"
       ></iframe>
     `;
@@ -1099,11 +1100,28 @@ function saveIframePromise(iframe) {
 }
 
 async function saveAllCertificates() {
-  if (!validateAllForms()) return;
+  const saveBtn = document.querySelector('.btn-save-all');
+  if (saveBtn) {
+    if (saveBtn.disabled) return;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  }
+
+  if (!validateAllForms()) {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
+    return;
+  }
   
   const iframes = document.querySelectorAll('.instrument-iframe');
   if (iframes.length === 0) {
     alert('No instrument certificates have been added yet.');
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
     return;
   }
   
@@ -1174,36 +1192,21 @@ async function saveAllCertificates() {
     }
   }
   
-  // 2. Download the unified, combined multi-page PDF locally for the user
-  if (successCount > 0) {
-    try {
-      Loader.show('Generating combined PDF document...');
-      const doc = await generateUnifiedPDF();
-      if (doc) {
-        const pdfBlob = doc.output('blob');
-        const companyName = nameInput.value.replace(/[^a-zA-Z0-9]/g, '_') || 'company';
-        const fileName = `Combined_Certificates_${companyName}.pdf`;
-        
-        // Use browser download
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      if (window.SHREEJI_DEBUG) console.error('Failed to download combined PDF:', err);
-    }
   }
   
-  if (errorCount === 0) {
-    Loader.success(`Successfully saved and synced all ${successCount} certificate(s)! âœ¨`);
-  } else {
-    Loader.error(`Saved ${successCount} certificate(s). Failed to save ${errorCount} certificate(s).`);
-    alert('Errors:\n' + errors.join('\n'));
+  Loader.hide();
+  
+  const saveBtn = document.querySelector('.btn-save-all');
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+  }
+
+  if (errorCount === 0 && successCount > 0) {
+    alert(`Successfully saved ${successCount} certificate(s)!`);
+    window.location.href = 'index.php';
+  } else if (errorCount > 0) {
+    alert(`Saved ${successCount} certificate(s).\nEncountered ${errorCount} error(s):\n- ${errors.join('\n- ')}`);
   }
 }
 
