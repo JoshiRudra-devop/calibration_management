@@ -715,4 +715,49 @@ h2.centered {
     flex: 1 1 100% !important;
     order: -1; /* Push to top of the dock */
   }
+  }
+}
+
+/* ── NATIVE APP UX OVERRIDES ── */
+body {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  /* Phase 2: Full-Bleed Edges */
+  .container, .page-wrapper {
+    margin: 0 !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-height: 100vh;
+    background: var(--bg) !important;
+  }
+  
+  /* Form cards full bleed inside container */
+  .form-card {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Phase 3: Glassmorphic Sticky Header */
+  .top-brand-header {
+    position: sticky !important;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 121, 107, 0.1);
+  }
+  
+  /* Phase 4: Input Auto-Zoom Prevention on iOS */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
