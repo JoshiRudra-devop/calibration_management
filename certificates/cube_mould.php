@@ -64,6 +64,18 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_SLUG = 'cube_mould';
     let pdfSaved = false;
 
+    function getFormDetails() {
+      return {
+        certificateNumber: document.getElementById('certificateNumber')?.value || '',
+        calibrationDate: document.getElementById('calibrationDate')?.value || '',
+        nextCalibrationDate: document.getElementById('nextCalibrationDate')?.value || '',
+        partyName: document.getElementById('partyName')?.value || '',
+        siteLocation: document.getElementById('siteLocation')?.value || '',
+        quantity: document.getElementById('quantity')?.value || '',
+        size: document.getElementById('size')?.value || ''
+      };
+    }
+
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
     async function prepareImages() {

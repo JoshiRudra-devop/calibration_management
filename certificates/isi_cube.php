@@ -65,6 +65,24 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_SLUG = 'isi_cube';
     let pdfSaved = false;
 
+    function getFormDetails() {
+      const qty = parseInt(document.getElementById('quantity')?.value) || 0;
+      const serials = [];
+      for (let i = 1; i <= qty; i++) {
+        serials.push(document.getElementById('serial' + i)?.value || '');
+      }
+      return {
+        certificateNumber: document.getElementById('certificateNumber')?.value || '',
+        calibrationDate: document.getElementById('calibrationDate')?.value || '',
+        nextCalibrationDate: document.getElementById('nextCalibrationDate')?.value || '',
+        partyName: document.getElementById('partyName')?.value || '',
+        siteLocation: document.getElementById('siteLocation')?.value || '',
+        quantity: qty,
+        size: document.getElementById('size')?.value || '',
+        serials: serials
+      };
+    }
+
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
     async function prepareImages() {

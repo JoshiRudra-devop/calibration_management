@@ -94,12 +94,22 @@ function calculateNextDate() {
   if (calibDate && nextDate && calibDate.value) {
     const date = new Date(calibDate.value);
     date.setFullYear(date.getFullYear() + 1);
+    // Subtract 1 day for exact 1 year validity
+    date.setDate(date.getDate() - 1);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     nextDate.value = `${year}-${month}-${day}`;
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const calibDateInput = document.getElementById('calibrationDate');
+  if (calibDateInput && !calibDateInput.value) {
+    calibDateInput.value = new Date().toISOString().split('T')[0];
+    calculateNextDate();
+  }
+});
 
 // â”€â”€ Show/Hide Loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showLoader(message = 'Processing...') {

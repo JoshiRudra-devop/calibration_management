@@ -10,7 +10,7 @@ include __DIR__ . '/includes/header.php';
 
 // Fetch instrument types from DB for the modal selection
 $db = getDB();
-$types = $db->query("SELECT slug, label FROM instrument_types ORDER BY sort_order")->fetchAll();
+$types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN ('full_lab', 'try_instrument') ORDER BY sort_order")->fetchAll();
 ?>
 
 <!-- Custom CSS for the Trial page to keep main CSS untouched -->
@@ -1316,14 +1316,14 @@ if (parentNextDateInput) {
   parentNextDateInput.addEventListener('change', syncAllIframes);
 }
 
-// Event listeners to sync details on keypress
-nameInput.addEventListener('input', syncAllIframes);
-locInput.addEventListener('input', syncAllIframes);
-
 // Initialize
 let activeIframeId = 0;
 const nameInput = document.getElementById('parentCompanyName');
 const locInput = document.getElementById('parentSiteLocation');
+
+// Event listeners to sync details on keypress
+nameInput.addEventListener('input', syncAllIframes);
+locInput.addEventListener('input', syncAllIframes);
 
 document.addEventListener('DOMContentLoaded', () => {
   updateGlobalActionsState();

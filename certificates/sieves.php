@@ -62,7 +62,7 @@ $instrumentId = $instrument['id'] ?? null;
         <div id="subSizes" style="display:none; border: 2px solid #00796b; border-radius: 10px; padding: 20px; margin: 10px 0; background-color: #f9f9f9; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
           <h3 style="margin-top: 0; color: #00796b;">Select Sub-Sizes:</h3>
           <div id="checkBoxes" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
-          <button id="selectFullSetBtn" style="margin-top: 15px; padding: 10px 20px; background-color: #00796b; color: white; border: none; border-radius: 5px; cursor: pointer;">SELECT FULL SET</button>
+          <button type="button" id="selectFullSetBtn" style="margin-top: 15px; padding: 10px 20px; background-color: #00796b; color: white; border: none; border-radius: 5px; cursor: pointer;">SELECT FULL SET</button>
         </div>
         <div id="testResults">
           <h3>Test Results</h3>

@@ -85,12 +85,18 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
       doc.setFontSize(12);
-      doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign += 15);
-      doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign += 7);
-      doc.text("equipment traceable to international standards.", 12, Yalign += 7);
-      let hori_axis = (Yalign += 5);
-      doc.text("From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as", 12, hori_axis += 9);
-      doc.text("per IS: 7320-1974 within the permissible limit. ", 12, hori_axis += 5);
+      const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
+      
+      const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+      const lines1 = doc.splitTextToSize(para1, maxWidth);
+      doc.text(lines1, 12, Yalign += 15);
+      Yalign += (lines1.length * 6); // Add height for paragraph 1
+      
+      let hori_axis = Yalign + 5;
+      const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
+      const lines2 = doc.splitTextToSize(para2, maxWidth);
+      doc.text(lines2, 12, hori_axis += 9);
+      hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
 
       doc.setFontSize(12);
       // Certificate Details

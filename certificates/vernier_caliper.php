@@ -211,8 +211,8 @@ function addCertificateDetails(doc, details)
 
   // move cursor below table
   const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : tableStartY + (rows.length + 2) * 7;
-  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, afterTableY );
-  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 235 );
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, 215);
+  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 235);
   doc.text("PROPRIETOR", 170, 250);
 }
 // --- Least-count variable (millimetres) derived from the `#size` input ---

@@ -168,16 +168,19 @@ $activePage = $activePage ?? '';
             div.appendChild(locTag);
           }
           
-          // Use mousedown instead of click to fire before the input loses focus on mobile
-          div.addEventListener('mousedown', function(e) {
+          // Handle both mousedown and touchstart for instant mobile response
+          const selectItem = function(e) {
             e.preventDefault(); // Prevent input from losing focus immediately
             nameInput.value = item.name;
             if (locInput) locInput.value = item.site_location || '';
             dropdown.classList.remove('active');
+            nameInput.blur(); // Force keyboard to hide on mobile
             
             nameInput.dispatchEvent(new Event('input', { bubbles: true }));
             if (locInput) locInput.dispatchEvent(new Event('input', { bubbles: true }));
-          });
+          };
+          div.addEventListener('mousedown', selectItem);
+          div.addEventListener('touchstart', selectItem, {passive: false});
           
           dropdown.appendChild(div);
         });
@@ -193,6 +196,12 @@ $activePage = $activePage ?? '';
       
       nameInput.addEventListener('focus', renderDropdown);
       nameInput.addEventListener('click', renderDropdown);
+      
+      // Auto hide when clicking outside or losing focus
+      nameInput.addEventListener('blur', () => {
+        setTimeout(() => dropdown.classList.remove('active'), 200);
+      });
+
 
       let _acIndex = -1;
       nameInput.addEventListener('keydown', function(e) {

@@ -72,87 +72,87 @@ $instrumentId = $instrument['id'] ?? null;
           <option value='2000KN new'>2000 KN NEW</option>
         </select>
       </div>
-      <div class="form-row">
-            <div id="reading1000" class="form-row" style="display: none;">
-                <div class="form-group">
+      <div class="READING-container">
+            <div id="reading1000" class="READING-container" style="display: none;">
+                <div class="title_input_pair">
                   <label for="i1">100</label>
                   <input type="text" id="i1" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i2">200</label>
                   <input type="text" id="i2" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i3">300</label>
                   <input type="text" id="i3" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i4">400</label>
                   <input type="text" id="i4" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i5">500</label>
                   <input type="text" id="i5" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i6">600</label>
                   <input type="text" id="i6" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i7">700</label>
                   <input type="text" id="i7" maxlength="7" >
                 </div>  
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i8">800</label>
                   <input type="text" id="i8" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i9">900</label>
                   <input type="text" id="i9" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i10"> 1000</label>
                   <input type="text" id="i10" maxlength="7" >
                 </div>
             </div>  
-            <div id="reading2000" class="form-row" style="display: none;">
-                <div class="form-group">
+            <div id="reading2000" class="READING-container" style="display: none;">
+                <div class="title_input_pair">
                   <label for="i21">200</label>
                   <input type="text" id="i21" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i22">400</label>
                   <input type="text" id="i22" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i23">600</label>
                   <input type="text" id="i23" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i24">800</label>
                   <input type="text" id="i24" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i25">1000</label>
                   <input type="text" id="i25" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i26">1200</label>
                   <input type="text" id="i26" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i27">1400</label>
                   <input type="text" id="i27" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i28">1600</label>
                   <input type="text" id="i28" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i29">1800</label>
                   <input type="text" id="i29" maxlength="7" >
                 </div>
-                <div class="form-group">
+                <div class="title_input_pair">
                   <label for="i210"> 2000</label>
                   <input type="text" id="i210" maxlength="7" >
                 </div>
@@ -447,7 +447,7 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
       
-      doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 225); 
+      doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 215); 
       doc.setFontSize(12);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
       doc.text("PROPRIETOR", 170, 245);
