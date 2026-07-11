@@ -93,7 +93,7 @@ $activePage = $activePage ?? '';
     
     // Global Company Autocomplete for all instrument forms
     document.addEventListener('DOMContentLoaded', async () => {
-      const partyInput = document.getElementById('partyName');
+      const partyInput = document.getElementById('partyName') || document.getElementById('parentCompanyName');
       if (partyInput) {
         try {
           const res = await fetch(SHREEJI_CONFIG.apiBase + '/get_parties_try.php');
@@ -108,15 +108,16 @@ $activePage = $activePage ?? '';
             });
             document.body.appendChild(datalist);
             partyInput.setAttribute('list', 'globalPartyList');
-            partyInput.setAttribute('autocomplete', 'off'); // Disable browser default autofill
+            // partyInput.setAttribute('autocomplete', 'off'); // Allow browser default autofill as fallback
             
             // Auto-fill site location if available
-            const siteInput = document.getElementById('siteLocation');
+            const siteInput = document.getElementById('siteLocation') || document.getElementById('parentSiteLocation');
             if (siteInput) {
                partyInput.addEventListener('change', () => {
                  const selected = data.parties.find(x => x.name === partyInput.value);
                  if (selected && selected.site_location && !siteInput.value) {
                    siteInput.value = selected.site_location;
+                   siteInput.dispatchEvent(new Event('input', { bubbles: true })); // trigger sync
                  }
                });
             }

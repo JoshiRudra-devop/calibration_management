@@ -56,38 +56,6 @@ $types = $db->query("SELECT slug, label FROM instrument_types ORDER BY sort_orde
     gap: 0.5rem;
   }
   
-  /* Autocomplete input styling */
-  .autocomplete-wrapper {
-    position: relative;
-    width: 100%;
-  }
-  .autocomplete-dropdown {
-    position: absolute;
-    top: 105%;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    max-height: 280px;
-    overflow-y: auto;
-    z-index: 2000;
-    display: none;
-  }
-  .autocomplete-dropdown.active {
-    display: block;
-  }
-  .autocomplete-item {
-    padding: 0.8rem 1.2rem;
-    cursor: pointer;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.95rem;
-    transition: background 0.15s, color 0.15s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
   .autocomplete-item:last-child {
     border-bottom: none;
   }
@@ -511,17 +479,12 @@ $types = $db->query("SELECT slug, label FROM instrument_types ORDER BY sort_orde
         <!-- Company Name (With Autocomplete) -->
         <div class="form-group" style="flex: 2; min-width: 250px;">
           <label for="parentCompanyName" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Company Name</label>
-          <div class="autocomplete-wrapper">
-            <input 
-              type="text" 
-              id="parentCompanyName" 
-              placeholder="Search or enter company name..." 
-              autocomplete="off"
-              style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
-            >
-            <!-- Autocomplete list container -->
-            <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
-          </div>
+          <input 
+            type="text" 
+            id="parentCompanyName" 
+            placeholder="Search or enter company name..." 
+            style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
+          >
         </div>
 
         <!-- Site Location -->
@@ -657,137 +620,7 @@ window.getUniqueCertificateNumber = function(slug, baseNumber, currentWindow) {
   return candidate;
 };
 
-let companiesList = [];
-let activeIframeId = 0;
-
-// â”€â”€ 1. Fetch Autocomplete Data on Load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function fetchCompanies() {
-  try {
-    const res = await fetch(SHREEJI_CONFIG.apiBase + '/get_parties_try.php');
-    const data = await res.json();
-    if (data.success && data.parties) {
-      companiesList = data.parties;
-    }
-  } catch (err) {
-    if (window.SHREEJI_DEBUG) console.error('Failed to load companies autocomplete:', err);
-  }
-}
-
-// â”€â”€ 2. Autocomplete Dropdown Handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const nameInput = document.getElementById('parentCompanyName');
-const locInput = document.getElementById('parentSiteLocation');
-const dropdown = document.getElementById('autocompleteDropdown');
-
-function renderDropdown() {
-  const query = nameInput.value.toLowerCase().trim();
-  dropdown.innerHTML = '';
-  
-  let matches = [];
-  if (query.length === 0) {
-    // Show all companies sorted alphabetically (pre-sorted from API)
-    matches = companiesList;
-  } else {
-    // Group 1: Starts with query
-    const startsWithMatches = [];
-    // Group 2: Contains query but does not start with query
-    const containsMatches = [];
-    
-    companiesList.forEach(item => {
-      const nameLower = item.name.toLowerCase();
-      if (nameLower.startsWith(query)) {
-        startsWithMatches.push(item);
-      } else if (nameLower.includes(query)) {
-        containsMatches.push(item);
-      }
-    });
-    
-    // Combine group 1 and group 2 (preserving alphabetical sorting within groups)
-    matches = startsWithMatches.concat(containsMatches);
-  }
-  
-  if (matches.length === 0) {
-    dropdown.classList.remove('active');
-    return;
-  }
-  
-  matches.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'autocomplete-item';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = item.name;
-    div.appendChild(nameSpan);
-    
-    if (item.site_location) {
-      const locTag = document.createElement('span');
-      locTag.className = 'loc-tag';
-      locTag.textContent = item.site_location;
-      div.appendChild(locTag);
-    }
-    
-    div.addEventListener('click', function() {
-      nameInput.value = item.name;
-      locInput.value = item.site_location || '';
-      dropdown.classList.remove('active');
-      
-      // Dispatch event to push values into iframes
-      nameInput.dispatchEvent(new Event('input'));
-      locInput.dispatchEvent(new Event('input'));
-    });
-    
-    dropdown.appendChild(div);
-  });
-  
-  dropdown.classList.add('active');
-}
-
-// Debounced input — avoids re-rendering on every keystroke
-let _acDebounce;
-nameInput.addEventListener('input', () => {
-  clearTimeout(_acDebounce);
-  _acDebounce = setTimeout(renderDropdown, 280);
-});
-nameInput.addEventListener('focus', renderDropdown);
-nameInput.addEventListener('click', renderDropdown);
-
-// Keyboard navigation: ArrowDown / ArrowUp / Enter / Escape
-let _acIndex = -1;
-nameInput.addEventListener('keydown', function(e) {
-  const items = dropdown.querySelectorAll('.autocomplete-item');
-  if (!dropdown.classList.contains('active') || items.length === 0) return;
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    _acIndex = Math.min(_acIndex + 1, items.length - 1);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    _acIndex = Math.max(_acIndex - 1, -1);
-  } else if (e.key === 'Enter' && _acIndex >= 0) {
-    e.preventDefault();
-    items[_acIndex]?.click();
-    _acIndex = -1;
-    return;
-  } else if (e.key === 'Escape') {
-    dropdown.classList.remove('active');
-    _acIndex = -1;
-    return;
-  } else {
-    return;
-  }
-  items.forEach((el, i) => el.classList.toggle('autocomplete-item--active', i === _acIndex));
-  if (_acIndex >= 0) items[_acIndex].scrollIntoView({ block: 'nearest' });
-});
-
-// Reset index on re-render
-const _origRenderDropdown = renderDropdown;
-
-// Close autocomplete when clicking elsewhere
-document.addEventListener('click', function(e) {
-  if (!nameInput.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.classList.remove('active');
-    _acIndex = -1;
-  }
-});
+// Replaced custom autocomplete with header.php datalist
 
 // â”€â”€ 3. Modal Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const modal = document.getElementById('instrumentModal');
@@ -1488,8 +1321,11 @@ nameInput.addEventListener('input', syncAllIframes);
 locInput.addEventListener('input', syncAllIframes);
 
 // Initialize
+let activeIframeId = 0;
+const nameInput = document.getElementById('parentCompanyName');
+const locInput = document.getElementById('parentSiteLocation');
+
 document.addEventListener('DOMContentLoaded', () => {
-  fetchCompanies();
   updateGlobalActionsState();
 });
 </script>
