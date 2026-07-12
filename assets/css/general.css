@@ -810,3 +810,43 @@ body.embed-mode .unsaved-reminder {
   border-color: #00796b !important;
   box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.1) !important;
 }
+
+/* Embed Mode overrides for a seamless look inside the master iframe */
+body.embed-mode {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: auto !important;
+}
+
+body.embed-mode .container {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0.5rem 0.5rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+body.embed-mode h2.centered {
+  display: none !important;
+}
+
+body.embed-mode form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+/* Force elements that span full width (like site location or proving ring container) to take full width */
+body.embed-mode .READING-container,
+body.embed-mode .form-group:has(#siteLocation),
+body.embed-mode .form-group:has(#partyName),
+body.embed-mode .title_input_pair:has(#siteLocation),
+body.embed-mode .title_input_pair:has(#partyName) {
+  grid-column: 1 / -1;
+}
+
+body.embed-mode .form-row {
+  display: contents; /* Flattens form-row into the main form grid */
+}
