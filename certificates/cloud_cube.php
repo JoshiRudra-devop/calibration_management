@@ -65,7 +65,7 @@ $instrumentId = $instrument['id'] ?? null;
 
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
-    async function prepareImages() {
+    window.prepareImages = async function() {
       if (!headerImgB64) headerImgB64 = await loadImageToBase64("../assets/images/header.jpeg");
       if (!footerImgB64) footerImgB64 = await loadImageToBase64("../assets/images/footer.jpeg");
       if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../assets/images/stamp.jpeg");
@@ -88,7 +88,7 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    function getFormDetails() {
+    window.getFormDetails = function() {
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
@@ -147,7 +147,7 @@ $instrumentId = $instrument['id'] ?? null;
       if (signImgB64)   doc.addImage(signImgB64,   'PNG', 160, 232, 40, 10);
     }
 
-    function addCertificateDetails(doc, details) {
+    window.addCertificateDetails = function(doc, details) {
       let qty = parseInt(details.quantity);
       if (isNaN(qty) || qty <= 0) {
         alert("Please enter a valid number of cubes.");

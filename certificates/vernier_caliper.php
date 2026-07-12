@@ -80,7 +80,7 @@ $instrumentId = $instrument['id'] ?? null;
     let stickerPdfBlob = null;
       
     // Function to fetch form details
-    function getFormDetails() {
+    window.getFormDetails = function() {
       const sizeRaw = document.getElementById("size").value || '';
       const sizeNum = parseInt(sizeRaw.replace(/\D/g, ''), 10);
       let leastCount = 0.01;
@@ -100,7 +100,7 @@ $instrumentId = $instrument['id'] ?? null;
       };
     }
 
-function addCertificateDetails(doc, details)
+window.addCertificateDetails = function(doc, details)
 {
   let Yalign = 50;
   doc.setFont("helvetica", "bold");

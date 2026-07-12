@@ -69,7 +69,7 @@ $instrumentId = $instrument['id'] ?? null;
         return date.toLocaleDateString('en-US', options);
       }
 
-      function getFormDetails() {
+      window.getFormDetails = function() {
         return {
           certificateNumber: document.getElementById("certificateNumber").value,
           calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
@@ -83,7 +83,7 @@ $instrumentId = $instrument['id'] ?? null;
         };
       }
 
-      function addCertificateDetails(doc, details) {     
+      window.addCertificateDetails = function(doc, details) {     
         let Yalign=48;
         const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
         const formattedCalibrationDate = formatDateToWords(document.getElementById("calibrationDate").value);

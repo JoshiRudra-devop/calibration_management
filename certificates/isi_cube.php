@@ -65,27 +65,11 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_SLUG = 'isi_cube';
     let pdfSaved = false;
 
-    function getFormDetails() {
-      const qty = parseInt(document.getElementById('quantity')?.value) || 0;
-      const serials = [];
-      for (let i = 1; i <= qty; i++) {
-        serials.push(document.getElementById('serial' + i)?.value || '');
-      }
-      return {
-        certificateNumber: document.getElementById('certificateNumber')?.value || '',
-        calibrationDate: document.getElementById('calibrationDate')?.value || '',
-        nextCalibrationDate: document.getElementById('nextCalibrationDate')?.value || '',
-        partyName: document.getElementById('partyName')?.value || '',
-        siteLocation: document.getElementById('siteLocation')?.value || '',
-        quantity: qty,
-        size: document.getElementById('size')?.value || '',
-        serials: serials
-      };
-    }
+
 
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
-    async function prepareImages() {
+    window.prepareImages = async function() {
       if (!headerImgB64) headerImgB64 = await loadImageToBase64("../assets/images/header.jpeg");
       if (!footerImgB64) footerImgB64 = await loadImageToBase64("../assets/images/footer.jpeg");
       if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../assets/images/stamp.jpeg");
@@ -108,7 +92,7 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    function getFormDetails() {
+    window.getFormDetails = function() {
       const qty = parseInt(document.getElementById("quantity").value);
       let serials = [];
       for (let i = 1; i <= qty; i++) {
@@ -198,7 +182,7 @@ $instrumentId = $instrument['id'] ?? null;
       if (signImgB64)   doc.addImage(signImgB64,   'PNG', 160, 232, 40, 10);
     }
 
-    function addCertificateDetails(doc, details) {
+    window.addCertificateDetails = function(doc, details) {
       let qty = parseInt(details.quantity);
       if (isNaN(qty) || qty <= 0) {
         alert("Please enter a valid number of cubes.");

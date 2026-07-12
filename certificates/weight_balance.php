@@ -175,7 +175,7 @@ $instrumentId = $instrument['id'] ?? null;
     };
 
     // Get form details
-    function getFormDetails() {
+    window.getFormDetails = function() {
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
@@ -187,7 +187,7 @@ $instrumentId = $instrument['id'] ?? null;
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
       };
     }
- function addCertificateDetails(doc, details) {
+ window.addCertificateDetails = function(doc, details) {
       let Yalign = 50;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);

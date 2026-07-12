@@ -360,7 +360,7 @@ $instrumentId = $instrument['id'] ?? null;
         }
         // IMAGE PRELOADING LOGIC
         let headerImgB64, footerImgB64, stampImgB64, signImgB64;
-        async function prepareImages() {
+        window.prepareImages = async function() {
           if (!headerImgB64) headerImgB64 = await loadImageToBase64("../assets/images/header.jpeg");
           if (!footerImgB64) footerImgB64 = await loadImageToBase64("../assets/images/footer.jpeg");
           if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../assets/images/stamp.jpeg");
@@ -382,7 +382,7 @@ $instrumentId = $instrument['id'] ?? null;
             img.src = url;
           });
         }
-        function getFormDetails() {
+        window.getFormDetails = function() {
           return {
             partyName: document.getElementById('partyName').value,
             calibrationDate: document.getElementById('calibrationDate').value.split("-").reverse().join("/"),
@@ -406,7 +406,7 @@ $instrumentId = $instrument['id'] ?? null;
           }
           return certNo;
         }
-        function addCertificateDetails(doc, details) {
+        window.addCertificateDetails = function(doc, details) {
           generateCertificate(doc);
         }
         function addImg(doc, details) {

@@ -63,7 +63,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     let stickerPdfBlob = null;
-    function getFormDetails() {
+    window.getFormDetails = function() {
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
@@ -74,7 +74,7 @@ $instrumentId = $instrument['id'] ?? null;
       };
     }
     
-    function addCertificateDetails(doc, details)
+    window.addCertificateDetails = function(doc, details)
      {
       let Yalign=53;
       doc.setFont("helvetica", "bold");
