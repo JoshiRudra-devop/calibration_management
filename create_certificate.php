@@ -528,10 +528,17 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
       <!-- Embedded Instrument cards will load dynamically here -->
     </div>
 
-    <!-- Add Instrument Action -->
-    <button class="add-instrument-cta" id="btnAddInstrument" type="button">
-      <i class="fas fa-plus-circle"></i> Add Instrument
-    </button>
+    <!-- Inline Instrument Selector -->
+    <div class="inline-instrument-selector" style="margin-top: 2rem; background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="margin-top: 0; margin-bottom: 1rem; color: #2c3e50; font-size: 1.1rem;"><i class="fas fa-list"></i> Select Instruments to Add</h3>
+      <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        <?php foreach ($types as $t): ?>
+          <div class="modal-card inline-card" data-slug="<?= htmlspecialchars($t['slug']) ?>" data-label="<?= htmlspecialchars($t['label']) ?>" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-align: center; font-weight: 500; color: #334155;">
+            <?= htmlspecialchars($t['label']) ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -553,24 +560,6 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
       <button class="global-btn btn-save-all" type="button" onclick="saveAllCertificates()">
         <i class="fas fa-save"></i> Save All
       </button>
-    </div>
-  </div>
-</div>
-
-<!-- Premium Instrument Selector Modal -->
-<div class="instrument-modal-overlay" id="instrumentModal">
-  <div class="instrument-modal">
-    <div class="instrument-modal-header">
-      <h3>Select Instrument to Add</h3>
-      <button class="close-modal-btn" id="btnCloseModal" type="button">&times;</button>
-    </div>
-    
-    <div class="modal-grid">
-      <?php foreach ($types as $t): ?>
-        <div class="modal-card" data-slug="<?= htmlspecialchars($t['slug']) ?>" data-label="<?= htmlspecialchars($t['label']) ?>">
-          <?= htmlspecialchars($t['label']) ?>
-        </div>
-      <?php endforeach; ?>
     </div>
   </div>
 </div>
@@ -625,18 +614,6 @@ window.getUniqueCertificateNumber = function(slug, baseNumber, currentWindow) {
 
 // Replaced custom autocomplete with header.php datalist
 
-// â”€â”€ 3. Modal Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const modal = document.getElementById('instrumentModal');
-const btnAdd = document.getElementById('btnAddInstrument');
-const btnClose = document.getElementById('btnCloseModal');
-
-btnAdd.addEventListener('click', () => modal.classList.add('active'));
-btnClose.addEventListener('click', () => modal.classList.remove('active'));
-
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) modal.classList.remove('active');
-});
-
 // â”€â”€ 4. Dynamically Add Instrument Iframes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const container = document.getElementById('activeInstrumentsContainer');
 
@@ -689,7 +666,6 @@ document.querySelectorAll('.modal-card').forEach(card => {
     
     container.appendChild(wrapper);
     updateGlobalActionsState();
-    modal.classList.remove('active');
   });
 });
 
