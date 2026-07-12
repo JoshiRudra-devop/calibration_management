@@ -93,7 +93,7 @@ $instrumentId = $instrument['id'] ?? null;
       </div>
       <div class="form-group">
         <label for="ring">PROVIRING WANT TO SELECT:</label>
-        <select id="ring" onchange="showInputBoxes()">
+        <select id="ring" onchange="window.showInputBoxes()">
           <option value="">SELECT PROVIRING</option>
           <option value='1000KN'>1000 KN</option>
           <option value='2000KN'>2000 KN</option>

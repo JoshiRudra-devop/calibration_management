@@ -3,8 +3,9 @@
 //  Shared: Certificate Page Loader Overlay + Unsaved Reminder
 //  Include just before closing </form> in every certificate .php
 // ============================================================
+$isEmbedded = isset($_GET['embed']) && $_GET['embed'] === 'true';
 ?>
-<div class="unsaved-reminder" id="unsavedReminder">
+<div class="unsaved-reminder" id="unsavedReminder" <?= $isEmbedded ? 'style="display: none !important;"' : '' ?>>
   <span>⚠️ Please save your certificate before leaving this page.</span>
 </div>
 
