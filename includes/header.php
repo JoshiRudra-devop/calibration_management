@@ -127,7 +127,10 @@ $activePage = $activePage ?? '';
         if (window.SHREEJI_DEBUG) console.error('Failed to load companies autocomplete:', err);
       }
 
-      function renderDropdown() {
+      let _ignoreNextInput = false;
+
+      const renderDropdown = function() {
+        if (_ignoreNextInput) return;
         const query = nameInput.value.toLowerCase().trim();
         dropdown.innerHTML = '';
         
@@ -176,6 +179,7 @@ $activePage = $activePage ?? '';
             dropdown.classList.remove('active');
             nameInput.blur(); // Force keyboard to hide on mobile
             
+            _ignoreNextInput = true;
             nameInput.dispatchEvent(new Event('input', { bubbles: true }));
             if (locInput) locInput.dispatchEvent(new Event('input', { bubbles: true }));
           };
@@ -186,10 +190,14 @@ $activePage = $activePage ?? '';
         });
         
         dropdown.classList.add('active');
-      }
+      };
 
       let _acDebounce;
       nameInput.addEventListener('input', () => {
+        if (_ignoreNextInput) {
+          _ignoreNextInput = false;
+          return;
+        }
         clearTimeout(_acDebounce);
         _acDebounce = setTimeout(renderDropdown, 280);
       });

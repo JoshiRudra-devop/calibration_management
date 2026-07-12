@@ -1286,9 +1286,12 @@ function syncSingleIframe(iframe, companyName, siteLocation, calibDate, nextDate
   }
 }
 
-// Parent Dates Auto-calculation
+// Initialize inputs globally so they are available to all functions
+const nameInput = document.getElementById('parentCompanyName');
+const locInput = document.getElementById('parentSiteLocation');
 const parentCalibDateInput = document.getElementById('parentCalibrationDate');
 const parentNextDateInput = document.getElementById('parentNextCalibrationDate');
+let activeIframeId = 0;
 
 function calculateParentNextDate() {
   if (parentCalibDateInput && parentCalibDateInput.value && parentNextDateInput) {
@@ -1303,7 +1306,10 @@ function calculateParentNextDate() {
 if (parentCalibDateInput) {
   // Default to today on load
   if (!parentCalibDateInput.value) {
-    parentCalibDateInput.value = new Date().toISOString().split('T')[0];
+    // Add timezone offset to prevent picking previous day incorrectly
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    parentCalibDateInput.value = today.toISOString().split('T')[0];
   }
   calculateParentNextDate();
   parentCalibDateInput.addEventListener('change', () => {
@@ -1315,11 +1321,6 @@ if (parentCalibDateInput) {
 if (parentNextDateInput) {
   parentNextDateInput.addEventListener('change', syncAllIframes);
 }
-
-// Initialize
-let activeIframeId = 0;
-const nameInput = document.getElementById('parentCompanyName');
-const locInput = document.getElementById('parentSiteLocation');
 
 // Event listeners to sync details on keypress
 nameInput.addEventListener('input', syncAllIframes);

@@ -14,6 +14,34 @@ $instrumentId = $instrument['id'] ?? null;
 ?>
 
 <?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
+<style>
+  .READING-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .READING-container .title_input_pair {
+    flex: 1 1 calc(50% - 15px);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+  .READING-container label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+  }
+  .READING-container input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+</style>
 <div class="container">
     <h2 class="centered">CUBE TESTING MACHINE CALIBRATION CERTIFICATE</h2>
     <form id="calibrationForm">
