@@ -237,7 +237,9 @@ $instrumentId = $instrument['id'] ?? null;
   <script>
     const INSTRUMENT_SLUG = 'ctm';
     let stickerPdfBlob = null;
-    let pdfSaved = false;
+    // NOTE: pdfSaved is already declared as a global `let` in general.js —
+    // redeclaring it here throws "Identifier 'pdfSaved' has already been declared",
+    // which is a parse-time SyntaxError that silently kills this entire <script> block.
 
     window.showInputBoxes = function() {
       var ringSelect = document.getElementById("ring");
