@@ -476,45 +476,48 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
       <h3><i class="fas fa-building"></i> Company / Party Details</h3>
       
       <div class="form-row" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-        <!-- Company Name (With Autocomplete) -->
+        <!-- Company Name (Autocomplete) -->
         <div class="form-group" style="flex: 2; min-width: 250px;">
-          <label for="parentCompanyName" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Company Name</label>
-          <input 
-            type="text" 
-            id="parentCompanyName" 
-            placeholder="Search or enter company name..." 
-            style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
-          >
+          <label for="parentCompanyName" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #2c3e50;">Company Name:</label>
+          <div class="autocomplete-wrapper">
+            <input 
+              type="text" 
+              id="parentCompanyName" 
+              placeholder="Start typing to search..." 
+              autocomplete="off"
+              style="width: 100%; padding: 0.75rem; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 1rem; color: #2c3e50;"
+            >
+          </div>
         </div>
 
         <!-- Site Location -->
         <div class="form-group" style="flex: 2; min-width: 200px;">
-          <label for="parentSiteLocation" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Site Location</label>
+          <label for="parentSiteLocation" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #2c3e50;">Site Location:</label>
           <input 
             type="text" 
             id="parentSiteLocation" 
             placeholder="e.g., Ahmedabad Plant" 
-            style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
+            style="width: 100%; padding: 0.75rem; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 1rem; color: #2c3e50;"
           >
         </div>
 
         <!-- Calibration Date -->
         <div class="form-group" style="flex: 1; min-width: 150px;">
-          <label for="parentCalibrationDate" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Calibration Date</label>
+          <label for="parentCalibrationDate" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #2c3e50;">Date of Calibration:</label>
           <input 
             type="date" 
             id="parentCalibrationDate" 
-            style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
+            style="width: 100%; padding: 0.75rem; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 1rem; color: #2c3e50;"
           >
         </div>
 
         <!-- Next Calibration Date -->
         <div class="form-group" style="flex: 1; min-width: 150px;">
-          <label for="parentNextCalibrationDate" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Next Suggested Date</label>
+          <label for="parentNextCalibrationDate" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #2c3e50;">Next Suggested Date:</label>
           <input 
             type="date" 
             id="parentNextCalibrationDate" 
-            style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: 1rem;"
+            style="width: 100%; padding: 0.75rem; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 1rem; color: #2c3e50;"
           >
         </div>
       </div>
