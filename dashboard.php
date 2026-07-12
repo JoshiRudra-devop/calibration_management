@@ -405,86 +405,94 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Trend Bar Chart ---
     const trendCtx = document.getElementById('trendChart');
     if (trendCtx) {
-        const trendLabels = <?= json_encode(array_column($chartData, 'month_label')) ?>;
-        const trendCounts = <?= json_encode(array_map('intval', array_column($chartData, 'count'))) ?>;
-        new Chart(trendCtx, {
-            type: 'bar',
-            data: {
-                labels: trendLabels,
-                datasets: [{
-                    label: 'Calibrations',
-                    data: trendCounts,
-                    backgroundColor: 'rgba(0, 121, 107, 0.75)',
-                    borderColor: 'rgba(0, 77, 64, 1)',
-                    borderWidth: 1.5,
-                    borderRadius: 6,
-                    borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ` ${ctx.parsed.y} certificate${ctx.parsed.y !== 1 ? 's' : ''}`
-                        }
-                    }
+        try {
+            const trendLabels = <?= json_encode(array_column($chartData, 'month_label')) ?>;
+            const trendCounts = <?= json_encode(array_map('intval', array_column($chartData, 'count'))) ?>;
+            new Chart(trendCtx, {
+                type: 'bar',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Calibrations',
+                        data: trendCounts,
+                        backgroundColor: 'rgba(0, 121, 107, 0.75)',
+                        borderColor: 'rgba(0, 77, 64, 1)',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, precision: 0 },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y} certificate${ctx.parsed.y !== 1 ? 's' : ''}`
+                            }
+                        }
                     },
-                    x: { grid: { display: false } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            trendCtx.parentNode.innerHTML = '<div style="color:red; padding:1rem;">Chart Error: ' + e.message + '</div>';
+        }
     }
 
     // --- Top Instruments Horizontal Bar Chart ---
     const instrCtx = document.getElementById('instrumentsChart');
     if (instrCtx) {
-        const instrLabels = <?= json_encode(array_column($topInstruments, 'label')) ?>;
-        const instrCounts = <?= json_encode(array_map('intval', array_column($topInstruments, 'cnt'))) ?>;
-        const palette = ['#00796b','#22b55d','#3b82f6','#7c3aed','#f59e0b'];
-        new Chart(instrCtx, {
-            type: 'bar',
-            data: {
-                labels: instrLabels,
-                datasets: [{
-                    label: 'Certificates',
-                    data: instrCounts,
-                    backgroundColor: instrLabels.map((_, i) => palette[i % palette.length] + 'cc'),
-                    borderColor:      instrLabels.map((_, i) => palette[i % palette.length]),
-                    borderWidth: 1.5,
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ` ${ctx.parsed.x} certificate${ctx.parsed.x !== 1 ? 's' : ''}`
-                        }
-                    }
+        try {
+            const instrLabels = <?= json_encode(array_column($topInstruments, 'label')) ?>;
+            const instrCounts = <?= json_encode(array_map('intval', array_column($topInstruments, 'cnt'))) ?>;
+            const palette = ['#00796b','#22b55d','#3b82f6','#7c3aed','#f59e0b'];
+            new Chart(instrCtx, {
+                type: 'bar',
+                data: {
+                    labels: instrLabels,
+                    datasets: [{
+                        label: 'Certificates',
+                        data: instrCounts,
+                        backgroundColor: instrLabels.map((_, i) => palette[i % palette.length] + 'cc'),
+                        borderColor:      instrLabels.map((_, i) => palette[i % palette.length]),
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                    }]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, precision: 0 },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.x} certificate${ctx.parsed.x !== 1 ? 's' : ''}`
+                            }
+                        }
                     },
-                    y: { grid: { display: false } }
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y: { grid: { display: false } }
+                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            instrCtx.parentNode.innerHTML = '<div style="color:red; padding:1rem;">Chart Error: ' + e.message + '</div>';
+        }
     }
 });
 </script>
