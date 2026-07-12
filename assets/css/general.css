@@ -767,3 +767,46 @@ body {
 body.embed-mode .unsaved-reminder {
     display: none !important;
 }
+
+/* Universal Premium Form Styling (Matches create_certificate.php) */
+.form-group label,
+.READING-container label,
+.title_input_pair label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2c3e50 !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.READING-container input,
+.READING-container select,
+.title_input_pair input,
+.title_input_pair select {
+  box-sizing: border-box !important;
+  width: 100%;
+  padding: 0.75rem !important;
+  border: 1.5px solid #d1d9e6 !important;
+  border-radius: 6px !important;
+  font-size: 1rem !important;
+  color: #2c3e50 !important;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.READING-container input:focus,
+.READING-container select:focus,
+.title_input_pair input:focus,
+.title_input_pair select:focus {
+  border-color: #00796b !important;
+  box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.1) !important;
+}

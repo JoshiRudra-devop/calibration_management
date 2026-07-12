@@ -198,17 +198,24 @@ $instrumentId = $instrument['id'] ?? null;
     let pdfSaved = false;
 
     function showInputBoxes() {
-      var option = document.getElementById("ring").value;
+      var ringSelect = document.getElementById("ring");
+      if (!ringSelect) return;
+      var option = ringSelect.value;
       var option1Inputs = document.getElementById("reading1000");
       var option2Inputs = document.getElementById("reading2000");
-      option1Inputs.style.display = "none";
-      option2Inputs.style.display = "none";
+      
+      if (option1Inputs) option1Inputs.style.display = "none";
+      if (option2Inputs) option2Inputs.style.display = "none";
+      
       if (option === "1000KN") {
-          option1Inputs.style.display = "flex";
+          if (option1Inputs) option1Inputs.style.display = "flex";
       } else if (option === "2000KN" || option === "2000KN new") {
-          option2Inputs.style.display = "flex";
+          if (option2Inputs) option2Inputs.style.display = "flex";
       }
     }
+    
+    // Call once on load in case browser restored the dropdown value
+    document.addEventListener('DOMContentLoaded', showInputBoxes);
 
     async function generateInfoSticker() {
       const { jsPDF } = window.jspdf;
