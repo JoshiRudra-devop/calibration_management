@@ -762,3 +762,8 @@ body {
     font-size: 16px !important;
   }
 }
+
+/* Hide unsaved warning in embedded iframes */
+body.embed-mode .unsaved-reminder {
+    display: none !important;
+}

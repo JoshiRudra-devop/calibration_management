@@ -546,6 +546,11 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
       <!-- Embedded Instrument cards will load dynamically here -->
     </div>
 
+    <!-- Global Unsaved Reminder -->
+    <div id="globalUnsavedReminder" style="display: none; background: #fff3cd; color: #856404; padding: 1rem; border-radius: 6px; border: 1px solid #ffeeba; text-align: center; margin-top: 1.5rem; margin-bottom: 2rem; font-weight: 500;">
+      ⚠️ Please save your certificates before leaving this page.
+    </div>
+
   </div>
 </div>
 
@@ -707,14 +712,17 @@ function updateGlobalActionsState() {
   const container = document.getElementById('activeInstrumentsContainer');
   const bar = document.getElementById('globalActionsBar');
   const countText = document.getElementById('selectedCountText');
+  const reminder = document.getElementById('globalUnsavedReminder');
   
   const count = container.querySelectorAll('.instrument-wrapper-card').length;
   if (countText) countText.textContent = count;
   
   if (count > 0) {
     bar.classList.add('active');
+    if (reminder) reminder.style.display = 'block';
   } else {
     bar.classList.remove('active');
+    if (reminder) reminder.style.display = 'none';
   }
 }
 
@@ -732,8 +740,13 @@ function validateAllForms() {
       // Focus on the first invalid field inside the iframe
       const invalidField = form.querySelector(':invalid');
       if (invalidField) {
-        invalidField.focus();
-        iframe.scrollIntoView({ behavior: 'smooth' });
+        iframe.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          try {
+            invalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            invalidField.focus();
+          } catch(e) {}
+        }, 300);
       }
       return false;
     }
@@ -742,6 +755,8 @@ function validateAllForms() {
 }
 
 async function generateUnifiedPDF() {
+  if (!validateAllForms()) return null;
+  
   const iframes = document.querySelectorAll('.instrument-iframe');
   if (iframes.length === 0) {
     alert('No instrument certificates have been added yet.');
