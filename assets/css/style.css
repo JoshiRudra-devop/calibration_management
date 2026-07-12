@@ -984,3 +984,47 @@ body {
   border-radius: 4px;
   margin-left: 0.5rem;
 }
+
+/* Floating Action Button (FAB) for Bottom Nav */
+.bottom-nav-bar__fab-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.bottom-nav-bar__fab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  background-color: #00796b;
+  color: white !important;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  text-decoration: none;
+  box-shadow: 0 -2px 10px rgba(0, 121, 107, 0.2);
+  margin-top: -30px; /* Floats above the bar */
+  border: 4px solid #ffffff;
+  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  z-index: 10000;
+}
+.bottom-nav-bar__fab i {
+  font-size: 1.5rem !important;
+}
+.bottom-nav-bar__fab:hover {
+  background-color: #00695c;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 121, 107, 0.35);
+}
+.bottom-nav-bar__fab.active {
+  background-color: #004d40;
+}
+.fab-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00796b;
+  margin-top: 5px;
+}

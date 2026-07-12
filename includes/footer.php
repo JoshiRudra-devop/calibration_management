@@ -44,10 +44,15 @@ $showFooterContent = (basename($_SERVER['PHP_SELF']) === 'about.php' || basename
     <i class="fas fa-building"></i>
     <span>All Companies</span>
   </a>
-  <a href="<?= APP_URL ?>/create_certificate.php" class="bottom-nav-bar__btn <?= $activePage==='create_certificate'?'active':'' ?>">
-    <i class="fas fa-plus-circle"></i>
-    <span>New Report</span>
-  </a>
+  
+  <!-- Floating Action Button for New Report -->
+  <div class="bottom-nav-bar__fab-wrapper">
+    <a href="<?= APP_URL ?>/create_certificate.php" class="bottom-nav-bar__fab <?= $activePage==='create_certificate'?'active':'' ?>">
+      <i class="fas fa-plus"></i>
+    </a>
+    <span class="fab-label">New Report</span>
+  </div>
+
   <a href="<?= APP_URL ?>/instrument_reports.php" class="bottom-nav-bar__btn <?= $activePage==='instrument_reports'?'active':'' ?>">
     <i class="fas fa-file-alt"></i>
     <span>Instrument Wise</span>
@@ -55,14 +60,6 @@ $showFooterContent = (basename($_SERVER['PHP_SELF']) === 'about.php' || basename
   <a href="<?= APP_URL ?>/due_near.php" class="bottom-nav-bar__btn <?= $activePage==='due_near'?'active':'' ?>">
     <i class="fas fa-clock"></i>
     <span>Due Near</span>
-  </a>
-  <a href="<?= APP_URL ?>/add_instrument.php" class="bottom-nav-bar__btn <?= $activePage==='add_instrument'?'active':'' ?>">
-    <i class="fas fa-tools"></i>
-    <span>Add Instrument</span>
-  </a>
-  <a href="<?= APP_URL ?>/settings.php" class="bottom-nav-bar__btn <?= $activePage==='settings'?'active':'' ?>">
-    <i class="fas fa-cog"></i>
-    <span>Settings</span>
   </a>
 </div>
 <?php endif; ?>

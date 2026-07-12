@@ -397,11 +397,8 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
         <a href="<?= APP_URL ?>/dashboard.php" class="top-brand-header__link" style="margin-right: 1.25rem;">
           <i class="fas fa-chart-line"></i> Dashboard
         </a>
-        <span class="top-brand-header__profile" style="margin-right: 0.5rem;">
-          <i class="fas fa-user-circle"></i> Welcome, <?= htmlspecialchars($_SESSION['user']['name'] ?? 'Admin') ?>
-        </span>
-        <a href="<?= APP_URL ?>/api/auth.php?action=logout" class="top-brand-header__logout">
-          <i class="fas fa-sign-out-alt"></i> Logout
+        <a href="<?= APP_URL ?>/settings.php" class="top-brand-header__link">
+          <i class="fas fa-cog"></i> Settings
         </a>
       <?php else: ?>
         <a href="<?= APP_URL ?>/login.php" class="top-brand-header__logout">

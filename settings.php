@@ -128,9 +128,8 @@ $totalTypes = (int) $db->query("SELECT COUNT(*) FROM instrument_types")->fetchCo
           </div>
         </div>
         
-        <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: var(--text-lt); font-size: 0.9rem;">Sign out of the current session:</span>
-          <a href="<?= APP_URL ?>/api/auth.php?action=logout" class="instrument-action-btn btn-print" style="padding: 0.6rem 1.25rem; border-radius: 6px; text-decoration: none; font-weight: 700; background: #fee2e2; color: var(--danger) !important; border: 1px solid rgba(229,57,53,0.15);">
+        <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+          <a href="<?= APP_URL ?>/api/auth.php?action=logout" class="btn" style="background-color: #ef4444; color: white; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.6rem 1.25rem; border-radius: 6px; font-weight: 600; transition: background 0.2s;">
             <i class="fas fa-sign-out-alt"></i> Logout
           </a>
         </div>
