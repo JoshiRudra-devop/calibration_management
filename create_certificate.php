@@ -1238,6 +1238,19 @@ function initEmbeddedIframe(iframeId) {
     // Push current parent values down immediately
     syncSingleIframe(iframe);
     
+    // Ensure visually unique certificate number immediately
+    if (iframeWindow.INSTRUMENT_SLUG) {
+      const certNumInput = doc.getElementById('certificateNumber');
+      if (certNumInput && typeof window.getUniqueCertificateNumber === 'function') {
+        const uniqueCertNo = window.getUniqueCertificateNumber(iframeWindow.INSTRUMENT_SLUG, certNumInput.value, iframeWindow);
+        if (uniqueCertNo !== certNumInput.value) {
+          certNumInput.value = uniqueCertNo;
+          certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
+          certNumInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    }
+    
     // Setup height listeners
     adjustHeight();
     setTimeout(adjustHeight, 500);
