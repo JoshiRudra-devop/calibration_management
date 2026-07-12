@@ -107,8 +107,11 @@ function addCertificateDetails(doc, details)
   doc.setFontSize(25);
   doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
   doc.setFontSize(9);
-  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,tested,and calibrated in", 10, Yalign+=12);
-  doc.text("accordance with documented procedures using measuring and test equipment traceable to international standards.", 10, Yalign+=7);
+  const disclaimerText = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+  const disclaimerLines = doc.splitTextToSize(disclaimerText, 190);
+  doc.text(disclaimerLines, 10, Yalign += 12);
+  Yalign += (disclaimerLines.length - 1) * 7;
+  Yalign += 4;
   doc.setFontSize(10);
   
   // Certificate Details
@@ -211,9 +214,13 @@ function addCertificateDetails(doc, details)
 
   // move cursor below table
   const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : tableStartY + (rows.length + 2) * 7;
-  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, 215);
-  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 235);
-  doc.text("PROPRIETOR", 170, 250);
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, afterTableY);
+  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, afterTableY + 15);
+  doc.text("PROPRIETOR", 170, afterTableY + 30);
+  
+  if (typeof renderQRCode === 'function') {
+    renderQRCode(doc, details.certificateNumber, afterTableY + 10);
+  }
 }
 // --- Least-count variable (millimetres) derived from the `#size` input ---
 let leastCount = 0;
