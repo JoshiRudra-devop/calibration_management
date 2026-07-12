@@ -1006,7 +1006,6 @@ async function saveAllCertificates() {
 
   Loader.hide();
   
-  const saveBtn = document.querySelector('.btn-save-all');
   if (saveBtn) {
     saveBtn.disabled = false;
     saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
