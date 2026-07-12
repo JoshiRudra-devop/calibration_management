@@ -241,8 +241,119 @@ $activePage = $activePage ?? '';
 <?php
 $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
 ?>
+<?php if (!$isEmbed): ?>
+  <style>
+  /* Global Page Transition Skeleton Loader */
+  #global-page-skeleton {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f0f2f5;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    pointer-events: none;
+  }
+  #global-page-skeleton.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+  /* Skeleton Header */
+  .skeleton-header {
+    height: 60px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 15px;
+  }
+  .skeleton-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    animation: shimmer 1.5s infinite linear;
+  }
+  .skeleton-title {
+    width: 250px;
+    height: 20px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    animation: shimmer 1.5s infinite linear;
+  }
+  /* Skeleton Body */
+  .skeleton-body {
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .skeleton-card {
+    width: 100%;
+    max-width: 800px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .skeleton-line {
+    height: 20px;
+    border-radius: 4px;
+    background: #e0e0e0;
+    animation: shimmer 1.5s infinite linear;
+  }
+  .skeleton-line.short { width: 40%; }
+  .skeleton-line.medium { width: 70%; }
+  .skeleton-line.long { width: 100%; height: 60px; }
+  
+  @keyframes shimmer {
+    0% { background-color: #e0e0e0; }
+    50% { background-color: #f5f5f5; }
+    100% { background-color: #e0e0e0; }
+  }
+  </style>
+<?php endif; ?>
 </head>
 <body class="<?= $isEmbed ? 'embed-mode' : '' ?>">
+
+<?php if (!$isEmbed): ?>
+  <!-- Global Skeleton Loader -->
+  <div id="global-page-skeleton">
+    <div class="skeleton-header">
+      <div class="skeleton-logo"></div>
+      <div class="skeleton-title"></div>
+    </div>
+    <div class="skeleton-body">
+      <div class="skeleton-card">
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line long"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line long"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Fade out skeleton once page is fully loaded
+    window.addEventListener('load', () => {
+      const skeleton = document.getElementById('global-page-skeleton');
+      if (skeleton) skeleton.classList.add('hidden');
+    });
+
+    // Fade in skeleton when navigating away to simulate SPA transition
+    window.addEventListener('beforeunload', () => {
+      const skeleton = document.getElementById('global-page-skeleton');
+      if (skeleton) skeleton.classList.remove('hidden');
+    });
+  </script>
+<?php endif; ?>
 
 <?php if ($isEmbed): ?>
   <!-- Embed Mode specific overrides -->
