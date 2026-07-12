@@ -56,7 +56,7 @@ $instrumentId = $instrument['id'] ?? null;
       
     </form>
   </div>
-  <script src="<?= APP_URL ?>/assets/js/general.js?v=1.8"></script>
+  <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     const INSTRUMENT_SLUG = 'water_bath';

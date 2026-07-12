@@ -320,7 +320,7 @@ $instrumentId = $instrument['id'] ?? null;
       
         </form>
     </div>
-    <script src="<?= APP_URL ?>/assets/js/general.js?v=1.8"></script>
+    <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
     <script>
         const INSTRUMENT_SLUG = 'full_lab';
         let pdfSaved = false;
