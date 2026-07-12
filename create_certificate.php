@@ -577,21 +577,23 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
 
 <!-- Autocomplete & Dynamic Iframe Logic -->
 <script>
+window.baseCertificateNumbers = {};
+
+window.incrementCertificateNo = function(no) {
+  const match = no.match(/^(.*?)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const numStr = match[2];
+    const nextNum = parseInt(numStr, 10) + 1;
+    const paddedNum = String(nextNum).padStart(numStr.length, '0');
+    return prefix + paddedNum;
+  }
+  return no;
+};
+
 window.getUniqueCertificateNumber = function(slug, baseNumber, currentWindow) {
   let candidate = baseNumber;
   let isUnique = false;
-  
-  function incrementNo(no) {
-    const match = no.match(/^(.*?)(\d+)$/);
-    if (match) {
-      const prefix = match[1];
-      const numStr = match[2];
-      const nextNum = parseInt(numStr, 10) + 1;
-      const paddedNum = String(nextNum).padStart(numStr.length, '0');
-      return prefix + paddedNum;
-    }
-    return no;
-  }
   
   let attempts = 0;
   while (!isUnique && attempts < 100) {
@@ -615,12 +617,53 @@ window.getUniqueCertificateNumber = function(slug, baseNumber, currentWindow) {
       }
     }
     if (foundCollision) {
-      candidate = incrementNo(candidate);
+      candidate = window.incrementCertificateNo(candidate);
     } else {
       isUnique = true;
     }
   }
-  return candidate;
+  return isUnique ? candidate : baseNumber;
+};
+
+window.resequenceCertificateNumbers = function() {
+  const iframes = document.querySelectorAll('.instrument-iframe');
+  const slugCounts = {};
+  
+  iframes.forEach(iframe => {
+    try {
+      const iframeWindow = iframe.contentWindow;
+      if (!iframeWindow) return;
+      const slug = iframeWindow.INSTRUMENT_SLUG;
+      if (!slug || !window.baseCertificateNumbers[slug]) return;
+      
+      const doc = iframe.contentDocument || iframeWindow.document;
+      const certNumInput = doc.getElementById('certificateNumber');
+      if (!certNumInput) return;
+      
+      // Calculate what this iframe's number SHOULD be based on its absolute position
+      if (slugCounts[slug] === undefined) slugCounts[slug] = 0;
+      
+      let expectedNo = window.baseCertificateNumbers[slug];
+      for(let i=0; i<slugCounts[slug]; i++) {
+        expectedNo = window.incrementCertificateNo(expectedNo);
+      }
+      
+      slugCounts[slug]++;
+      
+      // Check if the current input value shares the same prefix as the base number.
+      // If it doesn't, the user heavily customized it (e.g. changed "AL-" to "SPECIAL-")
+      // so we should probably not overwrite it to be safe. But if the prefix matches,
+      // it means it's still using the standard auto-generated pattern.
+      const basePrefix = window.baseCertificateNumbers[slug].replace(/\d+$/, '');
+      const currentPrefix = certNumInput.value.replace(/\d+$/, '');
+      
+      if (currentPrefix === basePrefix && certNumInput.value !== expectedNo) {
+         certNumInput.value = expectedNo;
+         certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
+         certNumInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    } catch(e) {}
+  });
 };
 
 // Replaced custom autocomplete with header.php datalist
@@ -704,6 +747,9 @@ function removeInstrument(uniqueId) {
   if (card && confirm('Are you sure you want to remove this instrument sub-form? Any unsaved inputs inside it will be lost.')) {
     card.remove();
     updateGlobalActionsState();
+    if (typeof window.resequenceCertificateNumbers === 'function') {
+      window.resequenceCertificateNumbers();
+    }
   }
 }
 
@@ -1240,13 +1286,22 @@ function initEmbeddedIframe(iframeId) {
     
     // Ensure visually unique certificate number immediately
     if (iframeWindow.INSTRUMENT_SLUG) {
+      const slug = iframeWindow.INSTRUMENT_SLUG;
       const certNumInput = doc.getElementById('certificateNumber');
-      if (certNumInput && typeof window.getUniqueCertificateNumber === 'function') {
-        const uniqueCertNo = window.getUniqueCertificateNumber(iframeWindow.INSTRUMENT_SLUG, certNumInput.value, iframeWindow);
-        if (uniqueCertNo !== certNumInput.value) {
-          certNumInput.value = uniqueCertNo;
-          certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
-          certNumInput.dispatchEvent(new Event('change', { bubbles: true }));
+      
+      if (certNumInput) {
+        // Record base number on very first load of this slug type
+        if (!window.baseCertificateNumbers[slug] && certNumInput.value) {
+            window.baseCertificateNumbers[slug] = certNumInput.value;
+        }
+        
+        if (typeof window.getUniqueCertificateNumber === 'function') {
+          const uniqueCertNo = window.getUniqueCertificateNumber(slug, certNumInput.value, iframeWindow);
+          if (uniqueCertNo !== certNumInput.value) {
+            certNumInput.value = uniqueCertNo;
+            certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
+            certNumInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
         }
       }
     }
