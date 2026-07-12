@@ -114,7 +114,10 @@ function calculateNextDate() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const calibDateInput = document.getElementById('calibrationDate');
-  if (calibDateInput && !calibDateInput.value) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isNew = !urlParams.get('id');
+  
+  if (calibDateInput && (!calibDateInput.value || isNew)) {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');

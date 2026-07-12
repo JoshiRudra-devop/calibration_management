@@ -1323,14 +1323,18 @@ function calculateParentNextDate() {
 }
 
 if (parentCalibDateInput) {
-  // Default to today on load
-  if (!parentCalibDateInput.value) {
+  // Always default to today on fresh load (ignores browser cache)
+  document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
+    
     parentCalibDateInput.value = `${year}-${month}-${day}`;
-  }
+    calculateParentNextDate();
+  });
+  
+  // Also calculate immediately just in case
   calculateParentNextDate();
   
   parentCalibDateInput.addEventListener('input', () => {
