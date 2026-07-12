@@ -520,16 +520,17 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
             style="width: 100%; padding: 0.75rem; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 1rem; color: #2c3e50;"
           >
         </div>
-      </div>
     </div>
 
-    <!-- Active Instruments List -->
-    <div id="activeInstrumentsContainer">
-      <!-- Embedded Instrument cards will load dynamically here -->
+    <!-- Add Instrument Toggle Button (Right Aligned) -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+      <button id="btnToggleInstrumentList" type="button" style="background: #00796b; color: white; border: none; padding: 0.75rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;">
+        <i class="fas fa-plus-circle" style="margin-right: 0.5rem;"></i> Select Instrument
+      </button>
     </div>
 
-    <!-- Inline Instrument Selector -->
-    <div class="inline-instrument-selector" style="margin-top: 2rem; background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <!-- Inline Instrument Selector (Hidden by default) -->
+    <div class="inline-instrument-selector" id="inlineInstrumentSelector" style="display: none; margin-bottom: 2rem; background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
       <h3 style="margin-top: 0; margin-bottom: 1rem; color: #2c3e50; font-size: 1.1rem;"><i class="fas fa-list"></i> Select Instruments to Add</h3>
       <div class="modal-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
         <?php foreach ($types as $t): ?>
@@ -538,6 +539,11 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
           </div>
         <?php endforeach; ?>
       </div>
+    </div>
+
+    <!-- Active Instruments List -->
+    <div id="activeInstrumentsContainer">
+      <!-- Embedded Instrument cards will load dynamically here -->
     </div>
 
   </div>
@@ -614,6 +620,20 @@ window.getUniqueCertificateNumber = function(slug, baseNumber, currentWindow) {
 
 // Replaced custom autocomplete with header.php datalist
 
+// Toggle logic for inline instrument selector
+const btnToggleInstrumentList = document.getElementById('btnToggleInstrumentList');
+const inlineInstrumentSelector = document.getElementById('inlineInstrumentSelector');
+
+if (btnToggleInstrumentList && inlineInstrumentSelector) {
+  btnToggleInstrumentList.addEventListener('click', () => {
+    if (inlineInstrumentSelector.style.display === 'none') {
+      inlineInstrumentSelector.style.display = 'block';
+    } else {
+      inlineInstrumentSelector.style.display = 'none';
+    }
+  });
+}
+
 // â”€â”€ 4. Dynamically Add Instrument Iframes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const container = document.getElementById('activeInstrumentsContainer');
 
@@ -666,6 +686,11 @@ document.querySelectorAll('.modal-card').forEach(card => {
     
     container.appendChild(wrapper);
     updateGlobalActionsState();
+    
+    // Hide list after selecting
+    if (inlineInstrumentSelector) {
+      inlineInstrumentSelector.style.display = 'none';
+    }
   });
 });
 
