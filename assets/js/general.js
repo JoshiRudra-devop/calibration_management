@@ -92,21 +92,34 @@ function calculateNextDate() {
   const calibDate = document.getElementById('calibrationDate');
   const nextDate = document.getElementById('nextCalibrationDate');
   if (calibDate && nextDate && calibDate.value) {
-    const date = new Date(calibDate.value);
-    date.setFullYear(date.getFullYear() + 1);
-    // Subtract 1 day for exact 1 year validity
-    date.setDate(date.getDate() - 1);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    nextDate.value = `${year}-${month}-${day}`;
+    let dateStr = calibDate.value;
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      date.setFullYear(date.getFullYear() + 1);
+      // Subtract 1 day for exact 1 year validity
+      date.setDate(date.getDate() - 1);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      nextDate.value = `${year}-${month}-${day}`;
+    }
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const calibDateInput = document.getElementById('calibrationDate');
   if (calibDateInput && !calibDateInput.value) {
-    calibDateInput.value = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    calibDateInput.value = `${year}-${month}-${day}`;
     calculateNextDate();
   }
 });

@@ -1295,23 +1295,48 @@ let activeIframeId = 0;
 
 function calculateParentNextDate() {
   if (parentCalibDateInput && parentCalibDateInput.value && parentNextDateInput) {
-    const date = new Date(parentCalibDateInput.value);
-    date.setFullYear(date.getFullYear() + 1);
-    date.setDate(date.getDate() - 1);
-    parentNextDateInput.value = date.toISOString().split('T')[0];
-    syncAllIframes();
+    let dateStr = parentCalibDateInput.value;
+    
+    // Fallback if browser doesn't support type="date" and user typed DD/MM/YYYY
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        // Assume DD/MM/YYYY
+        dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      date.setFullYear(date.getFullYear() + 1);
+      date.setDate(date.getDate() - 1);
+      
+      // Keep it in local time to avoid UTC timezone shifts when formatting
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      parentNextDateInput.value = `${year}-${month}-${day}`;
+      syncAllIframes();
+    }
   }
 }
 
 if (parentCalibDateInput) {
   // Default to today on load
   if (!parentCalibDateInput.value) {
-    // Add timezone offset to prevent picking previous day incorrectly
     const today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    parentCalibDateInput.value = today.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    parentCalibDateInput.value = `${year}-${month}-${day}`;
   }
   calculateParentNextDate();
+  
+  parentCalibDateInput.addEventListener('input', () => {
+    calculateParentNextDate();
+    syncAllIframes();
+  });
   parentCalibDateInput.addEventListener('change', () => {
     calculateParentNextDate();
     syncAllIframes();
