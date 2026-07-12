@@ -22,6 +22,25 @@ async function applyLetterhead(doc) {
   }
 }
 
+function safeGetFormDetails() {
+  if (typeof window.getFormDetails === 'function') {
+    return window.getFormDetails();
+  }
+  if (typeof getFormDetails === 'function') {
+    return getFormDetails();
+  }
+  throw new Error("getFormDetails is not defined");
+}
+
+function safeAddCertificateDetails(doc, details) {
+  if (typeof window.addCertificateDetails === 'function') {
+    return window.addCertificateDetails(doc, details);
+  }
+  if (typeof addCertificateDetails === 'function') {
+    return addCertificateDetails(doc, details);
+  }
+}
+
 const CERTIFICATE_CONFIG = {
   apiBase: typeof SHREEJI_CONFIG !== 'undefined' ? SHREEJI_CONFIG.apiBase : '/api',
   certificatePath: typeof SHREEJI_CONFIG !== 'undefined' ? SHREEJI_CONFIG.appUrl + '/certificates' : '/certificates',
@@ -181,10 +200,8 @@ async function preview() {
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
     // Add certificate details using the template's addCertificateDetails function
-    const details = getFormDetails();
-    if (typeof addCertificateDetails === 'function') {
-      addCertificateDetails(doc, details);
-    }
+    const details = safeGetFormDetails();
+    safeAddCertificateDetails(doc, details);
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -220,10 +237,8 @@ async function printBlankCertificate() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
-    const details = getFormDetails();
-    if (typeof addCertificateDetails === 'function') {
-      addCertificateDetails(doc, details);
-    }
+    const details = safeGetFormDetails();
+    safeAddCertificateDetails(doc, details);
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -255,10 +270,8 @@ async function sharePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
-    const details = getFormDetails();
-    if (typeof addCertificateDetails === 'function') {
-      addCertificateDetails(doc, details);
-    }
+    const details = safeGetFormDetails();
+    safeAddCertificateDetails(doc, details);
     await applyLetterhead(doc);
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
@@ -301,10 +314,8 @@ async function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    const details = getFormDetails();
-    if (typeof addCertificateDetails === 'function') {
-      addCertificateDetails(doc, details);
-    }
+    const details = safeGetFormDetails();
+    safeAddCertificateDetails(doc, details);
     await applyLetterhead(doc);
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
@@ -334,10 +345,8 @@ async function generatePDFblankpg() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    const details = getFormDetails();
-    if (typeof addCertificateDetails === 'function') {
-      addCertificateDetails(doc, details);
-    }
+    const details = safeGetFormDetails();
+    safeAddCertificateDetails(doc, details);
 
     const pdfBlob = doc.output('blob');
     const fileName = `${details.saveentry || 'certificate'}.pdf`;
@@ -525,10 +534,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-        const details = getFormDetails();
-        if (typeof addCertificateDetails === 'function') {
-          addCertificateDetails(doc, details);
-        }
+        const details = safeGetFormDetails();
+        safeAddCertificateDetails(doc, details);
         await applyLetterhead(doc);
         if (typeof addQRCodeToPDF === 'function') {
           addQRCodeToPDF(doc, details.certificateNumber);
