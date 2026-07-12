@@ -185,6 +185,48 @@ $instrumentId = $instrument['id'] ?? null;
                   <input type="text" id="i210" maxlength="7" >
                 </div>
             </div>
+            <div id="reading2000new" class="READING-container" style="display: none;">
+                <div class="title_input_pair">
+                  <label for="i31">200</label>
+                  <input type="text" id="i31" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i32">400</label>
+                  <input type="text" id="i32" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i33">600</label>
+                  <input type="text" id="i33" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i34">800</label>
+                  <input type="text" id="i34" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i35">1000</label>
+                  <input type="text" id="i35" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i36">1200</label>
+                  <input type="text" id="i36" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i37">1400</label>
+                  <input type="text" id="i37" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i38">1600</label>
+                  <input type="text" id="i38" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i39">1800</label>
+                  <input type="text" id="i39" maxlength="7" >
+                </div>
+                <div class="title_input_pair">
+                  <label for="i310"> 2000</label>
+                  <input type="text" id="i310" maxlength="7" >
+                </div>
+            </div>
       </div>
       <?php include __DIR__ . '/../includes/certificate_loader.php'; ?>
     </form>
@@ -197,27 +239,31 @@ $instrumentId = $instrument['id'] ?? null;
     let stickerPdfBlob = null;
     let pdfSaved = false;
 
-    function showInputBoxes() {
+    window.showInputBoxes = function() {
       var ringSelect = document.getElementById("ring");
       if (!ringSelect) return;
       var option = ringSelect.value;
       var option1Inputs = document.getElementById("reading1000");
       var option2Inputs = document.getElementById("reading2000");
+      var option3Inputs = document.getElementById("reading2000new");
       
       if (option1Inputs) option1Inputs.style.display = "none";
       if (option2Inputs) option2Inputs.style.display = "none";
+      if (option3Inputs) option3Inputs.style.display = "none";
       
       if (option === "1000KN") {
           if (option1Inputs) option1Inputs.style.display = "flex";
-      } else if (option === "2000KN" || option === "2000KN new") {
+      } else if (option === "2000KN") {
           if (option2Inputs) option2Inputs.style.display = "flex";
+      } else if (option === "2000KN new") {
+          if (option3Inputs) option3Inputs.style.display = "flex";
       }
-    }
+    };
     
     // Call once on load in case browser restored the dropdown value
-    document.addEventListener('DOMContentLoaded', showInputBoxes);
+    document.addEventListener('DOMContentLoaded', window.showInputBoxes);
 
-    async function generateInfoSticker() {
+    window.generateInfoSticker = async function() {
       const { jsPDF } = window.jspdf;
       const width = 40 * 2.83465;
       const height = 30 * 2.83465;
@@ -297,16 +343,16 @@ $instrumentId = $instrument['id'] ?? null;
       frame.scrollIntoView({ behavior: 'smooth' });
     }
 
-    async function downloadSticker() {
+    window.downloadSticker = async function() {
       if (!stickerPdfBlob) {
         alert('Please generate the sticker first!');
         return;
       }
       const certificateNumber = document.getElementById("certificateNumber").value;
       await savePDFWithLocation(stickerPdfBlob, `CTM_Sticker_${certificateNumber}.pdf`);
-    }
+    };
 
-    function getFormDetails() {
+    window.getFormDetails = function() {
       const inputs1000 = [];
       for (let i = 1; i <= 10; i++) {
         const el = document.getElementById(`i${i}`);
@@ -316,6 +362,11 @@ $instrumentId = $instrument['id'] ?? null;
       for (let i = 1; i <= 10; i++) {
         const el = document.getElementById(`i2${i}`);
         inputs2000.push(el ? el.value : '');
+      }
+      const inputs2000new = [];
+      for (let i = 1; i <= 10; i++) {
+        const el = document.getElementById(`i3${i}`);
+        inputs2000new.push(el ? el.value : '');
       }
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
@@ -330,11 +381,12 @@ $instrumentId = $instrument['id'] ?? null;
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
         inputs1000: inputs1000,
         inputs2000: inputs2000,
+        inputs2000new: inputs2000new,
         saveentry: `CTM_${document.getElementById("make").value}_${document.getElementById("serialNo").value || "Unknown"}`
       };
-    }
+    };
 
-    function addCertificateDetails(doc, details) {
+    window.addCertificateDetails = function(doc, details) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
@@ -473,7 +525,7 @@ $instrumentId = $instrument['id'] ?? null;
             let textValue = "";
             if (j === 0) textValue = fixedValuesColumn1[i];
             else if (j === 1) textValue = fixedValuesColumn2[i];
-            else textValue = details.inputs2000[i] || "";
+            else textValue = details.inputs2000new[i] || "";
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
