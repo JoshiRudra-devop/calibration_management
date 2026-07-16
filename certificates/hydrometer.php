@@ -95,7 +95,7 @@ window.addCertificateDetails = function(doc, details)
   
   // Certificate Details
   doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
-  doc.text(`REF NO                         :     SI-${details.certificateNumber}`, 14, Yalign);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
   
   // --- Party Name with wrapping (only value, not prefix) ---
   const partyNamePrefix = "NAME OF PARTY         :     ";

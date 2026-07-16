@@ -100,7 +100,7 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(12);
       // Certificate Details
-      doc.text(`REF NO                       :     SI-${details.certificateNumber}`, 14, hori_axis += 10);
+      doc.text(`REF NO                       :     ${details.certificateNumber}`, 14, hori_axis += 10);
       doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
       doc.text(`NAME OF PARTY       :     ${details.partyName}`, 14, hori_axis += 10);
       doc.text(`EQUIPMENT NAME    :     SLUMCONE `, 14, hori_axis += 10);

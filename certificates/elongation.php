@@ -81,7 +81,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(`REPORT NO                 :-     SHREEJI/${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign+=10);
       doc.text(`EQUIPMENT NAME     :-     ELOGATION GAUGE`, 14, Yalign+=10);
-      doc.text(`SERIAL NO:- SI-${details.certificateNumber}`, 150, Yalign);
+      doc.text(`SERIAL NO:- ${details.certificateNumber}`, 150, Yalign);
       doc.text(`AS PER IS                    :-     IS 2386-1`, 14, Yalign+=10);
       doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
       doc.text(`SITE LOCATION          :-     ${details.siteLocation}`, 14, Yalign+=10);

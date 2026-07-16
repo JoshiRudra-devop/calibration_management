@@ -94,7 +94,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=9, { align: 'center' });
       doc.setFont("helvetica", "bold"); 
       doc.setFontSize(15);  
-      doc.text(`REF NO                          :     SI-${details.certificateNumber}`, 14, Yalign+=10);
+      doc.text(`REF NO                          :     ${details.certificateNumber}`, 14, Yalign+=10);
       doc.text(`NAME OF PARTY          :     ${details.partyName}`, 14, Yalign+=8);
       doc.text(`EQUIPMENT NAME       :     ELECTRONIC TOTAL STATION`, 14, Yalign+=8);
       doc.text(`MAKE                              :     ${details.make}`, 14, Yalign+=8);

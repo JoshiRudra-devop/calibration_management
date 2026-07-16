@@ -304,7 +304,7 @@ window.addCertificateDetails = function(doc, details)
         currentY += 5;
         doc.text(`NAME OF PARTY           :-     ${details.partyName}`, 14, currentY);
         currentY += 5;
-        doc.text(`REF NO:- SI-${currentCertNo}`, 140, currentY);
+        doc.text(`REF NO:- ${currentCertNo}`, 140, currentY);
         doc.text(`EQUIPMENT NAME        :-     TEST SEIVES`, 14, currentY);
         currentY += 5;
         doc.text(`SITE LOCATION             :-     ${details.siteLocation}`, 14, currentY);

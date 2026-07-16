@@ -96,7 +96,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setFontSize(15);
         // Certificate Details
         doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign += 15);
-        doc.text(`REF NO                         :     SI-${details.certificateNumber}`, 14, Yalign);
+        doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
         doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign += 15);
         doc.text(`EQUIPMENT NAME      :     ${details.equipmentType}`, 14, Yalign += 15);
         doc.text(`SERIAL NO / MAKE      :     ${details.serialNo} / ${details.make}`, 14, Yalign += 15);

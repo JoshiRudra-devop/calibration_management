@@ -90,7 +90,7 @@ $instrumentId = $instrument['id'] ?? null;
   // Spacing
   doc.setFontSize(15);
   doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
-  doc.text(`REF NO                        :-     SI ${details.certificateNumber}`, 14, Yalign);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
   
   // --- Party Name with wrapping ---
   const partyNamePrefix = "NAME OF PARTY        :-     ";

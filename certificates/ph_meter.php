@@ -88,7 +88,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(`EQUIPMENT NAME          :-     PH METER`, 14, Yalign+=10);
       doc.text(`AS PER IS                          :-     IS 4309`, 14, Yalign+=10);
       doc.text(`MAKE  &  RANGE            :-     ${details.make}  &  "0 ~ 14PH" `, 14, Yalign+=10);
-      doc.text(`SERIAL NO                        :-     SI-${details.certificateNumber}`, 14, Yalign+=10);
+      doc.text(`SERIAL NO                        :-     ${details.certificateNumber}`, 14, Yalign+=10);
       doc.text(`NEXT DUE DATE               :-     ${details.nextCalibrationDate}`, 14, Yalign+=10);
 
       // --- Site Location with wrapping (only value, not prefix) ---

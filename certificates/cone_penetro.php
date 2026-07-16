@@ -88,10 +88,10 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(15);
       doc.text(`DATE: ${details.calibrationDate}`, 155, Yalign+=15);
-      doc.text(`REF NO                         :     SI-${details.certificateNumber}`, 14, Yalign);
+      doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign+=15);
       doc.text(`EQUIPMENT NAME      :     CONE PENETROMETER`, 14, Yalign+=15);
-      doc.text(`SERIAL NO / MAKE      :     SI-${details.certificateNumber} / ${details.make}`, 14, Yalign+=15);
+      doc.text(`SERIAL NO / MAKE      :     ${details.certificateNumber} / ${details.make}`, 14, Yalign+=15);
        // --- Site Location with wrapping (only value, not prefix) ---
       const siteLocPrefix = "SITE LOCATION          :-     ";
       const prefixWidth = doc.getTextWidth(siteLocPrefix);

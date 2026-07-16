@@ -88,11 +88,11 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(12);
       doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
-      doc.text(`REF NO                         :-      SI-${details.certificateNumber}`, 14, Yalign);
+      doc.text(`REF NO                         :-      ${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY         :-     ${details.partyName}`, 14, Yalign += 10);
       doc.text(`EQUIPEMENT NAME    :-     DIGITAL THERMOMETER`, 14, Yalign += 10);
       doc.text(`CAPACITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
-      doc.text(`SERIAL NO                    :-     SI-${details.certificateNumber}`, 14, Yalign += 10);
+      doc.text(`SERIAL NO                    :-     ${details.certificateNumber}`, 14, Yalign += 10);
       doc.text(`NEXT DUE DATE           :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
       doc.text(`SITE LOCATION            :-     ${details.siteLocation}`, 14, Yalign += 10);
       const tableStartY = Yalign;

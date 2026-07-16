@@ -92,7 +92,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setFontSize(15);
         doc.setFont("helvetica", "bold");   
         doc.text(`DATE:${details.calibrationDate}`, 155, Yalign);
-        doc.text(`REF No:SI-${details.certificateNumber}`, 10, Yalign)
+        doc.text(`REF No:${details.certificateNumber}`, 10, Yalign)
         doc.setFont("helvetica", "bold");
         doc.setFontSize(25);
         doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=15, { align: 'center' });

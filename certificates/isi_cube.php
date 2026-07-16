@@ -158,7 +158,7 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(12);
       doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
-      doc.text(`REF NO                        :-     SI-${details.certificateNumber}`, 14, Yalign);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign += 10);
       doc.text(`EQUIPMENT NAME     :-    ISI  CUBE MOULD (${details.size})`, 14, Yalign += 10);
       doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);

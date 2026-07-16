@@ -95,7 +95,7 @@ $instrumentId = $instrument['id'] ?? null;
   // Spacing
   doc.setFontSize(12);
   doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
-  doc.text(`REF NO                        :-     SI-${details.certificateNumber}`, 14, Yalign);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
   
   // --- Party Name with wrapping ---
   const partyNamePrefix = "NAME OF PARTY        :-     ";
@@ -111,7 +111,7 @@ $instrumentId = $instrument['id'] ?? null;
   
   doc.text(`EQUIPMENT NAME     :-     ELECTRICAL HOT AIR OVEN(${details.size})`, 14, Yalign += 10);
   doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
-  doc.text(`SR NO                          :-     SI-${details.certificateNumber}`, 14, Yalign += 10);
+  doc.text(`SR NO                          :-     ${details.certificateNumber}`, 14, Yalign += 10);
   doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
   
   // --- Site Location with wrapping ---
