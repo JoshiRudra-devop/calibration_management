@@ -137,16 +137,21 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     function incrementCertificateNumber(baseCertNo, increment) {
-      if (!isNaN(Number(baseCertNo))) {
-        return String(Number(baseCertNo) + increment);
-      } else {
-        const match = baseCertNo.match(/^(\d+)(.*)$/);
+      if (increment === 0) return baseCertNo;
+      let val = baseCertNo;
+      for (let i = 0; i < increment; i++) {
+        const match = val.match(/^(.*?)(\d+)$/);
         if (match) {
-          return (Number(match[1]) + increment) + match[2];
+          const prefix = match[1];
+          const numStr = match[2];
+          const nextNum = parseInt(numStr, 10) + 1;
+          const paddedNum = String(nextNum).padStart(numStr.length, '0');
+          val = prefix + paddedNum;
         } else {
-          return baseCertNo;
+          break;
         }
       }
+      return val;
     }
 
     function drawHeader(doc, details, Yalign, withImages) {
