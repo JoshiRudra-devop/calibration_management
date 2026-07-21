@@ -387,14 +387,14 @@ async function prefillForm() {
   
   if (!certId) {
     // New certificate: Fetch next monthly sequence certificate number
-    const slug = typeof INSTRUMENT_SLUG !== 'undefined' ? INSTRUMENT_SLUG : 'autolevel';
+    const slug = window.INSTRUMENT_SLUG || 'autolevel';
     try {
       const response = await fetch(CERTIFICATE_CONFIG.apiBase + '/get_next_certificate_number.php?instrument_type=' + slug);
       const result = await response.json();
       if (result.success && result.next_certificate_number && certNumInput) {
         let finalCertNo = result.next_certificate_number;
         if (window.parent && typeof window.parent.getUniqueCertificateNumber === 'function') {
-          const slug = typeof INSTRUMENT_SLUG !== 'undefined' ? INSTRUMENT_SLUG : 'autolevel';
+          const slug = window.INSTRUMENT_SLUG || 'autolevel';
           finalCertNo = window.parent.getUniqueCertificateNumber(slug, finalCertNo, window);
         }
         certNumInput.value = finalCertNo;
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           const payload = {
             cert_id: certId ? parseInt(certId) : null,
-            instrument_type: typeof INSTRUMENT_SLUG !== 'undefined' ? INSTRUMENT_SLUG : 'autolevel',
+            instrument_type: window.INSTRUMENT_SLUG || 'autolevel',
             party_name: details.partyName || details.partyname,
             site_location: document.getElementById('siteLocation')?.value || '',
             calibration_date: document.getElementById('calibrationDate').value,

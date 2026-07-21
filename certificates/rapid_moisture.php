@@ -59,7 +59,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
-    const INSTRUMENT_SLUG = 'rapid_moisture';
+    window.INSTRUMENT_SLUG = 'rapid_moisture';
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>

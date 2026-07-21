@@ -135,7 +135,7 @@ function buildCloudinaryPdfUrl(certNumber, instrSlug, partyName, siteLocation) {
 
 function addQRCodeToPDF(doc, certNumber) {
   if (!certNumber) return;
-  const instrSlug  = (typeof INSTRUMENT_SLUG !== 'undefined') ? INSTRUMENT_SLUG : null;
+  const instrSlug  = window.INSTRUMENT_SLUG || null;
   const partyName  = (document.getElementById('partyName')  || document.getElementById('partyname'))?.value  || '';
   const siteLoc    = document.getElementById('siteLocation')?.value || '';
   const url        = buildCloudinaryPdfUrl(certNumber, instrSlug, partyName, siteLoc);

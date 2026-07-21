@@ -61,7 +61,7 @@ $instrumentId = $instrument['id'] ?? null;
     <script>
       let stickerPdfBlob = null;
       const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
-      const INSTRUMENT_SLUG = 'autolevel';
+      window.INSTRUMENT_SLUG = 'autolevel';
 
       function formatDateToWords(dateString) {
         const date = new Date(dateString);

@@ -58,7 +58,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
-    const INSTRUMENT_SLUG = 'aggregate_impact';
+    window.INSTRUMENT_SLUG = 'aggregate_impact';
   </script>
   <script>
     let stickerPdfBlob = null;

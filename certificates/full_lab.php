@@ -322,7 +322,7 @@ $instrumentId = $instrument['id'] ?? null;
     </div>
     <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
     <script>
-        const INSTRUMENT_SLUG = 'full_lab';
+        window.INSTRUMENT_SLUG = 'full_lab';
         let pdfSaved = false;
         // Toggle input containers based on button selection
         const toggleInputContainer = (buttonId, containerId) => {

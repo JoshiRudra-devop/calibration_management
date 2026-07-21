@@ -65,7 +65,7 @@ $instrumentId = $instrument['id'] ?? null;
     <script>
       let stickerPdfBlob = null;
       const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
-      const INSTRUMENT_SLUG = 'general';
+      window.INSTRUMENT_SLUG = 'general';
 
       window.getFormDetails = function() {
         return {

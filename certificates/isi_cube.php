@@ -62,7 +62,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
-    const INSTRUMENT_SLUG = 'isi_cube';
+    window.INSTRUMENT_SLUG = 'isi_cube';
     let pdfSaved = false;
 
 

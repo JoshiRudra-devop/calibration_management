@@ -235,7 +235,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    const INSTRUMENT_SLUG = 'ctm';
+    window.INSTRUMENT_SLUG = 'ctm';
     let stickerPdfBlob = null;
     // NOTE: pdfSaved is already declared as a global `let` in general.js —
     // redeclaring it here throws "Identifier 'pdfSaved' has already been declared",
