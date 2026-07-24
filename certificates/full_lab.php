@@ -361,10 +361,10 @@ $instrumentId = $instrument['id'] ?? null;
         // IMAGE PRELOADING LOGIC
         let headerImgB64, footerImgB64, stampImgB64, signImgB64;
         window.prepareImages = async function() {
-          if (!headerImgB64) headerImgB64 = await loadImageToBase64("../header.jpeg");
-          if (!footerImgB64) footerImgB64 = await loadImageToBase64("../footer.jpeg");
-          if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../stamp.jpeg");
-          if (!signImgB64)   signImgB64   = await loadImageToBase64("../sign.jpeg");
+          if (!headerImgB64) headerImgB64 = await loadImageToBase64(SHREEJI_CONFIG.appUrl + "/header.jpeg");
+          if (!footerImgB64) footerImgB64 = await loadImageToBase64(SHREEJI_CONFIG.appUrl + "/footer.jpeg");
+          if (!stampImgB64)  stampImgB64  = await loadImageToBase64(SHREEJI_CONFIG.appUrl + "/stamp.jpeg");
+          if (!signImgB64)   signImgB64   = await loadImageToBase64(SHREEJI_CONFIG.appUrl + "/sign.jpeg");
         }
         function loadImageToBase64(url) {
           return new Promise((resolve, reject) => {
