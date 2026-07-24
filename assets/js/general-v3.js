@@ -387,15 +387,34 @@ async function prefillForm() {
   
   if (!certId) {
     // New certificate: Fetch next monthly sequence certificate number
-    const slug = window.INSTRUMENT_SLUG || 'autolevel';
+    let slug = window.INSTRUMENT_SLUG;
+    if (!slug) {
+      try {
+        const pathParts = window.location.pathname.split('/');
+        const filename = pathParts[pathParts.length - 1];
+        slug = filename.replace('.php', '');
+        if (slug === 'cloud_cube') slug = 'cube_mould';
+      } catch (e) {}
+    }
+    if (!slug) slug = 'autolevel';
+    
     try {
       const response = await fetch(CERTIFICATE_CONFIG.apiBase + '/get_next_certificate_number.php?instrument_type=' + slug);
       const result = await response.json();
       if (result.success && result.next_certificate_number && certNumInput) {
         let finalCertNo = result.next_certificate_number;
         if (window.parent && typeof window.parent.getUniqueCertificateNumber === 'function') {
-          const slug = window.INSTRUMENT_SLUG || 'autolevel';
-          finalCertNo = window.parent.getUniqueCertificateNumber(slug, finalCertNo, window);
+          let parentSlug = window.INSTRUMENT_SLUG;
+          if (!parentSlug) {
+            try {
+              const pathParts = window.location.pathname.split('/');
+              const filename = pathParts[pathParts.length - 1];
+              parentSlug = filename.replace('.php', '');
+              if (parentSlug === 'cloud_cube') parentSlug = 'cube_mould';
+            } catch (e) {}
+          }
+          if (!parentSlug) parentSlug = 'autolevel';
+          finalCertNo = window.parent.getUniqueCertificateNumber(parentSlug, finalCertNo, window);
         }
         certNumInput.value = finalCertNo;
         certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -562,7 +581,18 @@ document.addEventListener('DOMContentLoaded', function() {
           
           const payload = {
             cert_id: certId ? parseInt(certId) : null,
-            instrument_type: window.INSTRUMENT_SLUG || 'autolevel',
+            instrument_type: (function() {
+              let slug = window.INSTRUMENT_SLUG;
+              if (!slug) {
+                try {
+                  const pathParts = window.location.pathname.split('/');
+                  const filename = pathParts[pathParts.length - 1];
+                  slug = filename.replace('.php', '');
+                  if (slug === 'cloud_cube') slug = 'cube_mould';
+                } catch (e) {}
+              }
+              return slug || 'autolevel';
+            })(),
             party_name: details.partyName || details.partyname,
             site_location: document.getElementById('siteLocation')?.value || '',
             calibration_date: document.getElementById('calibrationDate').value,
