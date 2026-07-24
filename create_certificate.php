@@ -453,10 +453,10 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
 
 <!-- Preload images to browser cache for instant PDF rendering -->
 <div style="display: none;">
-  <img src="assets/images/header.jpeg" alt="preload">
-  <img src="assets/images/footer.jpeg" alt="preload">
-  <img src="assets/images/stamp.jpeg" alt="preload">
-  <img src="assets/images/sign.jpeg" alt="preload">
+  <img src="header.jpeg" alt="preload">
+  <img src="footer.jpeg" alt="preload">
+  <img src="stamp.jpeg" alt="preload">
+  <img src="sign.jpeg" alt="preload">
   <img src="assets/images/logo.png" alt="preload">
 </div>
 

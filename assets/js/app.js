@@ -326,10 +326,10 @@ async function getImg(url) {
 
 async function addLetterhead(doc) {
   try {
-    const header = await getImg('assets/images/header.jpeg');
-    const footer = await getImg('assets/images/footer.jpeg');
-    const stamp  = await getImg('assets/images/stamp.jpeg');
-    const sign   = await getImg('assets/images/sign.jpeg');
+    const header = await getImg('header.jpeg');
+    const footer = await getImg('footer.jpeg');
+    const stamp  = await getImg('stamp.jpeg');
+    const sign   = await getImg('sign.jpeg');
 
     doc.addImage(header, 'JPEG', 3, 3, 210, 30);
     doc.addImage(footer, 'JPEG', 0, 255, 210, 27);
