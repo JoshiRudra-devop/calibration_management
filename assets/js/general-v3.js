@@ -29,6 +29,7 @@ function safeGetFormDetails() {
   if (typeof getFormDetails === 'function') {
     return getFormDetails();
   }
+  alert("Debug safeGetFormDetails:\nwindow.getFormDetails = " + window.getFormDetails + "\ntypeof = " + (typeof window.getFormDetails) + "\nlocation = " + window.location.href);
   throw new Error("getFormDetails is not defined");
 }
 
