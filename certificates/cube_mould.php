@@ -16,6 +16,7 @@ $instrumentId = $instrument['id'] ?? null;
 <?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
 <div class="container">
     <h2 class="centered">CUBE MOULD CALIBRATION CERTIFICATE</h2>
+    <p style="color: red; font-weight: bold; text-align: center; margin-bottom: 1rem;">DEBUG: Active PHP Template Loaded (Version 3.1)</p>
     <form id="calibrationForm">
       <div class="title_input_pair">
         <label for="certificateNumber">Certificate No:</label>
