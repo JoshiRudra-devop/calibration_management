@@ -68,10 +68,10 @@ $instrumentId = $instrument['id'] ?? null;
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
     window.prepareImages = async function() {
-      if (!headerImgB64) headerImgB64 = await loadImageToBase64("../assets/images/header.jpeg");
-      if (!footerImgB64) footerImgB64 = await loadImageToBase64("../assets/images/footer.jpeg");
-      if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../assets/images/stamp.jpeg");
-      if (!signImgB64)   signImgB64   = await loadImageToBase64("../assets/images/sign.jpeg");
+      if (!headerImgB64) headerImgB64 = await loadImageToBase64("../header.jpeg");
+      if (!footerImgB64) footerImgB64 = await loadImageToBase64("../footer.jpeg");
+      if (!stampImgB64)  stampImgB64  = await loadImageToBase64("../stamp.jpeg");
+      if (!signImgB64)   signImgB64   = await loadImageToBase64("../sign.jpeg");
     }
     function loadImageToBase64(url) {
       return new Promise((resolve, reject) => {
@@ -214,7 +214,11 @@ $instrumentId = $instrument['id'] ?? null;
 
     // Preload images on load
     document.addEventListener("DOMContentLoaded", async function() {
-      await prepareImages();
+      try {
+        await prepareImages();
+      } catch (e) {
+        if (window.SHREEJI_DEBUG) console.error("Error preloading images:", e);
+      }
     });
   </script>
 
