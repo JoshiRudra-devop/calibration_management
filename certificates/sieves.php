@@ -95,7 +95,7 @@ $instrumentId = $instrument['id'] ?? null;
         </div>
       </form>
     </div>
-    <script src="<?= APP_URL ?>/assets/js/general.js?v=<?= filemtime(__DIR__ . '/../assets/js/general.js') ?>"></script>
+    <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=<?= filemtime(__DIR__ . '/../assets/js/general-v3.js') ?>"></script>
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'sieves';
