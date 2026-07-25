@@ -120,28 +120,35 @@ $instrumentId = $instrument['id'] ?? null;
       return val;
     }
 
-    function drawHeader(doc, details, Yalign, withImages) {
+        function drawHeader(doc, details, Yalign, withImages) {
       if (withImages && headerImgB64) doc.addImage(headerImgB64, 'PNG', 3, 3, 210, 30);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(23);
       doc.text("TEST REPORT FOR CUBE MOULD", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-      doc.text(`${details.size}`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+      Yalign += 7;
+      doc.text(`${details.size}`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
       doc.setFontSize(12);
-      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      Yalign += 10;
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign);
       doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
-      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign += 10);
-      doc.text(`EQUIPMENT NAME     :-     CUBE MOULD (${details.size})`, 14, Yalign += 10);
-      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+      Yalign += 10;
+      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign);
+      Yalign += 10;
+      doc.text(`EQUIPMENT NAME     :-     CUBE MOULD (${details.size})`, 14, Yalign);
+      Yalign += 10;
+      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign);
 
       // --- Site Location with wrapping (only value, not prefix) ---
       const siteLocPrefix = "SITE LOCATION          :-     ";
       const prefixWidth = doc.getTextWidth(siteLocPrefix);
       const maxWidth = 180 - prefixWidth;
       const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      Yalign += 10;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
       for (let i = 1; i < siteLocLines.length; i++) {
-        doc.text(siteLocLines[i], 14 + prefixWidth , Yalign +=4);
+        Yalign += 4;
+        doc.text(siteLocLines[i], 14 + prefixWidth , Yalign);
       }
       Yalign += ((siteLocLines.length - 1)+5);
       return Yalign;
