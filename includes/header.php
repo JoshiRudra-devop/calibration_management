@@ -330,31 +330,6 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
 <?php endif; ?>
 </head>
 <body class="<?= $isEmbed ? 'embed-mode' : '' ?>">
-<div id="js-debug-console" style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border: 3px solid #f87171; border-radius: 8px; margin: 1.5rem; font-family: monospace; z-index: 999999; position: relative; display: block;">
-  <strong style="font-size: 1.2rem; display: block; margin-bottom: 0.5rem;">🚨 JAVASCRIPT ERROR CONSOLE (DEBUG MODE)</strong>
-  <ul id="js-debug-errors-list" style="margin: 0; padding-left: 1.5rem; line-height: 1.4;"></ul>
-</div>
-<script>
-window.onerror = function(message, source, lineno, colno, error) {
-  const container = document.getElementById('js-debug-console');
-  const list = document.getElementById('js-debug-errors-list');
-  if (container && list) {
-    container.style.display = 'block';
-    const li = document.createElement('li');
-    li.style.styleFloat = 'none';
-    li.style.marginBottom = '0.5rem';
-    let errStr = message;
-    if (error && error.stack) {
-      errStr += '<br><pre style="margin:5px 0 0 0; font-size:0.8rem; color:#ef4444; white-space:pre-wrap;">' + error.stack + '</pre>';
-    }
-    li.innerHTML = '<span style="color:#dc2626; font-weight:bold;">' + errStr + '</span><br><small style="color:#4b5563;">File: ' + source + ' | Line: ' + lineno + ' | Col: ' + colno + '</small>';
-    list.appendChild(li);
-  }
-  return false;
-};
-// Hide the console by default
-document.getElementById('js-debug-console').style.display = 'none';
-</script>
 
 <?php if (!$isEmbed): ?>
   <!-- Global Skeleton Loader -->
