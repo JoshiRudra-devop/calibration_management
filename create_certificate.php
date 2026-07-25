@@ -865,6 +865,12 @@ async function generateUnifiedPDF() {
         if (typeof iframeWindow.addImg === 'function') {
           iframeWindow.addImg(doc, details);
         }
+
+        // Draw QR Code on the overridden document
+        const addQR = iframeWindow.addQRCodeToPDF || window.addQRCodeToPDF;
+        if (typeof addQR === 'function') {
+          addQR(doc, details.certificateNumber);
+        }
       }
     } catch (err) {
       if (window.SHREEJI_DEBUG) console.error(`Failed to draw PDF page for iframe ${i}:`, err);
