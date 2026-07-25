@@ -770,6 +770,9 @@ function updateGlobalActionsState() {
     bar.classList.remove('active');
     if (reminder) reminder.style.display = 'none';
   }
+  if (typeof updateBatchActionsLock === 'function') {
+    updateBatchActionsLock();
+  }
 }
 
 function validateAllForms() {
@@ -1315,6 +1318,9 @@ function initEmbeddedIframe(iframeId) {
     // Setup height listeners
     adjustHeight();
     setTimeout(adjustHeight, 500);
+    if (typeof updateBatchActionsLock === 'function') {
+      updateBatchActionsLock();
+    }
     
     // Listen to changes in size dynamically
     if (window.ResizeObserver) {
@@ -1447,8 +1453,47 @@ if (parentNextDateInput) {
 nameInput.addEventListener('input', syncAllIframes);
 locInput.addEventListener('input', syncAllIframes);
 
+// --- Batch actions lock logic ---
+function checkAllCertificatesSaved() {
+  const iframes = document.querySelectorAll('.instrument-iframe');
+  if (iframes.length === 0) return false;
+  for (let i = 0; i < iframes.length; i++) {
+    const iframe = iframes[i];
+    const iframeWindow = iframe.contentWindow;
+    if (!iframeWindow || typeof iframeWindow.isPdfSaved !== 'function' || !iframeWindow.isPdfSaved()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function updateBatchActionsLock() {
+  const allSaved = checkAllCertificatesSaved();
+  const buttonsToLock = document.querySelectorAll(
+    '#globalActionsBar .btn-preview-all, #globalActionsBar .btn-print-all'
+  );
+  
+  buttonsToLock.forEach(btn => {
+    btn.disabled = !allSaved;
+    if (!allSaved) {
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Save all certificates first to enable this action';
+    } else {
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.title = '';
+    }
+  });
+}
+
+window.notifyIframeChange = function() {
+  updateBatchActionsLock();
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   updateGlobalActionsState();
+  updateBatchActionsLock();
 });
 </script>
 

@@ -48,6 +48,9 @@ const CERTIFICATE_CONFIG = {
 
 let formModified = false;
 let pdfSaved = false;
+window.isPdfSaved = function() {
+  return pdfSaved;
+};
 
 // Enable/disable the buttons that require a saved certificate.
 // Called on page load, after every form edit, and after every successful save.
@@ -56,6 +59,9 @@ function updateDockState() {
     btn.disabled = !pdfSaved;
     btn.title    = pdfSaved ? '' : 'Save the certificate first';
   });
+  if (window.parent && typeof window.parent.notifyIframeChange === 'function') {
+    window.parent.notifyIframeChange();
+  }
 }
 
 // â”€â”€ Dock Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
