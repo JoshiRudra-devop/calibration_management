@@ -756,7 +756,7 @@ document.querySelectorAll('.modal-card').forEach(card => {
         </div>
       </div>
       <iframe 
-        src="certificates/${slug}.php?embed=true" 
+        src="certificates/${slug}.php?embed=true&v=1.3" 
         id="${uniqueId}" 
         class="instrument-iframe" 
         loading="lazy"
