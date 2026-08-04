@@ -369,7 +369,7 @@ $instrumentId = $instrument['id'] ?? null;
         function loadImageToBase64(url) {
           return new Promise((resolve, reject) => {
             var img = new window.Image();
-            // // img.crossOrigin = "Anonymous";
+            img.crossOrigin = "Anonymous";
             img.onload = function () {
               var canvas = document.createElement("canvas");
               canvas.width = img.width;
