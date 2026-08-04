@@ -109,6 +109,35 @@ function generateQRDataURLSync(text, pixelSize = 128) {
   }
 }
 
+const INSTRUMENT_LABELS = {
+  'autolevel': 'Auto Level',
+  'aggregate_impact': 'Aggregate Impact Value App',
+  'ctm': 'Cube Testing Machine',
+  'cone_penetro': 'Cone Penetrometer',
+  'core_cutter': 'Core Cutter',
+  'cube_mould': 'Cube Mould',
+  'digital_thermo': 'Digital Thermometer',
+  'elongation': 'Elongation Gauge',
+  'oven': 'Electrical Hot Air Oven',
+  'flakness': 'Flakness Gauge',
+  'general': 'General Format',
+  'hydrometer': 'Hydrometer',
+  'isi_cube': 'ISI Cube Mould',
+  'measuring_cyl': 'Measuring Cylinder',
+  'pycnometer': 'Pycnometer Bottle',
+  'ph_meter': 'PH Meter',
+  'rapid_moisture': 'Rapid Moisture Meter',
+  'sieves': 'Test Sieves',
+  'sand_pouring': 'Sand Pouring Cylinder',
+  'slumcone': 'Slumcone',
+  'total_station': 'Electronic Total Station',
+  'water_bath': 'Water Bath',
+  'vernier_caliper': 'Vernier Caliper',
+  'weight_balance': 'Weight Balance',
+  'weigh_batcher': 'Weigh Batcher',
+  'full_lab': 'Full Lab Report'
+};
+
 // Build the Cloudinary delivery URL for a certificate PDF.
 // Mirrors PHP sanitizeCloudinarySegment() + folder logic in save_certificates.php.
 function buildCloudinaryPdfUrl(certNumber, instrSlug, partyName, siteLocation) {

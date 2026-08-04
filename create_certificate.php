@@ -449,6 +449,31 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
   }
+
+  /* Floating Back to Top Button */
+  .back-to-top-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: #00796b;
+    color: #ffffff;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    display: none; /* Shown dynamically via scroll event */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    z-index: 6000; /* Must be higher than global-actions-bar z-index of 5000 */
+    transition: all 0.2s ease;
+  }
+  .back-to-top-btn:hover {
+    background: #004d40;
+    transform: translateY(-3px);
+  }
 </style>
 
 <!-- Preload images to browser cache for instant PDF rendering -->
@@ -544,6 +569,13 @@ $types = $db->query("SELECT slug, label FROM instrument_types WHERE slug NOT IN 
     <!-- Active Instruments List -->
     <div id="activeInstrumentsContainer">
       <!-- Embedded Instrument cards will load dynamically here -->
+    </div>
+
+    <!-- Bottom Add Instrument Button Container -->
+    <div id="bottomAddInstrumentContainer" style="display: none; justify-content: center; margin-top: 2rem; margin-bottom: 2rem;">
+      <button id="btnBottomSelectInstrument" type="button" style="background: #00796b; color: white; border: none; padding: 0.85rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); outline: none;">
+        <i class="fas fa-plus-circle" style="margin-right: 0.5rem;"></i> Select & Add Another Instrument
+      </button>
     </div>
 
     <!-- Global Unsaved Reminder -->
@@ -770,6 +802,12 @@ function updateGlobalActionsState() {
     bar.classList.remove('active');
     if (reminder) reminder.style.display = 'none';
   }
+  
+  const bottomBtn = document.getElementById('bottomAddInstrumentContainer');
+  if (bottomBtn) {
+    bottomBtn.style.display = count > 0 ? 'flex' : 'none';
+  }
+
   if (typeof updateBatchActionsLock === 'function') {
     updateBatchActionsLock();
   }
@@ -1494,7 +1532,39 @@ window.notifyIframeChange = function() {
 document.addEventListener('DOMContentLoaded', () => {
   updateGlobalActionsState();
   updateBatchActionsLock();
+
+  // Bottom Select & Add button scroll helper
+  const btnBottomSelectInstrument = document.getElementById('btnBottomSelectInstrument');
+  if (btnBottomSelectInstrument) {
+    btnBottomSelectInstrument.addEventListener('click', () => {
+      const selector = document.getElementById('inlineInstrumentSelector');
+      if (selector) {
+        selector.style.display = 'block';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // Back to Top button scroll visibility toggle and scroll handler
+  const btnBackToTop = document.getElementById('btnBackToTop');
+  if (btnBackToTop) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        btnBackToTop.style.display = 'flex';
+      } else {
+        btnBackToTop.style.display = 'none';
+      }
+    });
+    btnBackToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 });
 </script>
+
+<!-- Floating Back to Top Button -->
+<button id="btnBackToTop" class="back-to-top-btn" type="button" title="Back to Top">
+  <i class="fas fa-chevron-up"></i>
+</button>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
