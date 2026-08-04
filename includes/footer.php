@@ -69,6 +69,6 @@ $showFooterContent = (basename($_SERVER['PHP_SELF']) === 'about.php' || basename
     SHREEJI_CONFIG.instrumentLabel = '<?= isset($instrument['label']) ? htmlspecialchars($instrument['label']) : '' ?>';
   }
 </script>
-<script src="<?= APP_URL ?>/assets/js/app.js?v=1.1"></script>
+<script src="<?= APP_URL ?>/assets/js/app.js?v=1.2"></script>
 </body>
 </html>
