@@ -61,6 +61,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
+    console.log("Cube Mould script block parsing...");
     window.INSTRUMENT_SLUG = 'cube_mould';
     let pdfSaved = false;
 
@@ -100,7 +101,8 @@ $instrumentId = $instrument['id'] ?? null;
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
         saveentry: `CubeMould_${document.getElementById("partyName").value}_${document.getElementById("certificateNumber").value}`
       };
-    }
+    };
+    console.log("getFormDetails successfully defined on window! Type:", typeof window.getFormDetails);
 
     function incrementCertificateNumber(baseCertNo, increment) {
       if (increment === 0) return baseCertNo;
