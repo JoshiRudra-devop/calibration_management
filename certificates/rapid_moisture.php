@@ -165,7 +165,7 @@ $instrumentId = $instrument['id'] ?? null;
       });
 
       let finalY = doc.lastAutoTable.finalY + 3.5;
-      doc.setFont("helvetica", "normal");
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY);
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);

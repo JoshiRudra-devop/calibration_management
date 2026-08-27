@@ -539,7 +539,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 199.5); 
-      doc.setFont("helvetica", "normal");
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 204.5);
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 209.5);
