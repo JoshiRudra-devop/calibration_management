@@ -154,9 +154,9 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     function addFooterImages(doc) {
-      if (footerImgB64) doc.addImage(footerImgB64, 'PNG', 0, 255, 210, 27);
-      if (stampImgB64)  doc.addImage(stampImgB64,  'PNG', 100, 217, 35, 35);
-      if (signImgB64)   doc.addImage(signImgB64,   'PNG', 160, 232, 40, 10);
+      if (footerImgB64) doc.addImage(footerImgB64, 'JPEG', 0, 255, 210, 27, undefined, 'FAST');
+      if (stampImgB64)  doc.addImage(stampImgB64,  'JPEG', 100, 217, 35, 35, undefined, 'FAST');
+      if (signImgB64)   doc.addImage(signImgB64,   'JPEG', 160, 232, 40, 10, undefined, 'FAST');
     }
 
     window.addCertificateDetails = function(doc, details) {

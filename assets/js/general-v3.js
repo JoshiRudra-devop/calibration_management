@@ -15,10 +15,10 @@ async function applyLetterhead(doc) {
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    if (header) doc.addImage(header, 'PNG', 3,   3,   210, 30);
-    if (footer) doc.addImage(footer, 'PNG', 0,   255, 210, 27);
-    if (stamp)  doc.addImage(stamp,  'PNG', 100, 217, 35,  35);
-    if (sign)   doc.addImage(sign,   'PNG', 160, 232, 40,  10);
+    if (header) doc.addImage(header, 'JPEG', 3,   3,   210, 30, undefined, 'FAST');
+    if (footer) doc.addImage(footer, 'JPEG', 0,   255, 210, 27, undefined, 'FAST');
+    if (stamp)  doc.addImage(stamp,  'JPEG', 100, 217, 35,  35, undefined, 'FAST');
+    if (sign)   doc.addImage(sign,   'JPEG', 160, 232, 40,  10, undefined, 'FAST');
   }
 }
 

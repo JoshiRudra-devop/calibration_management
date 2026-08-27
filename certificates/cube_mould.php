@@ -123,7 +123,7 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
         function drawHeader(doc, details, Yalign, withImages) {
-      if (withImages && headerImgB64) doc.addImage(headerImgB64, 'PNG', 3, 3, 210, 30);
+      if (withImages && headerImgB64) doc.addImage(headerImgB64, 'JPEG', 3, 3, 210, 30, undefined, 'FAST');
       doc.setFont("helvetica", "bold");
       doc.setFontSize(23);
       doc.text("TEST REPORT FOR CUBE MOULD", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
@@ -157,9 +157,9 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     function addFooterImages(doc) {
-      if (footerImgB64) doc.addImage(footerImgB64, 'PNG', 0, 255, 210, 27);
-      if (stampImgB64)  doc.addImage(stampImgB64,  'PNG', 100, 217, 35, 35);
-      if (signImgB64)   doc.addImage(signImgB64,   'PNG', 160, 232, 40, 10);
+      if (footerImgB64) doc.addImage(footerImgB64, 'JPEG', 0, 255, 210, 27, undefined, 'FAST');
+      if (stampImgB64)  doc.addImage(stampImgB64,  'JPEG', 100, 217, 35, 35, undefined, 'FAST');
+      if (signImgB64)   doc.addImage(signImgB64,   'JPEG', 160, 232, 40, 10, undefined, 'FAST');
     }
 
     window.addCertificateDetails = function(doc, details) {
