@@ -391,44 +391,44 @@ $instrumentId = $instrument['id'] ?? null;
     window.addCertificateDetails = function(doc, details) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
-      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 46, { align: "center" });
       doc.setFontSize(10);
 
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.text(`DATE:-${details.calibrationDate}`, 160, 60);
-      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, 60);
-      doc.text(`NAME OF PARTY       :-    ${details.partyName}`, 14, 70);
-      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, 80);
-      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, 90);
-      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, 100);
-      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, 100);
-      doc.text(`SITE LOCATION         :-    ${details.siteLocation}`, 14, 110); 
+      doc.setFontSize(11);
+      doc.text(`DATE:-${details.calibrationDate}`, 160, 56);
+      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, 56);
+      doc.text(`NAME OF PARTY       :-    ${details.partyName}`, 14, 65);
+      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, 74);
+      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, 83);
+      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, 92);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, 92);
+      doc.text(`SITE LOCATION         :-    ${details.siteLocation}`, 14, 101); 
 
-      doc.setFontSize(10);
+      doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");
       let RING = String(details.ring);
 
       if(RING === "1000KN"){
-        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, 120);  
-        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, 125);  
-        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
+        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, 110);  
+        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, 115);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
+        doc.setFontSize(9.5);
         const startX = 13;
-        const startY = 142;
+        const startY = 133;
         const cellWidth = 30;
-        const cellHeight = 7;
+        const cellHeight = 6.2;
 
-        doc.text(`IN DIVISIONS`, 16, 141);
-        doc.text(`KN`, 174, 141);
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
 
         const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
 
         for (let k = 0; k < 6; k++) {
           const x = startX + k * cellWidth;
-          doc.rect(x, 132, cellWidth, 10);
-          doc.text(fixedTexts[k], x + 2, 137);
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
         }
 
         const fixedValuesColumn1 = ["79.1", "155.2", "232.3", "308.1", "384.4", "460.1","536.7", "613.4", "689.7", "766.1"];
@@ -447,30 +447,30 @@ $instrumentId = $instrument['id'] ?? null;
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
-            doc.text(textValue, centeredX, y + 6);
+            doc.text(textValue, centeredX, y + 4.5);
           }
         }
       }
       else if(RING === "2000KN"){
-        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 120);  
-        doc.text(`PROVING RING NO:2000KN 094 IS 4169:2014`, 14, 125);  
-        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 110);  
+        doc.text(`PROVING RING NO:2000KN 094 IS 4169:2014`, 14, 115);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
+        doc.setFontSize(9.5);
         const startX = 13;
-        const startY = 142;
+        const startY = 133;
         const cellWidth = 30;
-        const cellHeight = 7;
+        const cellHeight = 6.2;
 
-        doc.text(`IN DIVISIONS`, 16, 141);
-        doc.text(`KN`, 174, 141);
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
 
         const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
 
         for (let k = 0; k < 6; k++) {
           const x = startX + k * cellWidth;
-          doc.rect(x, 132, cellWidth, 10);
-          doc.text(fixedTexts[k], x + 2, 137);
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
         }
 
         const fixedValuesColumn1 = ["84.1", "168.6", "254.7", "342.1", "429.1", "513.9", "600.9", "689.2", "776.7", "865.8"];
@@ -489,30 +489,30 @@ $instrumentId = $instrument['id'] ?? null;
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
-            doc.text(textValue, centeredX, y + 6);
+            doc.text(textValue, centeredX, y + 4.5);
           }
         }
       }
       else if(RING === "2000KN new"){
-        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 120);  
-        doc.text(`PROVING RING NO:2000KN 381 IS 4169:2014`, 14, 125);  
-        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 130);  
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 110);  
+        doc.text(`PROVING RING NO:2000KN 381 IS 4169:2014`, 14, 115);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
+        doc.setFontSize(9.5);
         const startX = 13;
-        const startY = 142;
+        const startY = 133;
         const cellWidth = 30;
-        const cellHeight = 7;
+        const cellHeight = 6.2;
 
-        doc.text(`IN DIVISIONS`, 16, 141);
-        doc.text(`KN`, 174, 141);
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
 
         const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
 
         for (let k = 0; k < 6; k++) {
           const x = startX + k * cellWidth;
-          doc.rect(x, 132, cellWidth, 10);
-          doc.text(fixedTexts[k], x + 2, 137);
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
         }
 
         const fixedValuesColumn1 = ["73.1","145.1","215.2","284.7","356.1","427.4","498.1","569.4","641.3","714.1"];
@@ -531,15 +531,23 @@ $instrumentId = $instrument['id'] ?? null;
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
-            doc.text(textValue, centeredX, y + 6);
+            doc.text(textValue, centeredX, y + 4.5);
           }
         }
       }
       
-      doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 215); 
-      doc.setFontSize(12);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
-      doc.text("PROPRIETOR", 170, 245);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 199.5); 
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 204.5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 209.5);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
+      doc.text("PROPRIETOR", 170, 240);
     }
   </script>
 
