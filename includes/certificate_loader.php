@@ -19,7 +19,11 @@ $isEmbedded = isset($_GET['embed']) && $_GET['embed'] === 'true';
 <!-- Loader Overlay (used inside embed iframes and standalone pages) -->
 <div id="customLoaderOverlay" class="custom-loader-overlay">
   <div class="custom-loader-content" id="customLoaderContent">
-    <div id="loaderSpinner" class="custom-spinner"></div>
+    <div id="loaderSpinner" class="loader-progress-box">
+      <div class="loader-progress-track">
+        <div class="loader-progress-bar"></div>
+      </div>
+    </div>
     <div id="loaderTick" class="custom-tick-container" style="display:none;">
       <svg width="70" height="70" viewBox="0 0 70 70">
         <circle class="tick-circle" cx="35" cy="35" r="32" fill="none" stroke="#4caf50" stroke-width="5" />

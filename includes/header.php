@@ -377,7 +377,11 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
 <!-- ── Loader Overlay ──────────────────────────────────── -->
 <div class="loader-overlay" id="loaderOverlay">
   <div class="loader-card">
-    <div class="spinner" id="loaderSpinner"></div>
+    <div class="loader-progress-box" id="loaderSpinner">
+      <div class="loader-progress-track">
+        <div class="loader-progress-bar"></div>
+      </div>
+    </div>
     <div id="loaderTick" style="display:none; flex-direction:column; align-items:center; gap:.75rem;">
       <svg class="tick-svg" width="64" height="64" viewBox="0 0 70 70">
         <circle cx="35" cy="35" r="32" fill="none" stroke="#22b55d" stroke-width="5"/>
