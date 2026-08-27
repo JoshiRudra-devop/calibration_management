@@ -69,6 +69,7 @@ $instrumentId = $instrument['id'] ?? null;
         certificateNumber: document.getElementById("certificateNumber").value,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         make: document.getElementById("make").value,
+        serialNo: document.getElementById("certificateNumber") ? document.getElementById("certificateNumber").value : "",
         siteLocation: document.getElementById("siteLocation").value,
         partyName: document.getElementById("partyName").value,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),

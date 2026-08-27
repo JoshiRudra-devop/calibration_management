@@ -48,10 +48,10 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="serialNo">Serial No:</label>
         <input type="text" id="serialNo" required>
       </div>
-      <!-- <div class="title_input_pair">
+      <div class="title_input_pair">
         <label for="siteLocation">Site Location:</label>
         <input type="text" id="siteLocation" required>
-      </div> -->
+      </div>
       <?php include __DIR__ . '/../includes/certificate_loader.php'; ?>
       
     </form>
@@ -73,7 +73,8 @@ $instrumentId = $instrument['id'] ?? null;
         partyName: document.getElementById("partyName").value,
         make: document.getElementById("make").value,
         serialNo: document.getElementById("serialNo").value,
-        instrumentType:document.getElementById("instrumentType").value ,
+        siteLocation: document.getElementById("siteLocation") ? document.getElementById("siteLocation").value : "",
+        instrumentType: document.getElementById("instrumentType").value,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
       };
     }

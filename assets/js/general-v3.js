@@ -526,7 +526,11 @@ document.addEventListener('DOMContentLoaded', function() {
   if (uploadBtn) {
     uploadBtn.addEventListener('click', async function() {
       if (!form || !form.checkValidity()) {
-        alert('Please fill all required fields');
+        const errorMsg = 'Please fill all required fields in the form.';
+        if (window.frameElement) {
+          window.frameElement.dispatchEvent(new CustomEvent('iframeSaveError', { detail: { message: errorMsg } }));
+        }
+        alert(errorMsg);
         return;
       }
 

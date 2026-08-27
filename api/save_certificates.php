@@ -274,11 +274,13 @@ if ($isUpdate) {
         $certId = (int) $db->lastInsertId();
         logCertificateAudit($db, $certId, 'create', $_SESSION['user_id'] ?? null, null);
     } catch (PDOException $e) {
-        if ($e->getCode() === '23000') {
+        $sqlState   = (string) $e->getCode();
+        $driverCode = (int) ($e->errorInfo[1] ?? 0);
+        if ($sqlState === '23000' || $driverCode === 1062) {
             jsonResponse(false, 'Certificate number already exists: ' . $certNumber, [], 409);
         }
         error_log('Certificate insert error: ' . $e->getMessage());
-        jsonResponse(false, 'Failed to save certificate. Please try again.', [], 500);
+        jsonResponse(false, 'Failed to save certificate: ' . $e->getMessage(), [], 500);
     }
 }
 
