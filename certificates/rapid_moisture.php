@@ -149,12 +149,12 @@ $instrumentId = $instrument['id'] ?? null;
             lineWidth: 0.2,
             halign: 'center',
             valign: 'middle',
-            fontSize: 7.5,
+            fontSize: 8.2,
             fontStyle: 'bold',
-            cellPadding: 0.3
+            cellPadding: 0.4
         },
         headStyles: {
-            fontSize: 7.5,
+            fontSize: 8.2,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
@@ -164,17 +164,17 @@ $instrumentId = $instrument['id'] ?? null;
         }
       });
 
-      let finalY = doc.lastAutoTable.finalY + 4;
+      let finalY = doc.lastAutoTable.finalY + 3.5;
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
+      doc.setFontSize(8.5);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY);
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
       doc.text("• NOTE: This calibration report refers to 'Oven Drying Method'.", 14, finalY += 4);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
-      doc.text("PROPRIETOR", 170, 245);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
+      doc.text("PROPRIETOR", 170, 240);
     }
     
     async function generateInfoSticker() {
