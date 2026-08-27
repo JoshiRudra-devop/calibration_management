@@ -19,7 +19,10 @@ const Loader = {
     if (this.okBtn) this.okBtn.addEventListener('click', () => this.hide());
   },
 
+  _timer: null,
+
   show(msg = 'Processing…') {
+    if (this._timer) { clearTimeout(this._timer); this._timer = null; }
     if (!this.overlay) this.init();
     this.overlay?.classList.add('active');
     if (this.spinner) this.spinner.style.display = 'block';
@@ -27,7 +30,8 @@ const Loader = {
     if (this.text)    this.text.textContent      = msg;
   },
 
-  success(msg = 'Done! ✨') {
+  success(msg = 'Done! ✨', autoHideMs = 1800) {
+    if (this._timer) clearTimeout(this._timer);
     if (this.spinner) this.spinner.style.display = 'none';
     if (this.tick)  {
       this.tick.style.display = 'flex';
@@ -41,15 +45,24 @@ const Loader = {
       }
     }
     if (this.text)  this.text.textContent = msg;
+    if (autoHideMs > 0) {
+      this._timer = setTimeout(() => this.hide(), autoHideMs);
+    }
   },
 
-  error(msg = 'Something went wrong 😞') {
+  error(msg = 'Something went wrong 😞', autoHideMs = 2500) {
+    if (this._timer) clearTimeout(this._timer);
     if (this.spinner) this.spinner.style.display = 'none';
     if (this.text)    this.text.textContent = msg;
-    setTimeout(() => this.hide(), 2500);
+    if (autoHideMs > 0) {
+      this._timer = setTimeout(() => this.hide(), autoHideMs);
+    }
   },
 
-  hide() { this.overlay?.classList.remove('active'); }
+  hide() { 
+    if (this._timer) { clearTimeout(this._timer); this._timer = null; }
+    this.overlay?.classList.remove('active'); 
+  }
 };
 
 // ── Toast notifications ───────────────────────────────────

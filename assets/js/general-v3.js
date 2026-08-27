@@ -168,7 +168,7 @@ function showLoader(message = 'Processing...') {
 }
 
 function hideLoader() {
-  const overlay = document.getElementById('customLoaderOverlay');
+  const overlay = document.getElementById('customLoaderOverlay') || document.getElementById('loaderOverlay');
   if (overlay) overlay.classList.remove('active');
 }
 
