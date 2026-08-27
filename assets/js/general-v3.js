@@ -461,7 +461,12 @@ async function prefillForm() {
         showInputBoxes();
       }
       
-      // 2. Sticker rendering trigger
+      // 2. Test Sieves: restore selected sub-sizes checkboxes and rows
+      if (typeof restoreSievesState === 'function') {
+        setTimeout(restoreSievesState, 300);
+      }
+      
+      // 3. Sticker rendering trigger
       if (typeof generateInfoSticker === 'function') {
         setTimeout(generateInfoSticker, 500);
       }

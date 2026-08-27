@@ -64,6 +64,7 @@ $instrumentId = $instrument['id'] ?? null;
           <div id="checkBoxes" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
           <button type="button" id="selectFullSetBtn" style="margin-top: 15px; padding: 10px 20px; background-color: #00796b; color: white; border: none; border-radius: 5px; cursor: pointer;">SELECT FULL SET</button>
         </div>
+        <input type="hidden" id="selectedSubSizes" name="selectedSubSizes">
         <div id="testResults">
           <h3>Test Results</h3>
           <table id="resultsTable" style="display:none;">
@@ -114,6 +115,7 @@ $instrumentId = $instrument['id'] ?? null;
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
         make: document.getElementById("make").value,
         sieveSize: document.getElementById("sieveSize").value,
+        selectedSubSizes: document.getElementById("selectedSubSizes") ? document.getElementById("selectedSubSizes").value : ""
       };
     }
 
@@ -121,7 +123,7 @@ $instrumentId = $instrument['id'] ?? null;
       const match = size.match(/(\d+(?:\.\d+)?)/);
       if (!match) return 0;
       const num = parseFloat(match[1]);
-      if (size.includes('μm') || size.includes('MICRON') || size.includes('microns')) return num / 1000; // convert to mm for sorting
+      if (size.includes('μm') || size.includes('MICRON') || size.includes('microns')) return num / 1000;
       return num;
     }
 
@@ -147,8 +149,10 @@ $instrumentId = $instrument['id'] ?? null;
       const selectedList = document.getElementById('selectedList');
       selectedList.innerHTML = '';
       const tbody = document.getElementById('resultsBody');
+      const savedArr = [];
       for (let row of tbody.rows) {
         const size = row.cells[3].textContent;
+        savedArr.push(size);
         const item = document.createElement('span');
         item.style.display = 'inline-flex';
         item.style.alignItems = 'center';
@@ -159,7 +163,33 @@ $instrumentId = $instrument['id'] ?? null;
         item.innerHTML = '✓ ' + size;
         selectedList.appendChild(item);
       }
+      const hiddenInput = document.getElementById('selectedSubSizes');
+      if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(savedArr);
+      }
     }
+
+    window.restoreSievesState = function() {
+      const hiddenInput = document.getElementById('selectedSubSizes');
+      if (!hiddenInput || !hiddenInput.value) return;
+      let savedSizes = [];
+      try {
+        savedSizes = JSON.parse(hiddenInput.value);
+      } catch (e) {
+        if (typeof hiddenInput.value === 'string' && hiddenInput.value.length > 0) {
+          savedSizes = hiddenInput.value.split(',');
+        }
+      }
+      if (!Array.isArray(savedSizes) || savedSizes.length === 0) return;
+      
+      const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        if (savedSizes.includes(cb.value)) {
+          cb.checked = true;
+          toggleRow(cb.value, true);
+        }
+      });
+    };
 
     function updateSubSizes() {
       const size = document.getElementById('sieveSize').value;
