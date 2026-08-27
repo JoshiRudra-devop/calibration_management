@@ -149,13 +149,12 @@ $instrumentId = $instrument['id'] ?? null;
             lineWidth: 0.2,
             halign: 'center',
             valign: 'middle',
-            fontSize: 9,
+            fontSize: 7.5,
             fontStyle: 'bold',
-            cellPadding: 0.5,
-            lineHeight: 0.8
+            cellPadding: 0.3
         },
         headStyles: {
-            fontSize: 9,
+            fontSize: 7.5,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
@@ -165,14 +164,15 @@ $instrumentId = $instrument['id'] ?? null;
         }
       });
 
-      let finalY = doc.lastAutoTable.finalY+5;
-      doc.setFontSize(10);
+      let finalY = doc.lastAutoTable.finalY + 4;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY+=5);
-      doc.text("• NOTE: This calibration report refers to", 14, finalY+=5);
-      doc.text("  'Oven Drying Method'.", 14, finalY+=5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
+      doc.text("• NOTE: This calibration report refers to 'Oven Drying Method'.", 14, finalY += 4);
 
-      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
       doc.text("PROPRIETOR", 170, 245);
     }
