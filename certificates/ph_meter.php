@@ -84,7 +84,7 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(12);
       doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
-      doc.text(`REPORT NO                     :-     SHREEJI/${details.certificateNumber}`, 14, Yalign);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY             :-     ${details.partyName}`, 14, Yalign+=10);
       doc.text(`EQUIPMENT NAME          :-     PH METER`, 14, Yalign+=10);
       doc.text(`AS PER IS                          :-     IS 4309`, 14, Yalign+=10);

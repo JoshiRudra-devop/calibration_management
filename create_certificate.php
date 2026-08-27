@@ -1109,6 +1109,7 @@ async function saveAllCertificates() {
               finalCertNo = window.getUniqueCertificateNumber(slug, finalCertNo, iframeWindow);
             }
             certNumInput.value = finalCertNo;
+            certNumInput.readOnly = true;
             certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
             certNumInput.dispatchEvent(new Event('change', { bubbles: true }));
           }

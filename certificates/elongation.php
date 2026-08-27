@@ -76,9 +76,9 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(25);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
-      doc.setFontSize(12);
-      doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
-      doc.text(`REPORT NO                 :-     SHREEJI/${details.certificateNumber}`, 14, Yalign);
+      doc.setFontSize(10);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign);
+      doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
       doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign+=10);
       doc.text(`EQUIPMENT NAME     :-     ELOGATION GAUGE`, 14, Yalign+=10);
       doc.text(`SERIAL NO:- ${details.certificateNumber}`, 150, Yalign);

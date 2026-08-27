@@ -423,6 +423,7 @@ async function prefillForm() {
           finalCertNo = window.parent.getUniqueCertificateNumber(parentSlug, finalCertNo, window);
         }
         certNumInput.value = finalCertNo;
+        certNumInput.readOnly = true;
         certNumInput.dispatchEvent(new Event('input', { bubbles: true }));
       }
     } catch (error) {

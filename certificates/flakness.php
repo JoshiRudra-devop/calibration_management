@@ -80,9 +80,9 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
     // Spacing
-    doc.setFontSize(12);
-    doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
-    doc.text(`REPORT NO                 :-     SHREEJI/${details.certificateNumber}`, 14, Yalign);
+    doc.setFontSize(10);
+    doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign+=10);
+    doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
     doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign+=10);
     doc.text(`EQUIPMENT NAME     :-     FLAKNESS GAUGE`, 14, Yalign+=10);
     doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
