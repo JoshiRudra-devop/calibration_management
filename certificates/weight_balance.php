@@ -187,25 +187,25 @@ $instrumentId = $instrument['id'] ?? null;
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
       };
     }
- window.addCertificateDetails = function(doc, details) {
-      let Yalign = 50;
+  window.addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
-      doc.setFontSize(12);
-      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
-      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
-      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign += 10);
-      doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, Yalign += 10);
-      doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
-      doc.text(`SR NO                          :-     ${details.serialNo}`, 14, Yalign += 10);
-      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
-      doc.text(`SITE LOCATION          :-     ${details.siteLocation}`, 14, Yalign += 10);
+      doc.setFontSize(10);
+      doc.text(`DATE:-${details.calibrationDate}`, 160, 55);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, 55);
+      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, 64);
+      doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, 73);
+      doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, 82);
+      doc.text(`SR NO                          :-     ${details.serialNo}`, 14, 91);
+      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, 91);
+      doc.text(`SITE LOCATION          :-     ${details.siteLocation}`, 14, 100);
 
       // Get table data for selected capacity
       const data = capacityTables[details.capacity] || [];
-      let tableStartY = Yalign + 10;
+      let tableStartY = 106;
 
       if (data.length > 0) {
         let tableHead;
@@ -219,17 +219,17 @@ $instrumentId = $instrument['id'] ?? null;
           body: data,
           startY: tableStartY,
           styles: { 
-            fontSize: 12,
+            fontSize: 9.5,
             lineColor:[0,0,0],
             textColor:[0,0,0],
             lineWidth: 0.2,
             halign: 'center',
             valign: 'middle',
-            cellPadding: 1, // reduce padding inside cells
-            lineHeight: 1   // reduce row height
+            cellPadding: 0.5,
+            fontStyle: 'bold'
           },
           headStyles: {
-            fontSize: 15,
+            fontSize: 10.5,
             fillColor: [255, 255, 255],
             textColor: [0,0,0],
             lineColor: [0, 0, 0],
@@ -243,13 +243,21 @@ $instrumentId = $instrument['id'] ?? null;
         });
       }
 
-      let tableStartY2 = doc.autoTable.previous ? doc.autoTable.previous.finalY : Yalign + 20;
-      doc.setFontSize(12);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableStartY2 += 10);
+      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, finalY);
+      
       doc.setFont("helvetica", "bold"); 
-      doc.setFontSize(12); 
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
-      doc.text("PROPRIETOR", 170, 245);
+      doc.setFontSize(8.5); 
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
+      doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", 14, finalY += 4);
+
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(11); 
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
+      doc.text("PROPRIETOR", 170, 240);
     }
     // --- Sticker logic ---
     async function generateInfoSticker() {
