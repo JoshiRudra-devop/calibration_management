@@ -21,8 +21,7 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="certificateNumber">Certificate No:</label>
         <input type="text" id="certificateNumber" required>
       </div>
-        <div class="certificate-status" id="certificateStatus"></div>
-  </div>
+      <div class="certificate-status" id="certificateStatus"></div>
       <div id="certificateNumberError" class="error-message">This certificate number already exists!</div>
       <div class="date">
         <div class="title_input_pair">
@@ -40,7 +39,7 @@ $instrumentId = $instrument['id'] ?? null;
       </div>
       <div class="title_input_pair">
         <label for="instrumentType">Instrument Name:</label>
-        <input type="text" id="instrumentType" value="SLUMCONE"  required>
+        <input type="text" id="instrumentType" value="SLUMCONE" required>
       </div>
       <div class="title_input_pair">
         <label for="make">Make:</label>
@@ -51,9 +50,8 @@ $instrumentId = $instrument['id'] ?? null;
         <input type="text" id="siteLocation" required>
       </div>
       <?php include __DIR__ . '/../includes/certificate_loader.php'; ?>
-      
     </form>
-  </div>
+</div>
   <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=<?= filemtime(__DIR__ . '/../assets/js/general-v3.js') ?>"></script>
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
@@ -74,7 +72,7 @@ $instrumentId = $instrument['id'] ?? null;
         instrumentType: document.getElementById("instrumentType").value,
         make: document.getElementById("make").value,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
-         saveentry: ` ${document.getElementById("certificateNumber").value || "Unknown"} `
+        saveentry: ` ${document.getElementById("certificateNumber").value || "Unknown"} `
       };
     }
 
@@ -98,15 +96,15 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(lines2, 12, hori_axis += 9);
       hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
 
-      doc.setFontSize(12);
+      doc.setFontSize(10);
       // Certificate Details
-      doc.text(`REF NO                       :     ${details.certificateNumber}`, 14, hori_axis += 10);
+      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, hori_axis += 10);
       doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
-      doc.text(`NAME OF PARTY       :     ${details.partyName}`, 14, hori_axis += 10);
-      doc.text(`EQUIPMENT NAME    :     SLUMCONE `, 14, hori_axis += 10);
-      doc.text(`SERIAL NO / MAKE    :     ${details.certificateNumber} / ${details.make}`, 14, hori_axis += 10);
-      doc.text(`SITE LOCATION          :     ${details.siteLocation}`, 14, hori_axis += 10);
-      doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, hori_axis += 10);
+      doc.text(`NAME OF PARTY       :-    ${details.partyName}`, 14, hori_axis += 10);
+      doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
+      doc.text(`SERIAL NO / MAKE    :-    ${details.certificateNumber} / ${details.make}`, 14, hori_axis += 10);
+      doc.text(`SITE LOCATION          :-    ${details.siteLocation}`, 14, hori_axis += 10);
+      doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 140, hori_axis);
       doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
 
       const data = [
@@ -120,15 +118,17 @@ $instrumentId = $instrument['id'] ?? null;
         body: data,
         startY: hori_axis + 5,
         styles: {
-          fontSize: 12,
+          fontSize: 9.5,
           textColor: [0, 0, 0],
           lineColor: [87, 86, 85],
           lineWidth: 0.2,
           halign: 'center',  // horizontal align to center
           valign: 'middle',  // vertical align to middle
+          cellPadding: 0.5,
+          fontStyle: 'bold'
         },
         headStyles: {
-          fontSize: 15,
+          fontSize: 10.5,
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
@@ -140,14 +140,20 @@ $instrumentId = $instrument['id'] ?? null;
           fillColor: [255, 255, 255]
         }
       });
-      let tableStartY2 = doc.autoTable.previous.finalY;
-      // Add calibrated by
-      doc.setFontSize(12);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableStartY2 += 10);
-      doc.setFontSize(12);
+      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, finalY);
 
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
-      doc.text("PROPRIETOR", 170, 247);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
+      doc.text("PROPRIETOR", 170, 240);
     }
 
     async function generateInfoSticker() {
