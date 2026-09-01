@@ -106,18 +106,30 @@ $instrumentId = $instrument['id'] ?? null;
   <script> 
     let stickerPdfBlob = null;
   
-    window.getFormDetails = function() {
+    function getFormDetails() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
+      };
+      const formatDate = (val) => {
+        return val ? val.split("-").reverse().join("/") : "";
+      };
+      const certNo = getVal("certificateNumber");
+      const partyName = getVal("partyName");
+
       return {
-        certificateNumber: document.getElementById("certificateNumber").value,
-        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
-        siteLocation: document.getElementById("siteLocation").value,
-        partyName: document.getElementById("partyName").value,
-        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
-        make: document.getElementById("make").value,
-        sieveSize: document.getElementById("sieveSize").value,
-        selectedSubSizes: document.getElementById("selectedSubSizes") ? document.getElementById("selectedSubSizes").value : ""
+        certificateNumber: certNo,
+        calibrationDate: formatDate(getVal("calibrationDate")),
+        siteLocation: getVal("siteLocation"),
+        partyName: partyName,
+        nextCalibrationDate: formatDate(getVal("nextCalibrationDate")),
+        make: getVal("make"),
+        sieveSize: getVal("sieveSize"),
+        selectedSubSizes: getVal("selectedSubSizes"),
+        saveentry: `Sieves_${partyName}_${certNo}`
       };
     }
+    window.getFormDetails = getFormDetails;
 
     function parseSize(size) {
       const match = size.match(/(\d+(?:\.\d+)?)/);
@@ -147,21 +159,27 @@ $instrumentId = $instrument['id'] ?? null;
 
     function updateSelectedDisplay() {
       const selectedList = document.getElementById('selectedList');
-      selectedList.innerHTML = '';
+      if (selectedList) selectedList.innerHTML = '';
       const tbody = document.getElementById('resultsBody');
       const savedArr = [];
-      for (let row of tbody.rows) {
-        const size = row.cells[3].textContent;
-        savedArr.push(size);
-        const item = document.createElement('span');
-        item.style.display = 'inline-flex';
-        item.style.alignItems = 'center';
-        item.style.padding = '5px 10px';
-        item.style.border = '1px solid #ccc';
-        item.style.borderRadius = '5px';
-        item.style.backgroundColor = '#fff';
-        item.innerHTML = '✓ ' + size;
-        selectedList.appendChild(item);
+      if (tbody) {
+        for (let row of tbody.rows) {
+          if (row.cells && row.cells[3]) {
+            const size = row.cells[3].textContent;
+            savedArr.push(size);
+            if (selectedList) {
+              const item = document.createElement('span');
+              item.style.display = 'inline-flex';
+              item.style.alignItems = 'center';
+              item.style.padding = '5px 10px';
+              item.style.border = '1px solid #ccc';
+              item.style.borderRadius = '5px';
+              item.style.backgroundColor = '#fff';
+              item.innerHTML = '✓ ' + size;
+              selectedList.appendChild(item);
+            }
+          }
+        }
       }
       const hiddenInput = document.getElementById('selectedSubSizes');
       if (hiddenInput) {
@@ -181,10 +199,14 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
       if (!Array.isArray(savedSizes) || savedSizes.length === 0) return;
-      
+
+      const normalize = s => String(s).trim().toLowerCase().replace(/\s+/g, '');
+      const normalizedSaved = savedSizes.map(normalize);
+
       const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
       checkboxes.forEach(cb => {
-        if (savedSizes.includes(cb.value)) {
+        const normCb = normalize(cb.value);
+        if (normalizedSaved.includes(normCb) && !cb.checked) {
           cb.checked = true;
           toggleRow(cb.value, true);
         }
@@ -196,9 +218,12 @@ $instrumentId = $instrument['id'] ?? null;
       const subSizesDiv = document.getElementById('subSizes');
       const checkBoxesDiv = document.getElementById('checkBoxes');
       const tbody = document.getElementById('resultsBody');
+      const hiddenInput = document.getElementById('selectedSubSizes');
+      const savedSubSizesVal = hiddenInput ? hiddenInput.value : "";
+
       if (!size) {
         subSizesDiv.style.display = 'none';
-        tbody.innerHTML = '';
+        if (tbody) tbody.innerHTML = '';
         updateSelectedDisplay();
         return;
       }
@@ -211,9 +236,9 @@ $instrumentId = $instrument['id'] ?? null;
       }
       updateMake(); // Update existing rows with new make
       subSizesDiv.style.display = 'block';
-      tbody.innerHTML = '';
-      updateSelectedDisplay();
-      checkBoxesDiv.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
+      if (checkBoxesDiv) checkBoxesDiv.innerHTML = '';
+
       const subSizes = getSubSizes(size);
       subSizes.sort((a, b) => parseSize(b) - parseSize(a));
       subSizes.forEach(sub => {
@@ -237,6 +262,19 @@ $instrumentId = $instrument['id'] ?? null;
         label.appendChild(document.createTextNode(sub));
         checkBoxesDiv.appendChild(label);
       });
+
+      // Preserve hidden input value
+      if (hiddenInput && savedSubSizesVal) {
+        hiddenInput.value = savedSubSizesVal;
+      }
+
+      // Restore checkboxes if saved values exist
+      if (hiddenInput && hiddenInput.value && hiddenInput.value !== '[]') {
+        restoreSievesState();
+      } else {
+        updateSelectedDisplay();
+      }
+
       // Add onclick to SELECT FULL SET button
       document.getElementById('selectFullSetBtn').onclick = () => {
         const fullSet = getFullSet(size);

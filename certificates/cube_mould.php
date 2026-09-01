@@ -90,19 +90,29 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    window.getFormDetails = function() {
-      return {
-        certificateNumber: document.getElementById("certificateNumber").value,
-        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
-        siteLocation: document.getElementById("siteLocation").value,
-        partyName: document.getElementById("partyName").value,
-        quantity: document.getElementById("quantity").value,
-        size: document.getElementById("size").value,
-        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
-        saveentry: `CubeMould_${document.getElementById("partyName").value}_${document.getElementById("certificateNumber").value}`
+    function getFormDetails() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
       };
-    };
-    console.log("getFormDetails successfully defined on window! Type:", typeof window.getFormDetails);
+      const formatDate = (val) => {
+        return val ? val.split("-").reverse().join("/") : "";
+      };
+      const certNo = getVal("certificateNumber");
+      const partyName = getVal("partyName");
+
+      return {
+        certificateNumber: certNo,
+        calibrationDate: formatDate(getVal("calibrationDate")),
+        siteLocation: getVal("siteLocation"),
+        partyName: partyName,
+        quantity: getVal("quantity"),
+        size: getVal("size"),
+        nextCalibrationDate: formatDate(getVal("nextCalibrationDate")),
+        saveentry: `CubeMould_${partyName}_${certNo}`
+      };
+    }
+    window.getFormDetails = getFormDetails;
 
     function incrementCertificateNumber(baseCertNo, increment) {
       if (increment === 0) return baseCertNo;

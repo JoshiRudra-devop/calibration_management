@@ -92,25 +92,36 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    window.getFormDetails = function() {
-      const qty = parseInt(document.getElementById("quantity").value);
+    function getFormDetails() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
+      };
+      const formatDate = (val) => {
+        return val ? val.split("-").reverse().join("/") : "";
+      };
+      const certNo = getVal("certificateNumber");
+      const partyName = getVal("partyName");
+      const qtyStr = getVal("quantity");
+      const qty = parseInt(qtyStr) || 0;
       let serials = [];
       for (let i = 1; i <= qty; i++) {
-        const el = document.getElementById(`serial${i}`);
-        serials.push(el ? el.value : '');
+        serials.push(getVal(`serial${i}`));
       }
+
       return {
-        certificateNumber: document.getElementById("certificateNumber").value,
-        calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
-        siteLocation: document.getElementById("siteLocation").value,
-        partyName: document.getElementById("partyName").value,
-        quantity: document.getElementById("quantity").value,
-        size: document.getElementById("size").value,
-        nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
+        certificateNumber: certNo,
+        calibrationDate: formatDate(getVal("calibrationDate")),
+        siteLocation: getVal("siteLocation"),
+        partyName: partyName,
+        quantity: qtyStr,
+        size: getVal("size"),
+        nextCalibrationDate: formatDate(getVal("nextCalibrationDate")),
         serials: serials,
-        saveentry: `ISICube_${document.getElementById("partyName").value}_${document.getElementById("certificateNumber").value}`
+        saveentry: `ISICube_${partyName}_${certNo}`
       };
     }
+    window.getFormDetails = getFormDetails;
 
     function generateSerialInputs() {
       const qty = parseInt(document.getElementById('quantity').value);
