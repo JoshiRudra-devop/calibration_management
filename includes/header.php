@@ -332,6 +332,47 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
 <body class="<?= $isEmbed ? 'embed-mode' : '' ?>">
 
 <?php if (!$isEmbed): ?>
+  <?php
+    $currentScript = $_SERVER['SCRIPT_FILENAME'] ?? '';
+    $scriptModTime = (file_exists($currentScript)) ? filemtime($currentScript) : time();
+    $jsFile        = __DIR__ . '/../assets/js/general-v3.js';
+    $jsModTime     = (file_exists($jsFile)) ? filemtime($jsFile) : time();
+    $pageUpdateToken = max($scriptModTime, $jsModTime);
+  ?>
+  <!-- Page Update Notification Bar -->
+  <div id="pageUpdateNotificationBar" class="page-update-bar" style="display: none;">
+    <div class="page-update-content">
+      <span class="page-update-badge"><i class="fas fa-sparkles"></i> Update Applied</span>
+      <span class="page-update-text">An update has been made to this page.</span>
+    </div>
+    <button type="button" class="page-update-close-btn" onclick="dismissPageUpdateBar()" aria-label="Close notification">&times;</button>
+  </div>
+  <script>
+    (function() {
+      const pageToken = '<?= $pageUpdateToken ?>';
+      const storageKey = 'page_update_seen_' + window.location.pathname;
+      const lastSeen = localStorage.getItem(storageKey);
+
+      window.dismissPageUpdateBar = function() {
+        const bar = document.getElementById('pageUpdateNotificationBar');
+        if (bar) {
+          bar.style.animation = 'slideUpUpdateBar 0.3s ease-in forwards';
+          setTimeout(() => { bar.style.display = 'none'; }, 300);
+        }
+      };
+
+      if (lastSeen !== pageToken) {
+        document.addEventListener('DOMContentLoaded', function() {
+          const bar = document.getElementById('pageUpdateNotificationBar');
+          if (bar) {
+            bar.style.display = 'flex';
+            localStorage.setItem(storageKey, pageToken);
+          }
+        });
+      }
+    })();
+  </script>
+
   <!-- Global Skeleton Loader -->
   <div id="global-page-skeleton">
     <div class="skeleton-header">

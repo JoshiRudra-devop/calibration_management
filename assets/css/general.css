@@ -874,3 +874,88 @@ body.embed-mode .title_input_pair:has(#partyName) {
 body.embed-mode .form-row {
   display: contents; /* Flattens form-row into the main form grid */
 }
+
+/* ── Page Update Notification Bar ────────────────────────── */
+.page-update-bar {
+  background: linear-gradient(90deg, #004d40 0%, #00796b 50%, #0288d1 100%);
+  color: #ffffff;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  position: relative;
+  z-index: 10000;
+  animation: slideDownUpdateBar 0.4s ease-out forwards;
+}
+
+@keyframes slideDownUpdateBar {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpUpdateBar {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.page-update-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.page-update-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.page-update-text {
+  font-weight: 500;
+  color: #f0fdf4;
+}
+
+.page-update-close-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.page-update-close-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+body.embed-mode .page-update-bar {
+  display: none !important;
+}
