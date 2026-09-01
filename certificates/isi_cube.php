@@ -206,25 +206,27 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     window.addCertificateDetails = function(doc, details) {
+      details = details || {};
       let qty = parseInt(details.quantity);
       if (isNaN(qty) || qty <= 0) {
-        alert("Please enter a valid number of cubes.");
-        return;
+        qty = 1;
       }
-      let [length, height, width] = details.size.split("x").map(s => s.trim());
+      let sizeStr = details.size || "";
+      let [length, height, width] = sizeStr.includes("x") ? sizeStr.split("x").map(s => s.trim()) : [sizeStr, "", ""];
       if (!length) length = "";
       if (!height) height = "";
       if (!width) width = "";
       const headers = [["SR.NO", "SERIAL NO", "LENGTH", "HEIGHT", "WIDTH"]];
       const allRows = [];
+      const serials = details.serials || [];
       for (let i = 1; i <= qty; i++) {
-        allRows.push([i, details.serials[i-1], length, height, width]);
+        allRows.push([i, serials[i-1] || "", length, height, width]);
       }
       const pageCount = Math.ceil(allRows.length / 10);
       for (let page = 0; page < pageCount; page++) {
         if (page > 0) doc.addPage();
         let pageRows = allRows.slice(page * 10, page * 10 + 10);
-        let refNo = incrementCertificateNumber(details.certificateNumber, page);
+        let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
         let pageDetails = { ...details, certificateNumber: refNo };
         let tableY = drawHeader(doc, pageDetails, 50, true);
         doc.autoTable({
@@ -252,15 +254,18 @@ $instrumentId = $instrument['id'] ?? null;
             fillColor: [255, 255, 255]
           }
         });
-        let tableEndY = doc.autoTable.previous.finalY;
+        let tableEndY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : tableY + 40;
         doc.setFontSize(12);
         doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableEndY + 10);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
+        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 145, 230);
         doc.text("PROPRIETOR", 170, 245);
         addFooterImages(doc);
       }
+    };
+    function addCertificateDetails(doc, details) {
+      return window.addCertificateDetails(doc, details);
     }
 
     // Preload images on load & listen to quantity changes
