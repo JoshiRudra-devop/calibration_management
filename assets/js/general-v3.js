@@ -22,6 +22,25 @@ async function applyLetterhead(doc) {
   }
 }
 
+if (typeof window.addQRCodeToPDF !== 'function') {
+  window.addQRCodeToPDF = function(doc, certNumber) {
+    if (typeof generateQRDataURLSync === 'function' && typeof QRCode !== 'undefined') {
+      const baseUrl = (typeof SHREEJI_CONFIG !== 'undefined' && SHREEJI_CONFIG.appUrl) ? SHREEJI_CONFIG.appUrl : window.location.origin;
+      const verifyUrl = `${baseUrl}/verify.php?cert=${encodeURIComponent(certNumber)}`;
+      const qrDataUrl = generateQRDataURLSync(verifyUrl, 128);
+      if (qrDataUrl) {
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          try {
+            doc.addImage(qrDataUrl, 'PNG', 8, 222, 25, 25, undefined, 'FAST');
+          } catch (e) {}
+        }
+      }
+    }
+  };
+}
+
 function safeGetFormDetails() {
   if (typeof window.getFormDetails === 'function') {
     try {

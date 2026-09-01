@@ -104,11 +104,11 @@ const Toast = {
 function generateQRDataURLSync(text, pixelSize = 128) {
   if (typeof QRCode === 'undefined') return null;
   const container = document.createElement('div');
-  container.style.cssText = 'position:absolute;left:-9999px;visibility:hidden;';
+  container.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden;';
   document.body.appendChild(container);
   try {
     new QRCode(container, {
-      text,
+      text: text,
       width: pixelSize,
       height: pixelSize,
       colorDark: '#000000',
@@ -116,11 +116,45 @@ function generateQRDataURLSync(text, pixelSize = 128) {
       correctLevel: QRCode.CorrectLevel.M,
     });
     const canvas = container.querySelector('canvas');
-    return canvas ? canvas.toDataURL('image/png') : null;
+    if (canvas && typeof canvas.toDataURL === 'function') {
+      return canvas.toDataURL('image/png');
+    }
+    const img = container.querySelector('img');
+    if (img && img.src) {
+      return img.src;
+    }
+    return null;
+  } catch (e) {
+    console.error("QR generation error:", e);
+    return null;
   } finally {
-    document.body.removeChild(container);
+    if (container.parentNode) container.parentNode.removeChild(container);
   }
 }
+
+function addQRCodeToPDF(doc, certNumber) {
+  if (!certNumber) return;
+  const baseUrl = (typeof SHREEJI_CONFIG !== 'undefined' && SHREEJI_CONFIG.appUrl) 
+    ? SHREEJI_CONFIG.appUrl 
+    : window.location.origin;
+  
+  const verifyUrl = `${baseUrl}/verify.php?cert=${encodeURIComponent(certNumber)}`;
+  const qrDataUrl = generateQRDataURLSync(verifyUrl, 128);
+
+  if (qrDataUrl) {
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      try {
+        doc.addImage(qrDataUrl, 'PNG', 8, 222, 25, 25, undefined, 'FAST');
+      } catch (e) {
+        console.error("Error adding QR code image to page " + i, e);
+      }
+    }
+  }
+}
+window.addQRCodeToPDF = addQRCodeToPDF;
+window.generateQRDataURLSync = generateQRDataURLSync;
 
 const INSTRUMENT_LABELS = {
   'autolevel': 'Auto Level',
@@ -173,20 +207,6 @@ function buildCloudinaryPdfUrl(certNumber, instrSlug, partyName, siteLocation) {
   parts.push(certNumber); // public_id has no .pdf extension
   const path = parts.map(p => encodeURIComponent(p)).join('/');
   return `https://res.cloudinary.com/${cloudName}/image/upload/${path}.pdf`;
-}
-
-function addQRCodeToPDF(doc, certNumber) {
-  if (!certNumber) return;
-  const instrSlug  = window.INSTRUMENT_SLUG || null;
-  const partyName  = (document.getElementById('partyName')  || document.getElementById('partyname'))?.value  || '';
-  const siteLoc    = document.getElementById('siteLocation')?.value || '';
-  const url        = buildCloudinaryPdfUrl(certNumber, instrSlug, partyName, siteLoc);
-  const qrDataUrl  = generateQRDataURLSync(url, 128);
-  if (qrDataUrl) {
-    // Left of stamp — empty zone x=5–95, y=217–252 (stamp at x=100,y=217,35×35; footer strip at y=255)
-    // QR vertically centred with stamp: stamp centre=234.5mm → y=234.5-12.5=222
-    doc.addImage(qrDataUrl, 'PNG', 8, 222, 25, 25);
-  }
 }
 
 // ── Unsaved reminder ──────────────────────────────────────
