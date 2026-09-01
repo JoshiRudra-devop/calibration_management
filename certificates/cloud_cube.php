@@ -199,32 +199,58 @@ $instrumentId = $instrument['id'] ?? null;
         let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
         let pageDetails = { ...details, certificateNumber: refNo };
         let tableY = drawHeader(doc, pageDetails, 50, true);
-        doc.autoTable({
-          head: headers,
-          body: pageRows,
-          startY: tableY + 1,
-          styles: {
-            fontSize: 12,
-            lineColor: [0, 0, 0],
-            textColor: [0, 0, 0],
-            lineWidth: 0.2,
-            halign: 'center',
-            valign: 'middle'
-          },
-          headStyles: {
-            fontSize: 15,
-            fillColor: [255, 255, 255],
-            textColor: [0, 0, 0],
-            lineColor: [0, 0, 0],
-            lineWidth: 0.2,
-            halign: 'center',
-            valign: 'middle'
-          },
-          alternateRowStyles: {
-            fillColor: [255, 255, 255]
+        if (typeof doc.autoTable === 'function') {
+          try {
+            doc.autoTable({
+              head: headers,
+              body: pageRows,
+              startY: tableY + 1,
+              styles: {
+                fontSize: 12,
+                lineColor: [0, 0, 0],
+                textColor: [0, 0, 0],
+                lineWidth: 0.2,
+                halign: 'center',
+                valign: 'middle'
+              },
+              headStyles: {
+                fontSize: 15,
+                fillColor: [255, 255, 255],
+                textColor: [0, 0, 0],
+                lineColor: [0, 0, 0],
+                lineWidth: 0.2,
+                halign: 'center',
+                valign: 'middle'
+              },
+              alternateRowStyles: {
+                fillColor: [255, 255, 255]
+              }
+            });
+          } catch (ae) {
+            console.error("autoTable error in cloud_cube.php:", ae);
           }
-        });
-        let tableEndY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : tableY + 40;
+        } else {
+          let curY = tableY + 5;
+          doc.setFontSize(14);
+          doc.rect(14, curY, 180, 8);
+          doc.text("SR.NO", 20, curY + 6);
+          doc.text("LENGTH", 60, curY + 6);
+          doc.text("HEIGHT", 110, curY + 6);
+          doc.text("WIDTH", 160, curY + 6);
+          curY += 8;
+          doc.setFontSize(12);
+          for (let r of pageRows) {
+            doc.rect(14, curY, 180, 8);
+            doc.text(String(r[0]), 20, curY + 6);
+            doc.text(String(r[1]), 60, curY + 6);
+            doc.text(String(r[2]), 110, curY + 6);
+            doc.text(String(r[3]), 160, curY + 6);
+            curY += 8;
+          }
+          if (!doc.autoTable) doc.autoTable = {};
+          doc.autoTable.previous = { finalY: curY };
+        }
+        let tableEndY = (doc.autoTable && doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : tableY + 40;
         doc.setFontSize(12);
         doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableEndY + 10);
         doc.setFont("helvetica", "bold");

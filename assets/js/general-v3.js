@@ -118,92 +118,117 @@ function safeAddCertificateDetails(doc, details) {
 
 function drawFallbackCertificateContent(doc, details) {
   details = details || safeGetFormDetails();
-  let Yalign = 50;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  const rawSlug = window.INSTRUMENT_SLUG || "CUBE_MOULD";
-  const title = "TEST REPORT FOR " + rawSlug.replace(/_/g, ' ').toUpperCase();
-  doc.text(title, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-  
-  if (details.size) {
-    Yalign += 7;
-    doc.text(`${details.size}`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-  }
+  let qty = parseInt(details.quantity);
+  if (isNaN(qty) || qty <= 0) qty = 1;
 
-  doc.setFontSize(12);
-  Yalign += 10;
-  doc.text(`DATE:-${details.calibrationDate || ''}`, 155, Yalign);
-  doc.text(`REF NO                        :-     ${details.certificateNumber || ''}`, 14, Yalign);
-  Yalign += 10;
-  doc.text(`NAME OF PARTY        :-     ${details.partyName || ''}`, 14, Yalign);
-  Yalign += 10;
-  doc.text(`EQUIPMENT NAME     :-     ${rawSlug.replace(/_/g, ' ').toUpperCase()} (${details.size || ''})`, 14, Yalign);
-  Yalign += 10;
-  doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate || ''}`, 14, Yalign);
-
-  const siteLocPrefix = "SITE LOCATION          :-     ";
-  const prefixWidth = doc.getTextWidth(siteLocPrefix);
-  const maxWidth = 180 - prefixWidth;
-  const siteLocStr = details.siteLocation || "";
-  const siteLocLines = doc.splitTextToSize(siteLocStr, maxWidth);
-  Yalign += 10;
-  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
-  for (let i = 1; i < siteLocLines.length; i++) {
-    Yalign += 4;
-    doc.text(siteLocLines[i], 14 + prefixWidth, Yalign);
-  }
-  Yalign += ((siteLocLines.length - 1) + 5);
-
-  // Table Fallback
-  let qty = parseInt(details.quantity) || 1;
   let sizeStr = details.size || "";
   let [length, height, width] = sizeStr.includes("x") ? sizeStr.split("x").map(s => s.trim()) : [sizeStr, "", ""];
   const headers = [["SR.NO", "LENGTH", "HEIGHT", "WIDTH"]];
-  const pageRows = [];
-  for (let i = 1; i <= Math.min(qty, 10); i++) {
-    pageRows.push([i, length || "", height || "", width || ""]);
+  const allRows = [];
+  for (let i = 1; i <= qty; i++) {
+    allRows.push([i, length || "", height || "", width || ""]);
   }
 
-  if (typeof doc.autoTable === 'function') {
-    try {
-      doc.autoTable({
-        head: headers,
-        body: pageRows,
-        startY: Yalign + 2,
-        styles: { fontSize: 12, lineColor: [0, 0, 0], textColor: [0, 0, 0], lineWidth: 0.2, halign: 'center' },
-        headStyles: { fontSize: 15, fillColor: [255, 255, 255], textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 }
-      });
-      Yalign = (doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : Yalign + 40;
-    } catch (e) {
-      Yalign += 40;
+  const rawSlug = window.INSTRUMENT_SLUG || "CUBE_MOULD";
+  const titleText = "TEST REPORT FOR " + rawSlug.replace(/_/g, ' ').toUpperCase();
+  const pageCount = Math.ceil(allRows.length / 10);
+
+  function incrementCertNo(baseCertNo, inc) {
+    if (inc === 0) return baseCertNo;
+    let val = baseCertNo;
+    for (let i = 0; i < inc; i++) {
+      const match = val.match(/^(.*?)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const numStr = match[2];
+        const nextNum = parseInt(numStr, 10) + 1;
+        const paddedNum = String(nextNum).padStart(numStr.length, '0');
+        val = prefix + paddedNum;
+      } else break;
     }
-  } else {
-    let curY = Yalign + 5;
-    doc.setFontSize(14);
-    doc.rect(14, curY, 180, 8);
-    doc.text("SR.NO", 20, curY + 6);
-    doc.text("LENGTH", 60, curY + 6);
-    doc.text("HEIGHT", 110, curY + 6);
-    doc.text("WIDTH", 160, curY + 6);
-    curY += 8;
+    return val;
+  }
+
+  for (let page = 0; page < pageCount; page++) {
+    if (page > 0) doc.addPage();
+    let Yalign = 50;
+    let pageRows = allRows.slice(page * 10, page * 10 + 10);
+    let pageRefNo = incrementCertNo(details.certificateNumber || "", page);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text(titleText, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+    
+    if (details.size) {
+      Yalign += 7;
+      doc.text(`${details.size}`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+    }
+
     doc.setFontSize(12);
-    for (let r of pageRows) {
-      doc.rect(14, curY, 180, 8);
-      doc.text(String(r[0]), 20, curY + 6);
-      doc.text(String(r[1]), 60, curY + 6);
-      doc.text(String(r[2]), 110, curY + 6);
-      doc.text(String(r[3]), 160, curY + 6);
-      curY += 8;
-    }
-    Yalign = curY;
-  }
+    Yalign += 10;
+    doc.text(`DATE:-${details.calibrationDate || ''}`, 155, Yalign);
+    doc.text(`REF NO                        :-     ${pageRefNo}`, 14, Yalign);
+    Yalign += 10;
+    doc.text(`NAME OF PARTY        :-     ${details.partyName || ''}`, 14, Yalign);
+    Yalign += 10;
+    doc.text(`EQUIPMENT NAME     :-     ${rawSlug.replace(/_/g, ' ').toUpperCase()} (${details.size || ''})`, 14, Yalign);
+    Yalign += 10;
+    doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate || ''}`, 14, Yalign);
 
-  doc.setFontSize(12);
-  doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, Yalign + 10);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 145, 230);
-  doc.text("PROPRIETOR", 170, 245);
+    const siteLocPrefix = "SITE LOCATION          :-     ";
+    const prefixWidth = doc.getTextWidth(siteLocPrefix);
+    const maxWidth = 180 - prefixWidth;
+    const siteLocStr = details.siteLocation || "";
+    const siteLocLines = doc.splitTextToSize(siteLocStr, maxWidth);
+    Yalign += 10;
+    doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+    for (let i = 1; i < siteLocLines.length; i++) {
+      Yalign += 4;
+      doc.text(siteLocLines[i], 14 + prefixWidth, Yalign);
+    }
+    Yalign += ((siteLocLines.length - 1) + 5);
+
+    if (typeof doc.autoTable === 'function') {
+      try {
+        doc.autoTable({
+          head: headers,
+          body: pageRows,
+          startY: Yalign + 2,
+          styles: { fontSize: 12, lineColor: [0, 0, 0], textColor: [0, 0, 0], lineWidth: 0.2, halign: 'center' },
+          headStyles: { fontSize: 15, fillColor: [255, 255, 255], textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 }
+        });
+        Yalign = (doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : Yalign + 40;
+      } catch (e) {
+        Yalign += 40;
+      }
+    } else {
+      let curY = Yalign + 5;
+      doc.setFontSize(14);
+      doc.rect(14, curY, 180, 8);
+      doc.text("SR.NO", 20, curY + 6);
+      doc.text("LENGTH", 60, curY + 6);
+      doc.text("HEIGHT", 110, curY + 6);
+      doc.text("WIDTH", 160, curY + 6);
+      curY += 8;
+      doc.setFontSize(12);
+      for (let r of pageRows) {
+        doc.rect(14, curY, 180, 8);
+        doc.text(String(r[0]), 20, curY + 6);
+        doc.text(String(r[1]), 60, curY + 6);
+        doc.text(String(r[2]), 110, curY + 6);
+        doc.text(String(r[3]), 160, curY + 6);
+        curY += 8;
+      }
+      Yalign = curY;
+    }
+
+    doc.setFontSize(12);
+    doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, Yalign + 10);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 145, 230);
+    doc.text("PROPRIETOR", 170, 245);
+  }
 }
 
 const CERTIFICATE_CONFIG = {
