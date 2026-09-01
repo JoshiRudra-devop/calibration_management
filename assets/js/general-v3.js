@@ -24,15 +24,64 @@ async function applyLetterhead(doc) {
 
 function safeGetFormDetails() {
   if (typeof window.getFormDetails === 'function') {
-    return window.getFormDetails();
+    try {
+      const res = window.getFormDetails();
+      if (res && typeof res === 'object') return res;
+    } catch (e) {
+      if (window.SHREEJI_DEBUG) console.warn('window.getFormDetails error:', e);
+    }
   }
   if (typeof getFormDetails === 'function') {
-    return getFormDetails();
+    try {
+      const res = getFormDetails();
+      if (res && typeof res === 'object') return res;
+    } catch (e) {
+      if (window.SHREEJI_DEBUG) console.warn('getFormDetails error:', e);
+    }
   }
   if (window.parent && typeof window.parent.getFormDetails === 'function') {
-    return window.parent.getFormDetails();
+    try {
+      const res = window.parent.getFormDetails();
+      if (res && typeof res === 'object') return res;
+    } catch (e) {
+      if (window.SHREEJI_DEBUG) console.warn('parent.getFormDetails error:', e);
+    }
   }
-  throw new Error("getFormDetails is not defined");
+
+  // Universal Fallback: Read directly from standard DOM form elements
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value : "";
+  };
+  const formatDate = (val) => {
+    if (!val) return "";
+    if (val.includes("-")) return val.split("-").reverse().join("/");
+    return val;
+  };
+
+  const certNo = getVal("certificateNumber") || getVal("cert_number");
+  const partyName = getVal("partyName") || getVal("partyname");
+  const calDate = formatDate(getVal("calibrationDate"));
+  const nextDate = formatDate(getVal("nextCalibrationDate"));
+  const siteLoc = getVal("siteLocation");
+  const qty = getVal("quantity");
+  const size = getVal("size");
+
+  return {
+    certificateNumber: certNo,
+    calibrationDate: calDate,
+    nextCalibrationDate: nextDate,
+    partyName: partyName,
+    siteLocation: siteLoc,
+    quantity: qty,
+    size: size,
+    make: getVal("make"),
+    modelNo: getVal("modelNo") || getVal("model_no"),
+    serialNo: getVal("serialNo") || getVal("serial_no"),
+    capacity: getVal("capacity"),
+    selectedSubSizes: getVal("selectedSubSizes"),
+    saveentry: `${window.INSTRUMENT_SLUG || 'Cert'}_${partyName}_${certNo}`
+  };
 }
 
 function safeAddCertificateDetails(doc, details) {

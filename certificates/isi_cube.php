@@ -58,7 +58,7 @@ $instrumentId = $instrument['id'] ?? null;
       <?php include __DIR__ . '/../includes/certificate_loader.php'; ?>
       
 
-  <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=<?= filemtime(__DIR__ . '/../assets/js/general-v3.js') ?>"></script>
+  <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=3.6.0&t=<?= time() ?>"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
