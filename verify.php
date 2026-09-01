@@ -28,6 +28,34 @@ $certPrefill = htmlspecialchars(clean($_GET['cert'] ?? ''), ENT_QUOTES);
 $result      = null;
 $error       = null;
 
+// ── Automatic GET Lookup for QR code scans ───────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['cert'])) {
+    $certNumber = clean($_GET['cert']);
+    $db = getDB();
+    try {
+        $stmt = $db->prepare("
+            SELECT c.cert_number, c.party_name, c.site_location,
+                   c.calibration_date, c.next_due_date, c.pdf_url,
+                   it.label AS instrument_label
+            FROM   certificates c
+            JOIN   instrument_types it ON it.id = c.instrument_type_id
+            WHERE  c.cert_number = ?
+            LIMIT  1
+        ");
+        $stmt->execute([$certNumber]);
+        $cert = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($cert) {
+            $result = $cert;
+            $result['is_expired'] = !empty($cert['next_due_date'])
+                && $cert['next_due_date'] < date('Y-m-d');
+        } else {
+            $certPrefill = htmlspecialchars($certNumber, ENT_QUOTES);
+        }
+    } catch (Exception $e) {
+        error_log('verify_certificate_get: ' . $e->getMessage());
+    }
+}
+
 // ── Handle POST ───────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($rateLimited) {
