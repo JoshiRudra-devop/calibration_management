@@ -139,22 +139,33 @@ $instrumentId = $instrument['id'] ?? null;
       return num;
     }
 
+    function normalizeSieveKey(size) {
+      if (!size) return '';
+      const s = String(size).trim();
+      if (s.includes('8') || s.toLowerCase().includes('brass') || s.includes('200')) return 'Brass 200 MM DIA';
+      if (s.includes('12') || s.includes('300')) return 'GI 300 MM DIA';
+      if (s.includes('18') || s.includes('450')) return 'GI 450 MM DIA';
+      return s;
+    }
+
     function getFullSet(size) {
+      const key = normalizeSieveKey(size);
       const fullSets = {
         'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '600 MICRON', '300 MICRON', '150 MICRON', '10 MICRON'],
         'GI 300 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm','12.5'],
         'GI 450 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm','12.5']
       };
-      return fullSets[size] || [];
+      return fullSets[key] || fullSets[size] || [];
     }
 
     function getSubSizes(size) {
+      const key = normalizeSieveKey(size);
       const sizes = {
         'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '10 MM', '150 MICRON', '300 MICRON', '600 MICRON', '75 MICRON', '90 MICRON', '425 MICRON', '1 MM', '3.35 mm', '2.80 mm', '2.00 mm', '1.70 mm', '1.40 mm', '850 microns', '710 microns', '500 microns', '355 microns', '250 microns', '212 microns', '180 microns', '125 microns', '106 microns', '63 microns', '53 microns', '10 MICRON'],
         'GI 300 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm','2.36mm'],
         'GI 450 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm','2.36mm']
       };
-      return sizes[size] || [];
+      return sizes[key] || sizes[size] || [];
     }
 
     function updateSelectedDisplay() {
@@ -190,9 +201,11 @@ $instrumentId = $instrument['id'] ?? null;
     window.restoreSievesState = function() {
       const hiddenInput = document.getElementById('selectedSubSizes');
       const sieveSizeSelect = document.getElementById('sieveSize');
+      const subSizesDiv = document.getElementById('subSizes');
       
-      // Ensure checkboxes are generated if a sieve size is selected
+      // Ensure checkboxes container is unhidden & generated if a sieve size is selected
       if (sieveSizeSelect && sieveSizeSelect.value) {
+        if (subSizesDiv) subSizesDiv.style.display = 'block';
         const checkBoxesDiv = document.getElementById('checkBoxes');
         if (!checkBoxesDiv || checkBoxesDiv.children.length === 0) {
           updateSubSizes();
@@ -209,6 +222,8 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
       if (!Array.isArray(savedSizes) || savedSizes.length === 0) return;
+
+      if (subSizesDiv) subSizesDiv.style.display = 'block';
 
       const normalize = s => String(s).trim().toLowerCase().replace(/\s+/g, '');
       const normalizedSaved = savedSizes.map(normalize);
@@ -255,18 +270,21 @@ $instrumentId = $instrument['id'] ?? null;
       const savedSubSizesVal = hiddenInput ? hiddenInput.value : "";
 
       if (!size) {
-        subSizesDiv.style.display = 'none';
+        if (subSizesDiv) subSizesDiv.style.display = 'none';
         if (tbody) tbody.innerHTML = '';
         updateSelectedDisplay();
         return;
       }
+
+      if (subSizesDiv) subSizesDiv.style.display = 'block';
+
       // Auto-select MAKE based on sieve size if not already set
       const makeSelect = document.getElementById('make');
       if (makeSelect && !makeSelect.value) {
-        makeSelect.value = (size === 'Brass 200 MM DIA') ? 'STANDARD' : 'ASC';
+        const normKey = normalizeSieveKey(size);
+        makeSelect.value = (normKey === 'Brass 200 MM DIA') ? 'STANDARD' : 'ASC';
       }
       updateMake(); // Update existing rows with new make
-      subSizesDiv.style.display = 'block';
       if (tbody) tbody.innerHTML = '';
       if (checkBoxesDiv) checkBoxesDiv.innerHTML = '';
 
@@ -307,16 +325,19 @@ $instrumentId = $instrument['id'] ?? null;
       }
 
       // Add onclick to SELECT FULL SET button
-      document.getElementById('selectFullSetBtn').onclick = () => {
-        const fullSet = getFullSet(size);
-        const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-          if (fullSet.includes(cb.value)) {
-            cb.checked = true;
-            toggleRow(cb.value, true);
-          }
-        });
-      };
+      const fullSetBtn = document.getElementById('selectFullSetBtn');
+      if (fullSetBtn) {
+        fullSetBtn.onclick = () => {
+          const fullSet = getFullSet(size);
+          const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
+          checkboxes.forEach(cb => {
+            if (fullSet.includes(cb.value)) {
+              cb.checked = true;
+              toggleRow(cb.value, true);
+            }
+          });
+        };
+      }
     }
 
     function toggleRow(subSize, checked) {
