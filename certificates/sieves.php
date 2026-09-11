@@ -189,6 +189,16 @@ $instrumentId = $instrument['id'] ?? null;
 
     window.restoreSievesState = function() {
       const hiddenInput = document.getElementById('selectedSubSizes');
+      const sieveSizeSelect = document.getElementById('sieveSize');
+      
+      // Ensure checkboxes are generated if a sieve size is selected
+      if (sieveSizeSelect && sieveSizeSelect.value) {
+        const checkBoxesDiv = document.getElementById('checkBoxes');
+        if (!checkBoxesDiv || checkBoxesDiv.children.length === 0) {
+          updateSubSizes();
+        }
+      }
+
       if (!hiddenInput || !hiddenInput.value) return;
       let savedSizes = [];
       try {
@@ -203,14 +213,37 @@ $instrumentId = $instrument['id'] ?? null;
       const normalize = s => String(s).trim().toLowerCase().replace(/\s+/g, '');
       const normalizedSaved = savedSizes.map(normalize);
 
+      const tbody = document.getElementById('resultsBody');
+      if (tbody) tbody.innerHTML = '';
+
       const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
+      let restoredCount = 0;
+
       checkboxes.forEach(cb => {
         const normCb = normalize(cb.value);
-        if (normalizedSaved.includes(normCb) && !cb.checked) {
+        if (normalizedSaved.includes(normCb)) {
           cb.checked = true;
           toggleRow(cb.value, true);
+          restoredCount++;
+        } else {
+          cb.checked = false;
         }
       });
+
+      // If checkboxes couldn't be matched, manually populate table rows directly from savedSizes
+      if (restoredCount === 0 && savedSizes.length > 0 && tbody) {
+        const make = document.getElementById('make')?.value || 'ASC';
+        const seive = sieveSizeSelect?.value || '';
+        savedSizes.forEach((subSize, idx) => {
+          const row = tbody.insertRow();
+          row.insertCell().textContent = idx + 1;
+          row.insertCell().textContent = make;
+          row.insertCell().textContent = seive;
+          row.insertCell().textContent = subSize;
+          row.insertCell().textContent = 'OK';
+        });
+        updateSelectedDisplay();
+      }
     };
 
     function updateSubSizes() {
@@ -227,12 +260,10 @@ $instrumentId = $instrument['id'] ?? null;
         updateSelectedDisplay();
         return;
       }
-      // Auto-select MAKE based on sieve size
+      // Auto-select MAKE based on sieve size if not already set
       const makeSelect = document.getElementById('make');
-      if (size === 'Brass 200 MM DIA') {
-        makeSelect.value = 'STANDARD';
-      } else {
-        makeSelect.value = 'ASC';
+      if (makeSelect && !makeSelect.value) {
+        makeSelect.value = (size === 'Brass 200 MM DIA') ? 'STANDARD' : 'ASC';
       }
       updateMake(); // Update existing rows with new make
       subSizesDiv.style.display = 'block';
@@ -306,7 +337,7 @@ $instrumentId = $instrument['id'] ?? null;
         resultCell.textContent = 'OK';
       } else {
         for (let i = 0; i < tbody.rows.length; i++) {
-          if (tbody.rows[i].cells[3].textContent === subSize) {
+          if (tbody.rows[i].cells[3] && tbody.rows[i].cells[3].textContent === subSize) {
             tbody.deleteRow(i);
             for (let j = i; j < tbody.rows.length; j++) {
               tbody.rows[j].cells[0].textContent = j + 1;
@@ -321,13 +352,14 @@ $instrumentId = $instrument['id'] ?? null;
     function updateMake() {
       const make = document.getElementById('make').value;
       document.querySelectorAll('#resultsBody tr').forEach(row => {
-        row.cells[1].textContent = make;
+        if (row.cells[1]) row.cells[1].textContent = make;
       });
     }
 
     document.getElementById('sieveSize').addEventListener('change', updateSubSizes);
     document.getElementById('make').addEventListener('change', updateMake);
-  function addTestResultRow() {
+
+    function addTestResultRow() {
       const testResults = document.getElementById('testResults');
       const currentRows = testResults.getElementsByClassName('test-result').length;
       const row = document.createElement('div');
@@ -340,8 +372,30 @@ $instrumentId = $instrument['id'] ?? null;
       const testResults = [];
       document.querySelectorAll('#resultsBody tr').forEach(row => {
         const cells = row.cells;
-        testResults.push([cells[0].textContent, cells[1].textContent, cells[2].textContent, cells[3].textContent, cells[4].textContent]);
+        if (cells && cells.length >= 5) {
+          testResults.push([cells[0].textContent, cells[1].textContent, cells[2].textContent, cells[3].textContent, cells[4].textContent]);
+        }
       });
+
+      // Fallback if DOM table rows were empty
+      if (testResults.length === 0) {
+        let subSizesArr = [];
+        const rawSub = details.selectedSubSizes || document.getElementById('selectedSubSizes')?.value || '';
+        try {
+          subSizesArr = JSON.parse(rawSub);
+        } catch (e) {
+          if (typeof rawSub === 'string' && rawSub.length > 0) {
+            subSizesArr = rawSub.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        }
+        if (Array.isArray(subSizesArr) && subSizesArr.length > 0) {
+          const sieveName = details.sieveSize || document.getElementById('sieveSize')?.value || 'GI SIEVE';
+          const makeName = details.make || document.getElementById('make')?.value || 'ASC';
+          subSizesArr.forEach((sz, idx) => {
+            testResults.push([(idx + 1).toString(), makeName, sieveName, sz, 'OK']);
+          });
+        }
+      }
 
       // Sort by size descending
       testResults.sort((a, b) => parseSize(b[3]) - parseSize(a[3]));

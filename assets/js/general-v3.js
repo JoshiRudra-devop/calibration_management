@@ -674,6 +674,7 @@ async function prefillForm() {
       
       // 2. Test Sieves: restore selected sub-sizes checkboxes and rows
       if (typeof restoreSievesState === 'function') {
+        setTimeout(restoreSievesState, 50);
         setTimeout(restoreSievesState, 300);
       }
       
