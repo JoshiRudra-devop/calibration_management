@@ -857,7 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
               showLoaderSuccess('Certificate Saved Successfully! 💾');
               
               setTimeout(() => {
-                if (result.pdf_url) {
+                if (result.pdf_url && !window.frameElement) {
                   window.open(result.pdf_url, '_blank');
                 }
               }, 1500);

@@ -1074,7 +1074,19 @@ async function saveAllCertificates() {
   if (!nameInput.value.trim()) {
     alert('Please enter a Company Name first.');
     nameInput.focus();
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
     return;
+  }
+  
+  // Pre-open combined tab synchronously to avoid popup blocker blocking final combined PDF
+  const combinedWindow = window.open('about:blank', '_blank');
+  if (combinedWindow) {
+    try {
+      combinedWindow.document.write('<!DOCTYPE html><html><head><title>Combined Certificate PDF</title><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f8fafc;color:#1e293b;}.loader{text-align:center;}.spinner{border:4px solid #e2e8f0;border-top:4px solid #0284c7;border-radius:50%;width:44px;height:44px;animation:spin 0.8s linear infinite;margin:0 auto 16px;}@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style></head><body><div class="loader"><div class="spinner"></div><h2>Saving certificates & generating combined PDF...</h2><p>Please wait...</p></div></body></html>');
+    } catch (e) {}
   }
   
   Loader.show('Saving all certificates to database...');
@@ -1139,17 +1151,54 @@ async function saveAllCertificates() {
   }
 
   Loader.hide();
-  
-  if (saveBtn) {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
-  }
 
   if (errorCount === 0 && successCount > 0) {
-    alert(`Successfully saved ${successCount} certificate(s)!`);
+    Loader.show('Generating combined PDF...');
+    try {
+      const doc = await generateUnifiedPDF();
+      if (doc) {
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        if (combinedWindow && !combinedWindow.closed) {
+          combinedWindow.location.href = pdfUrl;
+        } else {
+          window.open(pdfUrl, '_blank');
+        }
+      } else if (combinedWindow && !combinedWindow.closed) {
+        combinedWindow.close();
+      }
+    } catch (pdfErr) {
+      if (window.SHREEJI_DEBUG) console.error('Failed to generate combined PDF:', pdfErr);
+      if (combinedWindow && !combinedWindow.closed) {
+        combinedWindow.close();
+      }
+    }
+    Loader.hide();
+    
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
+
+    alert(`Successfully saved ${successCount} certificate(s)! Combined PDF opened.`);
     window.location.href = 'index.php';
   } else if (errorCount > 0) {
+    if (combinedWindow && !combinedWindow.closed) {
+      combinedWindow.close();
+    }
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
     alert(`Saved ${successCount} certificate(s).\nEncountered ${errorCount} error(s):\n- ${errors.join('\n- ')}`);
+  } else {
+    if (combinedWindow && !combinedWindow.closed) {
+      combinedWindow.close();
+    }
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
   }
 }
 

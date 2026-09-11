@@ -335,8 +335,8 @@ $instrumentId = $instrument['id'] ?? null;
       row.innerHTML = `<input type="text" placeholder="Sieves NUMBER" required>`;
       testResults.appendChild(row);
     }
-window.addCertificateDetails = function(doc, details)
-     {
+
+    window.addCertificateDetails = function(doc, details) {
       const testResults = [];
       document.querySelectorAll('#resultsBody tr').forEach(row => {
         const cells = row.cells;
@@ -352,15 +352,18 @@ window.addCertificateDetails = function(doc, details)
       });
 
       let isFirstPage = true;
+      let pageIndex = 1;
       let currentY = 50;
-      let currentCertNo = parseInt(details.certificateNumber) || 0;
+      const rawCertNo = details.certificateNumber !== undefined && details.certificateNumber !== null ? String(details.certificateNumber).trim() : '';
 
       while (testResults.length > 0) {
         if (!isFirstPage) {
           doc.addPage();
           currentY = 50;
-          currentCertNo++;
+          pageIndex++;
         }
+
+        const currentCertNo = (pageIndex > 1 && rawCertNo) ? `${rawCertNo}-${pageIndex}` : rawCertNo;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(25);   
@@ -369,18 +372,32 @@ window.addCertificateDetails = function(doc, details)
         doc.setFont("helvetica", "bold"); 
         doc.setFontSize(12);  
 
+        currentY += 7;
+        doc.text(`NAME OF PARTY           :-     ${details.partyName || ''}`, 14, currentY);
         currentY += 5;
-        doc.text(`NAME OF PARTY           :-     ${details.partyName}`, 14, currentY);
+        doc.text(`EQUIPMENT NAME        :-     TEST SIEVES`, 14, currentY);
+        if (currentCertNo) {
+          doc.text(`REF NO:- ${currentCertNo}`, 140, currentY);
+        }
         currentY += 5;
-        doc.text(`REF NO:- ${currentCertNo}`, 140, currentY);
-        doc.text(`EQUIPMENT NAME        :-     TEST SEIVES`, 14, currentY);
+
+        // Site Location with auto-wrapping
+        const siteLocPrefix = "SITE LOCATION             :-     ";
+        const prefixWidth = doc.getTextWidth(siteLocPrefix);
+        const maxWidth = 180 - prefixWidth;
+        const siteLocStr = details.siteLocation || "";
+        const siteLocLines = doc.splitTextToSize(siteLocStr, maxWidth);
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, currentY);
+        for (let l = 1; l < siteLocLines.length; l++) {
+          currentY += 4;
+          doc.text(siteLocLines[l], 14 + prefixWidth, currentY);
+        }
         currentY += 5;
-        doc.text(`SITE LOCATION             :-     ${details.siteLocation}`, 14, currentY);
+
+        doc.text(`CALIBRATION DATE     :-     ${details.calibrationDate || ''}`, 14, currentY);
         currentY += 5;
-        doc.text(`CALIBRATION DATE     :-     ${details.calibrationDate}`, 14, currentY);
-        currentY += 5;
-        doc.text(`NEXT DUE DATE            :-     ${details.nextCalibrationDate}`, 14, currentY);
-        currentY += 5;
+        doc.text(`NEXT DUE DATE            :-     ${details.nextCalibrationDate || ''}`, 14, currentY);
+        currentY += 6;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);   
@@ -390,11 +407,11 @@ window.addCertificateDetails = function(doc, details)
         const chunk = testResults.splice(0, 9);
 
         doc.autoTable({
-          head: [['SR NO.', 'MAKE', 'SEIVE', 'SEIVE SIZE', 'RESULT']],
+          head: [['SR NO.', 'MAKE', 'SIEVE', 'SIEVE SIZE', 'RESULT']],
           body: chunk,
           startY: currentY,
           styles: { 
-            fontSize: 8 ,
+            fontSize: 8,
             textColor: [0,0,0],
             fontStyle:"bold",  
             lineColor:[87, 86, 85],
@@ -422,36 +439,37 @@ window.addCertificateDetails = function(doc, details)
         let yPosition = currentY;
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
-        doc.text("*REMARKS:-", doc.internal.pageSize.getWidth()/2, yPosition+=2, { align: 'center' }); yPosition += 5;
+        doc.text("*REMARKS:-", doc.internal.pageSize.getWidth()/2, yPosition+=2, { align: 'center' }); yPosition += 4.5;
         doc.setFont("helvetica", "bold"); 
         doc.setFontSize(8);
-        doc.text("•THESE RESULTS ARE OBTAINED AT THE TIME OF CALIBRATION.", 14, yPosition); yPosition += 5;
-        doc.text("•ANY HAND WRITTEN CORRECTION (EXCEPT @ OR PHOTOCOPIES OF THE REPORT INVALIDATES THIS CERTIFICATE).", 14, yPosition); yPosition += 5;
-        doc.text("•ENVIRONMENT CONDITION DURING CALIBRATION: 20 + 2.C, 40 TO 60% RH.", 14, yPosition); yPosition += 5;
-        doc.text("•THE UNCERTAINTIES ARE FOR A CONFIDENCE PROBABILITY OF NOT LESS THAN 95%. ", 14, yPosition); yPosition += 5;
-        doc.text("•REFERENCE CALIBRATION METHOD NO: NCQC/CM/102.", 14, yPosition); yPosition += 5;
-        doc.text("•REFERENCE STANDARD NO.IS-2-1960.", 14, yPosition); yPosition += 7;
+        doc.text("•THESE RESULTS ARE OBTAINED AT THE TIME OF CALIBRATION.", 14, yPosition); yPosition += 4.5;
+        doc.text("•ANY HAND WRITTEN CORRECTION (EXCEPT @ OR PHOTOCOPIES OF THE REPORT INVALIDATES THIS CERTIFICATE).", 14, yPosition); yPosition += 4.5;
+        doc.text("•ENVIRONMENT CONDITION DURING CALIBRATION: 20 + 2.C, 40 TO 60% RH.", 14, yPosition); yPosition += 4.5;
+        doc.text("•THE UNCERTAINTIES ARE FOR A CONFIDENCE PROBABILITY OF NOT LESS THAN 95%. ", 14, yPosition); yPosition += 4.5;
+        doc.text("•REFERENCE CALIBRATION METHOD NO: NCQC/CM/102.", 14, yPosition); yPosition += 4.5;
+        doc.text("•REFERENCE STANDARD NO.IS-2-1960.", 14, yPosition); yPosition += 6;
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
-        doc.text("*DETAILS OF OUR MASTER INSTRUMENT THROUGH WHICH SEIVES ARE CALIBRATED", doc.internal.pageSize.getWidth()/2, yPosition, { align: 'center' }); yPosition += 7;
+        doc.text("*DETAILS OF OUR MASTER INSTRUMENT THROUGH WHICH SIEVES ARE CALIBRATED", doc.internal.pageSize.getWidth()/2, yPosition, { align: 'center' }); yPosition += 6;
         doc.setFont("helvetica", "bold");       
         doc.setFontSize(8);
 
-        doc.text("NAME :DIGITAL VERNIAR CALIPER", 14, yPosition); yPosition += 5;
-        doc.text(`SERIAL NO  :ACCUPLUS/13-200`, 124, yPosition);
-        doc.text('RANGE:0-200MM', 14, yPosition); yPosition += 5;
-        doc.text(`LEAST COUNT:0.001"(O.O1MM)`, 124, yPosition);
-        doc.text('VALID UP TO DATE:03/07/2026', 14, yPosition); yPosition += 5;
-        doc.text('OUR MASTER INSTRUMENT IS CALIBRATED AND TRACEABLE TO NATIONAL STANDARD THROUGH NABL ACCREDITED ', 14, yPosition); yPosition += 5;
-        doc.text('LABORATORY "IDEMI CALIBRATION LABORATORY."', 14, yPosition); yPosition += 5;
-        doc.text('CERTIFICATE NUMBER:-62', 14, yPosition); yPosition += 5;
+        doc.text("NAME : DIGITAL VERNIER CALIPER", 14, yPosition);
+        doc.text("SERIAL NO : ACCUPLUS/13-200", 124, yPosition); yPosition += 4.5;
+        doc.text("RANGE : 0-200MM", 14, yPosition);
+        doc.text('LEAST COUNT : 0.001" (0.01MM)', 124, yPosition); yPosition += 4.5;
+        doc.text("VALID UP TO DATE : 03/07/2026", 14, yPosition); yPosition += 4.5;
+        doc.text("OUR MASTER INSTRUMENT IS CALIBRATED AND TRACEABLE TO NATIONAL STANDARD THROUGH NABL ACCREDITED ", 14, yPosition); yPosition += 4.5;
+        doc.text('LABORATORY "IDEMI CALIBRATION LABORATORY."', 14, yPosition); yPosition += 4.5;
+        doc.text("CALIBRATION CERTIFICATE NO : 62", 14, yPosition); yPosition += 4.5;
 
         doc.setFont("helvetica", "bold"); 
         doc.setFontSize(12); 
         doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
         doc.text("PROPRIETOR", 170, 245);
       }
+    }
 
       // No signature here anymore
     }
