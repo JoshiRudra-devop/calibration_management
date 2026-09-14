@@ -43,7 +43,7 @@ $instrumentId = $instrument['id'] ?? null;
         <div class="date">
           <div class="title_input_pair">
             <label for="sieveSize">SELECT SIZE OF SEIVE:</label>
-            <select id="sieveSize" required>
+            <select id="sieveSize" onchange="updateSubSizes()" required>
               <option value="">Select type of Seive</option>
               <option value='Brass 200 MM DIA'>BRASS SEIVE 8"</option>
               <option value='GI 300 MM DIA'>GI SEIVE 12"</option>
@@ -399,14 +399,36 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    document.getElementById('sieveSize').addEventListener('change', function(e) {
-      if (e && e.isTrusted) {
-        const hiddenInput = document.getElementById('selectedSubSizes');
-        if (hiddenInput) hiddenInput.value = '';
+    window.updateSubSizes = updateSubSizes;
+
+    const sieveSizeSelect = document.getElementById('sieveSize');
+    if (sieveSizeSelect) {
+      sieveSizeSelect.addEventListener('change', function(e) {
+        if (e && e.isTrusted) {
+          const hiddenInput = document.getElementById('selectedSubSizes');
+          if (hiddenInput) hiddenInput.value = '';
+        }
+        updateSubSizes();
+      });
+      sieveSizeSelect.addEventListener('input', function(e) {
+        updateSubSizes();
+      });
+    }
+
+    document.getElementById('make')?.addEventListener('change', updateMake);
+
+    // Initial check on script load / DOMReady
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('sieveSize')?.value) {
+          updateSubSizes();
+        }
+      });
+    } else {
+      if (document.getElementById('sieveSize')?.value) {
+        updateSubSizes();
       }
-      updateSubSizes();
-    });
-    document.getElementById('make').addEventListener('change', updateMake);
+    }
 
     function addTestResultRow() {
       const testResults = document.getElementById('testResults');
