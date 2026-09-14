@@ -152,11 +152,31 @@ $instrumentId = $instrument['id'] ?? null;
       const key = normalizeSieveKey(size);
       const fullSets = {
         'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '600 MICRON', '300 MICRON', '150 MICRON', '10 MICRON'],
-        'GI 300 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm','12.5'],
-        'GI 450 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm','12.5']
+        'GI 300 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5mm'],
+        'GI 450 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5mm']
       };
       return fullSets[key] || fullSets[size] || [];
     }
+
+    window.selectFullSet = function(size) {
+      const fullSet = getFullSet(size);
+      if (!fullSet || fullSet.length === 0) return;
+      
+      const normalize = s => String(s).trim().toLowerCase().replace(/\s+/g, '');
+      const normalizedFullSet = fullSet.map(normalize);
+
+      const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        const normCb = normalize(cb.value);
+        const isMatch = normalizedFullSet.some(f => f === normCb || f === normCb.replace('mm', '') || normCb === f.replace('mm', ''));
+        if (isMatch) {
+          if (!cb.checked) {
+            cb.checked = true;
+            toggleRow(cb.value, true);
+          }
+        }
+      });
+    };
 
     function getSubSizes(size) {
       const key = normalizeSieveKey(size);
@@ -212,7 +232,7 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
 
-      if (!hiddenInput || !hiddenInput.value) return;
+      if (!hiddenInput || !hiddenInput.value) return 0;
       let savedSizes = [];
       try {
         savedSizes = JSON.parse(hiddenInput.value);
@@ -221,7 +241,7 @@ $instrumentId = $instrument['id'] ?? null;
           savedSizes = hiddenInput.value.split(',');
         }
       }
-      if (!Array.isArray(savedSizes) || savedSizes.length === 0) return;
+      if (!Array.isArray(savedSizes) || savedSizes.length === 0) return 0;
 
       if (subSizesDiv) subSizesDiv.style.display = 'block';
 
@@ -258,7 +278,9 @@ $instrumentId = $instrument['id'] ?? null;
           row.insertCell().textContent = 'OK';
         });
         updateSelectedDisplay();
+        restoredCount = savedSizes.length;
       }
+      return restoredCount;
     };
 
     function updateSubSizes() {
@@ -267,11 +289,11 @@ $instrumentId = $instrument['id'] ?? null;
       const checkBoxesDiv = document.getElementById('checkBoxes');
       const tbody = document.getElementById('resultsBody');
       const hiddenInput = document.getElementById('selectedSubSizes');
-      const savedSubSizesVal = hiddenInput ? hiddenInput.value : "";
 
       if (!size) {
         if (subSizesDiv) subSizesDiv.style.display = 'none';
         if (tbody) tbody.innerHTML = '';
+        if (checkBoxesDiv) checkBoxesDiv.innerHTML = '';
         updateSelectedDisplay();
         return;
       }
@@ -312,30 +334,20 @@ $instrumentId = $instrument['id'] ?? null;
         checkBoxesDiv.appendChild(label);
       });
 
-      // Preserve hidden input value
-      if (hiddenInput && savedSubSizesVal) {
-        hiddenInput.value = savedSubSizesVal;
-      }
-
-      // Restore checkboxes if saved values exist
+      // Restore checkboxes if saved values exist, otherwise select full set by default
+      let restoredCount = 0;
       if (hiddenInput && hiddenInput.value && hiddenInput.value !== '[]') {
-        restoreSievesState();
-      } else {
-        updateSelectedDisplay();
+        restoredCount = restoreSievesState();
+      }
+      if (restoredCount === 0) {
+        selectFullSet(size);
       }
 
       // Add onclick to SELECT FULL SET button
       const fullSetBtn = document.getElementById('selectFullSetBtn');
       if (fullSetBtn) {
         fullSetBtn.onclick = () => {
-          const fullSet = getFullSet(size);
-          const checkboxes = document.querySelectorAll('#checkBoxes input[type="checkbox"]');
-          checkboxes.forEach(cb => {
-            if (fullSet.includes(cb.value)) {
-              cb.checked = true;
-              toggleRow(cb.value, true);
-            }
-          });
+          selectFullSet(size);
         };
       }
     }
@@ -345,17 +357,27 @@ $instrumentId = $instrument['id'] ?? null;
       const make = document.getElementById('make').value;
       const seive = document.getElementById('sieveSize').value;
       if (checked) {
-        const row = tbody.insertRow();
-        const srCell = row.insertCell();
-        srCell.textContent = tbody.rows.length;
-        const makeCell = row.insertCell();
-        makeCell.textContent = make;
-        const seiveCell = row.insertCell();
-        seiveCell.textContent = seive;
-        const sizeCell = row.insertCell();
-        sizeCell.textContent = subSize;
-        const resultCell = row.insertCell();
-        resultCell.textContent = 'OK';
+        // Prevent duplicate rows for the same sub-size
+        let exists = false;
+        for (let i = 0; i < tbody.rows.length; i++) {
+          if (tbody.rows[i].cells[3] && tbody.rows[i].cells[3].textContent === subSize) {
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          const row = tbody.insertRow();
+          const srCell = row.insertCell();
+          srCell.textContent = tbody.rows.length;
+          const makeCell = row.insertCell();
+          makeCell.textContent = make;
+          const seiveCell = row.insertCell();
+          seiveCell.textContent = seive;
+          const sizeCell = row.insertCell();
+          sizeCell.textContent = subSize;
+          const resultCell = row.insertCell();
+          resultCell.textContent = 'OK';
+        }
       } else {
         for (let i = 0; i < tbody.rows.length; i++) {
           if (tbody.rows[i].cells[3] && tbody.rows[i].cells[3].textContent === subSize) {
@@ -377,7 +399,13 @@ $instrumentId = $instrument['id'] ?? null;
       });
     }
 
-    document.getElementById('sieveSize').addEventListener('change', updateSubSizes);
+    document.getElementById('sieveSize').addEventListener('change', function(e) {
+      if (e && e.isTrusted) {
+        const hiddenInput = document.getElementById('selectedSubSizes');
+        if (hiddenInput) hiddenInput.value = '';
+      }
+      updateSubSizes();
+    });
     document.getElementById('make').addEventListener('change', updateMake);
 
     function addTestResultRow() {
