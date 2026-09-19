@@ -59,10 +59,10 @@ $instrumentId = $instrument['id'] ?? null;
             </select> 
           </div>
         </div>
-        <div id="subSizes" style="display:none; border: 2px solid #00796b; border-radius: 10px; padding: 20px; margin: 10px 0; background-color: #f9f9f9; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-          <h3 style="margin-top: 0; color: #00796b;">Select Sub-Sizes:</h3>
-          <div id="checkBoxes" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
-          <button type="button" id="selectFullSetBtn" style="margin-top: 15px; padding: 10px 20px; background-color: #00796b; color: white; border: none; border-radius: 5px; cursor: pointer;">SELECT FULL SET</button>
+        <div id="subSizes" style="display:none; border: 2px solid #00796b; border-radius: 12px; padding: 20px; margin: 15px 0; background-color: #f8fafc; box-shadow: 0 4px 12px rgba(0,121,107,0.06);">
+          <h3 style="margin-top: 0; color: #00796b; font-size: 1.1rem; font-weight: 700;">Select Sub-Sizes:</h3>
+          <div id="checkBoxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px;"></div>
+          <button type="button" id="selectFullSetBtn" style="padding: 10px 22px; background-color: #00796b; color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,121,107,0.2); transition: all 0.2s;">SELECT FULL SET</button>
         </div>
         <input type="hidden" id="selectedSubSizes" name="selectedSubSizes">
         <div id="testResults">
@@ -152,8 +152,8 @@ $instrumentId = $instrument['id'] ?? null;
       const key = normalizeSieveKey(size);
       const fullSets = {
         'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '600 MICRON', '300 MICRON', '150 MICRON', '10 MICRON'],
-        'GI 300 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5mm'],
-        'GI 450 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5mm']
+        'GI 300 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5'],
+        'GI 450 MM DIA': ['2.36mm', '4.75mm', '10mm', '20mm', '25mm', '40mm', '6.3mm', '45mm', '12.5']
       };
       return fullSets[key] || fullSets[size] || [];
     }
@@ -175,15 +175,29 @@ $instrumentId = $instrument['id'] ?? null;
             toggleRow(cb.value, true);
           }
         }
+        const parentLabel = cb.parentElement;
+        if (parentLabel && parentLabel.tagName === 'LABEL') {
+          if (cb.checked) {
+            parentLabel.style.backgroundColor = '#e0f2f1';
+            parentLabel.style.borderColor = '#00796b';
+            parentLabel.style.color = '#004d40';
+            parentLabel.style.boxShadow = '0 2px 5px rgba(0,121,107,0.15)';
+          } else {
+            parentLabel.style.backgroundColor = '#ffffff';
+            parentLabel.style.borderColor = '#cbd5e1';
+            parentLabel.style.color = '#1e293b';
+            parentLabel.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+          }
+        }
       });
     };
 
     function getSubSizes(size) {
       const key = normalizeSieveKey(size);
       const sizes = {
-        'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '10 MM', '150 MICRON', '300 MICRON', '600 MICRON', '75 MICRON', '90 MICRON', '425 MICRON', '1 MM', '3.35 mm', '2.80 mm', '2.00 mm', '1.70 mm', '1.40 mm', '850 microns', '710 microns', '500 microns', '355 microns', '250 microns', '212 microns', '180 microns', '125 microns', '106 microns', '63 microns', '53 microns', '10 MICRON'],
-        'GI 300 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm','2.36mm'],
-        'GI 450 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm','2.36mm']
+        'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '10 MM', '150 MICRON', '300 MICRON', '45 MICRON', '600 MICRON', '75 MICRON', '90 MICRON', '425 MICRON', '1 MM', '3.35 mm', '2.80 mm', '2.00 mm', '1.70 mm', '1.40 mm', '850 microns', '710 microns', '500 microns', '355 microns', '250 microns', '212 microns', '180 microns', '125 microns', '106 microns', '63 microns', '53 microns', '10 MICRON'],
+        'GI 300 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm', '2.36mm'],
+        'GI 450 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm', '2.36mm']
       };
       return sizes[key] || sizes[size] || [];
     }
@@ -202,10 +216,13 @@ $instrumentId = $instrument['id'] ?? null;
               const item = document.createElement('span');
               item.style.display = 'inline-flex';
               item.style.alignItems = 'center';
-              item.style.padding = '5px 10px';
-              item.style.border = '1px solid #ccc';
-              item.style.borderRadius = '5px';
-              item.style.backgroundColor = '#fff';
+              item.style.padding = '5px 12px';
+              item.style.border = '1px solid #b2dfdb';
+              item.style.borderRadius = '20px';
+              item.style.backgroundColor = '#e0f2f1';
+              item.style.color = '#004d40';
+              item.style.fontSize = '12px';
+              item.style.fontWeight = '600';
               item.innerHTML = '✓ ' + size;
               selectedList.appendChild(item);
             }
@@ -263,6 +280,20 @@ $instrumentId = $instrument['id'] ?? null;
         } else {
           cb.checked = false;
         }
+        const parentLabel = cb.parentElement;
+        if (parentLabel && parentLabel.tagName === 'LABEL') {
+          if (cb.checked) {
+            parentLabel.style.backgroundColor = '#e0f2f1';
+            parentLabel.style.borderColor = '#00796b';
+            parentLabel.style.color = '#004d40';
+            parentLabel.style.boxShadow = '0 2px 5px rgba(0,121,107,0.15)';
+          } else {
+            parentLabel.style.backgroundColor = '#ffffff';
+            parentLabel.style.borderColor = '#cbd5e1';
+            parentLabel.style.color = '#1e293b';
+            parentLabel.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+          }
+        }
       });
 
       // If checkboxes couldn't be matched, manually populate table rows directly from savedSizes
@@ -283,8 +314,9 @@ $instrumentId = $instrument['id'] ?? null;
       return restoredCount;
     };
 
-    function updateSubSizes() {
-      const size = document.getElementById('sieveSize').value;
+    window.updateSubSizes = function updateSubSizes() {
+      const sizeSelect = document.getElementById('sieveSize');
+      const size = sizeSelect ? sizeSelect.value : '';
       const subSizesDiv = document.getElementById('subSizes');
       const checkBoxesDiv = document.getElementById('checkBoxes');
       const tbody = document.getElementById('resultsBody');
@@ -300,13 +332,18 @@ $instrumentId = $instrument['id'] ?? null;
 
       if (subSizesDiv) subSizesDiv.style.display = 'block';
 
-      // Auto-select MAKE based on sieve size if not already set
+      // Auto-select MAKE based on sieve size
       const makeSelect = document.getElementById('make');
-      if (makeSelect && !makeSelect.value) {
+      if (makeSelect) {
         const normKey = normalizeSieveKey(size);
-        makeSelect.value = (normKey === 'Brass 200 MM DIA') ? 'STANDARD' : 'ASC';
+        if (normKey === 'Brass 200 MM DIA' && (!makeSelect.value || makeSelect.value === 'ASC')) {
+          makeSelect.value = 'STANDARD';
+        } else if ((normKey === 'GI 300 MM DIA' || normKey === 'GI 450 MM DIA') && (!makeSelect.value || makeSelect.value === 'STANDARD')) {
+          makeSelect.value = 'ASC';
+        }
       }
-      updateMake(); // Update existing rows with new make
+      updateMake();
+
       if (tbody) tbody.innerHTML = '';
       if (checkBoxesDiv) checkBoxesDiv.innerHTML = '';
 
@@ -314,27 +351,65 @@ $instrumentId = $instrument['id'] ?? null;
       subSizes.sort((a, b) => parseSize(b) - parseSize(a));
       subSizes.forEach(sub => {
         const label = document.createElement('label');
+        label.className = 'sieve-card-pill';
         label.style.display = 'flex';
         label.style.alignItems = 'center';
-        label.style.padding = '5px 10px';
-        label.style.border = '1px solid #ccc';
-        label.style.borderRadius = '5px';
-        label.style.backgroundColor = '#fff';
+        label.style.gap = '8px';
+        label.style.padding = '10px 14px';
+        label.style.border = '1.5px solid #cbd5e1';
+        label.style.borderRadius = '8px';
+        label.style.backgroundColor = '#ffffff';
+        label.style.color = '#1e293b';
         label.style.cursor = 'pointer';
-        label.style.transition = 'background-color 0.3s';
-        label.onmouseover = () => label.style.backgroundColor = '#e0f2f1';
-        label.onmouseout = () => label.style.backgroundColor = '#fff';
+        label.style.transition = 'all 0.2s ease';
+        label.style.fontSize = '13px';
+        label.style.fontWeight = '600';
+        label.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = sub;
-        checkbox.style.marginRight = '5px';
-        checkbox.onchange = () => toggleRow(sub, checkbox.checked);
+        checkbox.style.accentColor = '#00796b';
+        checkbox.style.width = '16px';
+        checkbox.style.height = '16px';
+        checkbox.style.cursor = 'pointer';
+
+        const updateCardStyle = () => {
+          if (checkbox.checked) {
+            label.style.backgroundColor = '#e0f2f1';
+            label.style.borderColor = '#00796b';
+            label.style.color = '#004d40';
+            label.style.boxShadow = '0 2px 5px rgba(0,121,107,0.15)';
+          } else {
+            label.style.backgroundColor = '#ffffff';
+            label.style.borderColor = '#cbd5e1';
+            label.style.color = '#1e293b';
+            label.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+          }
+        };
+
+        checkbox.onchange = () => {
+          updateCardStyle();
+          toggleRow(sub, checkbox.checked);
+        };
+
+        label.onmouseover = () => {
+          if (!checkbox.checked) {
+            label.style.borderColor = '#00796b';
+          }
+        };
+        label.onmouseout = () => {
+          if (!checkbox.checked) {
+            label.style.borderColor = '#cbd5e1';
+          }
+        };
+
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(sub));
         checkBoxesDiv.appendChild(label);
       });
 
-      // Restore checkboxes if saved values exist, otherwise select full set by default
+      // Restore checkboxes if saved values exist, otherwise auto-select full set by default
       let restoredCount = 0;
       if (hiddenInput && hiddenInput.value && hiddenInput.value !== '[]') {
         restoredCount = restoreSievesState();
@@ -350,14 +425,13 @@ $instrumentId = $instrument['id'] ?? null;
           selectFullSet(size);
         };
       }
-    }
+    };
 
     function toggleRow(subSize, checked) {
       const tbody = document.getElementById('resultsBody');
-      const make = document.getElementById('make').value;
-      const seive = document.getElementById('sieveSize').value;
+      const make = document.getElementById('make')?.value || 'STANDARD';
+      const seive = document.getElementById('sieveSize')?.value || '';
       if (checked) {
-        // Prevent duplicate rows for the same sub-size
         let exists = false;
         for (let i = 0; i < tbody.rows.length; i++) {
           if (tbody.rows[i].cells[3] && tbody.rows[i].cells[3].textContent === subSize) {
@@ -393,41 +467,41 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     function updateMake() {
-      const make = document.getElementById('make').value;
+      const make = document.getElementById('make')?.value || '';
       document.querySelectorAll('#resultsBody tr').forEach(row => {
         if (row.cells[1]) row.cells[1].textContent = make;
       });
     }
 
-    window.updateSubSizes = updateSubSizes;
-
-    const sieveSizeSelect = document.getElementById('sieveSize');
-    if (sieveSizeSelect) {
-      sieveSizeSelect.addEventListener('change', function(e) {
-        if (e && e.isTrusted) {
-          const hiddenInput = document.getElementById('selectedSubSizes');
-          if (hiddenInput) hiddenInput.value = '';
+    // Attach listeners and initial trigger
+    function initSievesListeners() {
+      const sieveSizeSelect = document.getElementById('sieveSize');
+      if (sieveSizeSelect) {
+        sieveSizeSelect.removeEventListener('change', window.updateSubSizes);
+        sieveSizeSelect.addEventListener('change', function(e) {
+          if (e && e.isTrusted) {
+            const hiddenInput = document.getElementById('selectedSubSizes');
+            if (hiddenInput) hiddenInput.value = '';
+          }
+          window.updateSubSizes();
+        });
+        sieveSizeSelect.addEventListener('input', function() {
+          window.updateSubSizes();
+        });
+        if (sieveSizeSelect.value) {
+          window.updateSubSizes();
         }
-        updateSubSizes();
-      });
-      sieveSizeSelect.addEventListener('input', function(e) {
-        updateSubSizes();
-      });
+      }
+      const makeSelect = document.getElementById('make');
+      if (makeSelect) {
+        makeSelect.addEventListener('change', updateMake);
+      }
     }
 
-    document.getElementById('make')?.addEventListener('change', updateMake);
-
-    // Initial check on script load / DOMReady
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('sieveSize')?.value) {
-          updateSubSizes();
-        }
-      });
+      document.addEventListener('DOMContentLoaded', initSievesListeners);
     } else {
-      if (document.getElementById('sieveSize')?.value) {
-        updateSubSizes();
-      }
+      initSievesListeners();
     }
 
     function addTestResultRow() {

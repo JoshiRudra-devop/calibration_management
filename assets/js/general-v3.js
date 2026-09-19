@@ -833,6 +833,7 @@ document.addEventListener('DOMContentLoaded', function() {
             model_no: details.modelNo,
             serial_no: details.serialNo,
             cert_number: details.certificateNumber,
+            cube_serials: details.serials || details.cube_serials || [],
             pdf_base64: base64,
             form_data: formDataObj,
             csrf_token: (typeof SHREEJI_CONFIG !== 'undefined' ? SHREEJI_CONFIG.csrfToken : '')

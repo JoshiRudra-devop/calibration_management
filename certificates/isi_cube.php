@@ -218,10 +218,10 @@ $instrumentId = $instrument['id'] ?? null;
         qty = 1;
       }
       let sizeStr = details.size || "";
-      let [length, height, width] = sizeStr.includes("x") ? sizeStr.split("x").map(s => s.trim()) : [sizeStr, "", ""];
-      if (!length) length = "";
-      if (!height) height = "";
-      if (!width) width = "";
+      let parts = (sizeStr || "").split(/x/i).map(s => s.trim()).filter(Boolean);
+      let length = parts[0] || "";
+      let height = parts[1] || parts[0] || "";
+      let width  = parts[2] || parts[0] || "";
       const headers = [["SR.NO", "SERIAL NO", "LENGTH", "HEIGHT", "WIDTH"]];
       const allRows = [];
       const serials = details.serials || [];
