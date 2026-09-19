@@ -105,7 +105,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
       }
 
-      const tableStartY =100;
+      const tableStartY = Yalign;
       const sieveData = [
         ['50.00 MM', '40.00 MM', '81.00 MM', '81.00 MM'],
         ['40.00 MM', '31.50 MM', '64.40 MM', '64.40 MM'],
@@ -147,8 +147,8 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(10);
       doc.text('EQUIPMENT NAME  :-DIGITAL VERNIER CALIPER', 14, tableStartY2+=7);
       doc.text('CALIBRATION BY :-ARSHI ENTERPRISE, AHMEDABAD', 100,  tableStartY2);
-      doc.text('CALIBRATION DATE :-01/08/2024', 14,tableStartY2+=7);
-      doc.text('NEXT DUE DATE  :-31/08/2025', 100, tableStartY2);
+      doc.text('CALIBRATION DATE :-02/08/2026', 14,tableStartY2+=7);
+      doc.text('NEXT DUE DATE  :-01/08/2027', 100, tableStartY2);
 
       doc.setFont("helvetica", "bold"); 
       doc.setFontSize(12); 

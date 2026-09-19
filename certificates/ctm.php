@@ -396,38 +396,47 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text(`DATE:-${details.calibrationDate}`, 160, 56);
-      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, 56);
+      let curY = 56;
+      doc.text(`DATE:-${details.calibrationDate}`, 160, curY);
+      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, curY);
 
+      curY += 9;
       const partyPrefix = "NAME OF PARTY       :-    ";
       const partyPrefixWidth = doc.getTextWidth(partyPrefix);
       const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-      doc.text(partyPrefix + (partyLines[0] || ""), 14, 65);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, curY);
       for (let i = 1; i < partyLines.length; i++) {
-        doc.text(partyLines[i], 14 + partyPrefixWidth, 65 + (i * 4.5));
+        curY += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, curY);
       }
 
-      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, 74);
-      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, 83);
-      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, 92);
-      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, 92);
+      curY += 9;
+      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, curY);
+      curY += 9;
+      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, curY);
+      curY += 9;
+      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, curY);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, curY);
 
+      curY += 9;
       const siteLocPrefix = "SITE LOCATION         :-    ";
       const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
       const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, 101);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, curY);
       for (let i = 1; i < siteLocLines.length; i++) {
-        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, 101 + (i * 4.5));
+        curY += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, curY);
       } 
 
       doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");
       let RING = String(details.ring);
 
+      curY += 9;
       if(RING === "1000KN"){
-        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, 110);  
-        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, 115);  
-        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
+        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, curY);  
+        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, curY + 5);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, curY + 10);  
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9.5);
         const startX = 13;

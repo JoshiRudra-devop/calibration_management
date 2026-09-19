@@ -197,30 +197,37 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(`DATE:-${details.calibrationDate}`, 160, 55);
       doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, 55);
 
+      let y = 64;
       const partyPrefix = "NAME OF PARTY        :-     ";
       const partyPrefixWidth = doc.getTextWidth(partyPrefix);
       const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-      doc.text(partyPrefix + (partyLines[0] || ""), 14, 64);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, y);
       for (let i = 1; i < partyLines.length; i++) {
-        doc.text(partyLines[i], 14 + partyPrefixWidth, 64 + (i * 4.5));
+        y += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, y);
       }
 
-      doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, 73);
-      doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, 82);
-      doc.text(`SR NO                          :-     ${details.serialNo}`, 14, 91);
-      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, 91);
+      y += 9;
+      doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, y);
+      y += 9;
+      doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, y);
+      y += 9;
+      doc.text(`SR NO                          :-     ${details.serialNo}`, 14, y);
+      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, y);
 
+      y += 9;
       const siteLocPrefix = "SITE LOCATION          :-     ";
       const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
       const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, 100);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, y);
       for (let i = 1; i < siteLocLines.length; i++) {
-        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, 100 + (i * 4.5));
+        y += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, y);
       }
 
       // Get table data for selected capacity
       const data = capacityTables[details.capacity] || [];
-      let tableStartY = 106;
+      let tableStartY = y + 6;
 
       if (data.length > 0) {
         let tableHead;

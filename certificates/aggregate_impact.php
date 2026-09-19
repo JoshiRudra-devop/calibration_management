@@ -86,20 +86,30 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(15);
       doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=15);
       doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
-      doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign+=15);
+
+      const partyPrefix = "NAME OF PARTY         :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 15;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
       doc.text(`EQUIPMENT NAME      :      AGGREGATE IMPACT VALUE APP`, 14, Yalign+=15);
       doc.text(`SERIAL NO                   :     ${details.certificateNumber}`, 14, Yalign+=15);
       doc.text(`MAKE                            :     ${details.make}(AS PER IS 2386)`, 14, Yalign+=15);
-      // --- Site Location with wrapping (only value, not prefix) ---
+
       const siteLocPrefix = "SITE LOCATION          :-     ";
       const prefixWidth = doc.getTextWidth(siteLocPrefix);
-      const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
-      const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - prefixWidth);
+      Yalign += 15;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
       for (let i = 1; i < siteLocLines.length; i++) {
-        doc.text(siteLocLines[i], 14 + prefixWidth , Yalign +=4);
+        Yalign += 4.5;
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign);
       }
-      Yalign += ((siteLocLines.length - 1)+5) ;
       doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
       doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
       doc.setFontSize(12);
