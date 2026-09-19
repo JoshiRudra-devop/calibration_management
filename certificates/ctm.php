@@ -398,12 +398,27 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(11);
       doc.text(`DATE:-${details.calibrationDate}`, 160, 56);
       doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, 56);
-      doc.text(`NAME OF PARTY       :-    ${details.partyName}`, 14, 65);
+
+      const partyPrefix = "NAME OF PARTY       :-    ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, 65);
+      for (let i = 1; i < partyLines.length; i++) {
+        doc.text(partyLines[i], 14 + partyPrefixWidth, 65 + (i * 4.5));
+      }
+
       doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, 74);
       doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, 83);
       doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, 92);
       doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, 92);
-      doc.text(`SITE LOCATION         :-    ${details.siteLocation}`, 14, 101); 
+
+      const siteLocPrefix = "SITE LOCATION         :-    ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, 101);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, 101 + (i * 4.5));
+      } 
 
       doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");

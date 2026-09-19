@@ -196,12 +196,27 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(10);
       doc.text(`DATE:-${details.calibrationDate}`, 160, 55);
       doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, 55);
-      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, 64);
+
+      const partyPrefix = "NAME OF PARTY        :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, 64);
+      for (let i = 1; i < partyLines.length; i++) {
+        doc.text(partyLines[i], 14 + partyPrefixWidth, 64 + (i * 4.5));
+      }
+
       doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, 73);
       doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, 82);
       doc.text(`SR NO                          :-     ${details.serialNo}`, 14, 91);
       doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, 91);
-      doc.text(`SITE LOCATION          :-     ${details.siteLocation}`, 14, 100);
+
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, 100);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, 100 + (i * 4.5));
+      }
 
       // Get table data for selected capacity
       const data = capacityTables[details.capacity] || [];

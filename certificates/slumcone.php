@@ -100,10 +100,29 @@ $instrumentId = $instrument['id'] ?? null;
       // Certificate Details
       doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, hori_axis += 10);
       doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
-      doc.text(`NAME OF PARTY       :-    ${details.partyName}`, 14, hori_axis += 10);
+      const partyPrefix = "NAME OF PARTY       :-    ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      hori_axis += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
+      for (let i = 1; i < partyLines.length; i++) {
+        hori_axis += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
+      }
+
       doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
       doc.text(`SERIAL NO / MAKE    :-    ${details.certificateNumber} / ${details.make}`, 14, hori_axis += 10);
-      doc.text(`SITE LOCATION          :-    ${details.siteLocation}`, 14, hori_axis += 10);
+
+      const siteLocPrefix = "SITE LOCATION          :-    ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      hori_axis += 10;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        hori_axis += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
+      }
+
       doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 140, hori_axis);
       doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
 

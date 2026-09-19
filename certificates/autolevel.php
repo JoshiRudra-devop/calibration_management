@@ -99,7 +99,15 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setFontSize(15);
         doc.text(`FOR , ${details.make}  AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
         doc.text(`MODLE : ${details.modelNo}  ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
-        doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign+=11);
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 11;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
         doc.text(`EQUIPMENT NAME      :     AUTO LEVEL`, 14, Yalign+=9);
         doc.text(`MAKE                            :     ${details.make}`, 14, Yalign+=9);
         doc.text(`MODEL NO                   :     ${details.modelNo}`, 14, Yalign+=9);

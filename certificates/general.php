@@ -97,10 +97,30 @@ $instrumentId = $instrument['id'] ?? null;
         // Certificate Details
         doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign += 15);
         doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
-        doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign += 15);
+
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 15;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
+
         doc.text(`EQUIPMENT NAME      :     ${details.equipmentType}`, 14, Yalign += 15);
         doc.text(`SERIAL NO / MAKE      :     ${details.serialNo} / ${details.make}`, 14, Yalign += 15);
-        doc.text(`SITE LOCATION           :     ${details.siteLocation}`, 14, Yalign += 15);
+
+        const siteLocPrefix = "SITE LOCATION           :     ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+        Yalign += 15;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          Yalign += 5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+        }
+
         doc.text(`CAPACITY                    :     ${details.capacity}`, 14, Yalign += 15);
         doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign += 15);
         doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign += 15);

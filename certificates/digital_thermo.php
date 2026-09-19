@@ -89,12 +89,30 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(12);
       doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
       doc.text(`REF NO                         :-      ${details.certificateNumber}`, 14, Yalign);
-      doc.text(`NAME OF PARTY         :-     ${details.partyName}`, 14, Yalign += 10);
+      const partyPrefix = "NAME OF PARTY         :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
       doc.text(`EQUIPEMENT NAME    :-     DIGITAL THERMOMETER`, 14, Yalign += 10);
       doc.text(`CAPACITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
       doc.text(`SERIAL NO                    :-     ${details.certificateNumber}`, 14, Yalign += 10);
       doc.text(`NEXT DUE DATE           :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
-      doc.text(`SITE LOCATION            :-     ${details.siteLocation}`, 14, Yalign += 10);
+
+      const siteLocPrefix = "SITE LOCATION            :-     ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      Yalign += 10;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+      }
       const tableStartY = Yalign;
       const data = [
         [ "1", " 50"," 50"],
