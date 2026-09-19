@@ -413,13 +413,9 @@ $instrumentId = $instrument['id'] ?? null;
             checkBoxesDiv.appendChild(label);
         });
 
-        // Restore state if saved values exist, otherwise default to full set
-        let restoredCount = 0;
+        // Restore state if saved values exist
         if (hiddenInput && hiddenInput.value && hiddenInput.value !== '[]') {
-            restoredCount = restoreSievesState();
-        }
-        if (restoredCount === 0) {
-            selectFullSet(size);
+            restoreSievesState();
         }
 
         // Attach event handler to SELECT FULL SET button
