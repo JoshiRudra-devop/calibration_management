@@ -132,7 +132,12 @@ $certs = $stmt->fetchAll();
 <div class="page-wrapper">
   <div class="container" style="padding: 2rem 1rem; max-width: 1200px; margin: 0 auto;">
 
-    <h1 style="margin-bottom: 2rem; color: var(--primary);">Dashboard</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <h1 style="margin: 0; color: var(--primary);">Dashboard</h1>
+      <button type="button" onclick="window.history.back()" class="instrument-action-btn btn-print" style="padding: 0.55rem 1.1rem; border-radius: var(--radius); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 13px; cursor: pointer; box-shadow: var(--shadow-sm);">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+    </div>
 
     <!-- Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -313,11 +318,14 @@ $certs = $stmt->fetchAll();
                     <?= date('M d, Y', strtotime($cert['next_due_date'])) ?>
                     <?= $isOverdue ? ' <span style="font-size:0.75rem; background:#fee2e2; color:#dc2626; padding:0.15rem 0.45rem; border-radius:4px; margin-left:4px;">OVERDUE</span>' : '' ?>
                   </td>
-                  <td style="padding: 1rem; display: flex; gap: 0.75rem; align-items: center;">
+                  <td style="padding: 1rem; display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
                     <?php if ($cert['pdf_url']): ?>
-                      <a href="<?= htmlspecialchars($cert['pdf_url']) ?>" target="_blank" style="color: var(--accent); font-weight: 600; text-decoration: underline;">View PDF</a>
+                      <a href="<?= htmlspecialchars($cert['pdf_url']) ?>" target="_blank" style="color: var(--accent); font-weight: 600; text-decoration: underline; font-size: 0.85rem;">View PDF</a>
                     <?php endif; ?>
-                    <a href="certificates/<?= htmlspecialchars($cert['instrument_slug']) ?>.php?id=<?= $cert['id'] ?>" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Edit/Prefill</a>
+                    <a href="certificates/<?= htmlspecialchars($cert['instrument_slug']) ?>.php?id=<?= $cert['id'] ?>" style="color: var(--primary); font-weight: 600; text-decoration: underline; font-size: 0.85rem;">Edit/Prefill</a>
+                    <button type="button" onclick="deleteCertificate(<?= $cert['id'] ?>, '<?= htmlspecialchars($cert['cert_number'], ENT_QUOTES) ?>')" class="btn-delete" title="Delete Certificate">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
                   </td>
                 </tr>
               <?php endforeach; ?>

@@ -891,10 +891,61 @@ document.addEventListener('DOMContentLoaded', function() {
   prefillForm();
 });
 
-// â”€â”€ Export functions globally so templates can access them â”€
+// ── Delete Certificate Function ─────────────────────────────────────
+async function deleteCertificate(certId, certNumber, callback) {
+  const displayNo = certNumber ? ` "${certNumber}"` : '';
+  if (!confirm(`Are you sure you want to delete certificate${displayNo}? This action cannot be undone.`)) {
+    return false;
+  }
+
+  const csrfToken = (typeof SHREEJI_CONFIG !== 'undefined' && SHREEJI_CONFIG.csrfToken) ? SHREEJI_CONFIG.csrfToken : '';
+  const apiBase = (typeof SHREEJI_CONFIG !== 'undefined' && SHREEJI_CONFIG.apiBase) ? SHREEJI_CONFIG.apiBase : '../api';
+
+  if (typeof showLoader === 'function') showLoader('Deleting certificate...');
+
+  try {
+    const response = await fetch(`${apiBase}/delete_certificate.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ certificate_id: certId, csrf_token: csrfToken })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      if (typeof showLoaderSuccess === 'function') {
+        showLoaderSuccess('Certificate deleted successfully!', () => {
+          if (typeof callback === 'function') {
+            callback(data);
+          } else {
+            window.location.reload();
+          }
+        });
+      } else {
+        alert('Certificate deleted successfully!');
+        if (typeof callback === 'function') {
+          callback(data);
+        } else {
+          window.location.reload();
+        }
+      }
+    } else {
+      if (typeof hideLoader === 'function') hideLoader();
+      alert('Error deleting certificate: ' + (data.message || 'Unknown error'));
+    }
+  } catch (err) {
+    if (typeof hideLoader === 'function') hideLoader();
+    alert('Failed to connect to server: ' + err.message);
+  }
+}
+
+// ── Export functions globally so templates can access them ──
 window.toggleDock = toggleDock;
 window.updateDockState = updateDockState;
 window.goBackOrPromptSave = goBackOrPromptSave;
+window.deleteCertificate = deleteCertificate;
 window.calculateNextDate = calculateNextDate;
 window.showLoader = showLoader;
 window.hideLoader = hideLoader;
@@ -904,4 +955,3 @@ window.generatePDF = generatePDF;
 window.generatePDFblankpg = generatePDFblankpg;
 window.printBlankCertificate = printBlankCertificate;
 window.sharePDF = sharePDF;
-

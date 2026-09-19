@@ -259,6 +259,41 @@ h2.centered {
   color: #b45309 !important;
 }
 
+.btn-delete {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fca5a5 !important;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.btn-delete:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #b91c1c !important;
+}
+
+.dock-button.btn-delete-dock {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1.5px solid #fca5a5 !important;
+  margin-top: 0.5rem;
+}
+.dock-button.btn-delete-dock:hover:not(:disabled) {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #b91c1c !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+
 /* Unsaved Reminder */
 .unsaved-reminder {
   background: #fff3cd;

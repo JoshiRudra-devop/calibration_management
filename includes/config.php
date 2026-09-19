@@ -10,11 +10,17 @@
 $_envFile = __DIR__ . '/../.env';
 $_env     = file_exists($_envFile) ? (parse_ini_file($_envFile) ?: []) : [];
 
-// --- MySQL ---
-define('DB_HOST',     $_env['DB_HOST']     ?? 'localhost');
-define('DB_USER',     $_env['DB_USER']     ?? 'root');
-define('DB_PASS',     $_env['DB_PASS']     ?? '');
-define('DB_NAME',     $_env['DB_NAME']     ?? 'shreeji_instruments');
+// --- MySQL Environment Auto-Detection ---
+$_httpHost = $_SERVER['HTTP_HOST'] ?? '';
+$_isLocal  = in_array($_httpHost, ['localhost', '127.0.0.1', '::1']) 
+             || str_contains($_httpHost, 'localhost') 
+             || str_contains($_httpHost, '127.0.0.1')
+             || (php_sapi_name() === 'cli' && empty($_httpHost));
+
+define('DB_HOST',     $_isLocal ? '127.0.0.1' : ($_env['DB_HOST'] ?? 'localhost'));
+define('DB_USER',     $_isLocal ? 'root'      : ($_env['DB_USER'] ?? 'root'));
+define('DB_PASS',     $_isLocal ? ''          : ($_env['DB_PASS'] ?? ''));
+define('DB_NAME',     $_isLocal ? 'shreeji_instruments' : ($_env['DB_NAME'] ?? 'shreeji_instruments'));
 define('DB_PORT',     (int)($_env['DB_PORT'] ?? 3306));
 
 // --- Cloudinary ---

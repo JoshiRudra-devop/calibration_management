@@ -70,10 +70,15 @@ $instruments = $db->query("
   
   <!-- Secondary Menu Bar -->
   <div class="secondary-menu-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding: 0.8rem 1.5rem; background: var(--accent-lt); border: 1.5px solid var(--border); border-radius: var(--radius); max-width: 1200px; margin: 1.5rem auto 1.5rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0, 121, 107, 0.02);">
-    <!-- Page Title -->
-    <h2 style="font-size: 1.25rem; font-weight: 700; color: #00796b; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-      <i class="fas fa-tools" style="font-size: 1.1rem;"></i> Add Instrument Type
-    </h2>
+    <!-- Page Title & Back -->
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button type="button" onclick="window.history.back()" class="instrument-action-btn btn-print" style="padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 12px; cursor: pointer; box-shadow: var(--shadow-sm);">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: #00796b; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-tools" style="font-size: 1.1rem;"></i> Add Instrument Type
+      </h2>
+    </div>
   </div>
 
   <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">

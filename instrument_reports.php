@@ -121,6 +121,9 @@ $instruments = $db->query("
                         <a href="certificates/<?= htmlspecialchars($selectedInst['slug']) ?>.php?id=<?= $cert['id'] ?>" class="instrument-action-btn btn-save" title="Edit Certificate details" style="padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; text-decoration: none;">
                           <i class="fas fa-edit"></i> Edit
                         </a>
+                        <button type="button" onclick="deleteCertificate(<?= $cert['id'] ?>, '<?= htmlspecialchars($cert['cert_number'], ENT_QUOTES) ?>')" class="btn-delete" title="Delete Certificate">
+                          <i class="fas fa-trash-alt"></i> Delete
+                        </button>
                       </div>
                     </td>
                   </tr>

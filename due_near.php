@@ -40,10 +40,15 @@ $certs = $stmt->fetchAll();
   
   <!-- Secondary Menu Bar -->
   <div class="secondary-menu-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding: 0.8rem 1.5rem; background: var(--accent-lt); border: 1.5px solid var(--border); border-radius: var(--radius); max-width: 1200px; margin: 1.5rem auto 1.5rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(0, 121, 107, 0.02);">
-    <!-- Page Title -->
-    <h2 style="font-size: 1.25rem; font-weight: 700; color: #00796b; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-      <i class="fas fa-clock" style="font-size: 1.1rem;"></i> Overdue & Due Near
-    </h2>
+    <!-- Page Title & Back -->
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button type="button" onclick="window.history.back()" class="instrument-action-btn btn-print" style="padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 12px; cursor: pointer; box-shadow: var(--shadow-sm);">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: #00796b; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-clock" style="font-size: 1.1rem;"></i> Overdue & Due Near
+      </h2>
+    </div>
     
     <!-- Filters & Search -->
     <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
@@ -129,6 +134,9 @@ $certs = $stmt->fetchAll();
                       <a href="certificates/<?= htmlspecialchars($cert['instrument_slug']) ?>.php?id=<?= $cert['id'] ?>" class="instrument-action-btn btn-save" title="Recalibrate / Prefill Form" style="padding: 0.45rem 0.8rem; border-radius: 6px; font-size: 0.8rem; text-decoration: none;">
                         <i class="fas fa-sync-alt"></i> Recalibrate
                       </a>
+                      <button type="button" onclick="deleteCertificate(<?= $cert['id'] ?>, '<?= htmlspecialchars($cert['cert_number'], ENT_QUOTES) ?>')" class="btn-delete" title="Delete Certificate">
+                        <i class="fas fa-trash-alt"></i> Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
