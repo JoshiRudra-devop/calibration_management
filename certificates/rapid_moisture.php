@@ -80,7 +80,7 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     window.addCertificateDetails = function(doc, details) {
-      let Yalign = 48;
+      let Yalign = 46;
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
@@ -88,7 +88,7 @@ $instrumentId = $instrument['id'] ?? null;
      
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");   
-      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=5);
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=12);
       doc.text(`REF NO                          :-    ${details.certificateNumber}`, 14, Yalign);
 
       const partyPrefix = "NAME OF PARTY          :     ";

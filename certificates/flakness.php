@@ -74,14 +74,14 @@ $instrumentId = $instrument['id'] ?? null;
    
     window.addCertificateDetails = function(doc, details){
       
-      let Yalign=50;
+      let Yalign = 46;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
     // Spacing
     doc.setFontSize(10);
-    doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign+=10);
+    doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign+=12);
     doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
 
     const partyPrefix = "NAME OF PARTY        :-     ";
