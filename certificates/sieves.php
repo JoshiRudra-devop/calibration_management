@@ -208,14 +208,32 @@ $instrumentId = $instrument['id'] ?? null;
     function getSubSizes(size) {
         const key = normalizeSieveKey(size);
         const sizes = {
-            'Brass 200 MM DIA': ['4.75 MM', '2.36 MM', '1.18 MM', '10 MM', '150 MICRON', '300 MICRON', '45 MICRON', '600 MICRON', '75 MICRON', '90 MICRON', '425 MICRON', '1 MM', '3.35 mm', '2.80 mm', '2.00 mm', '1.70 mm', '1.40 mm', '850 microns', '710 microns', '500 microns', '355 microns', '250 microns', '212 microns', '180 microns', '125 microns', '106 microns', '63 microns', '53 microns', '10 MICRON'],
+            'Brass 200 MM DIA': ['10 MM', '4.75 MM', '3.35 mm', '2.80 mm', '2.36 MM', '2.00 mm', '1.70 mm', '1.40 mm', '1.18 MM', '1 MM', '850 microns', '710 microns', '600 MICRON', '500 microns', '425 MICRON', '355 microns', '300 MICRON', '250 microns', '212 microns', '180 microns', '150 MICRON', '125 microns', '106 microns', '90 MICRON', '75 MICRON', '63 microns', '53 microns', '45 MICRON', '10 MICRON'],
             'GI 300 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm', '2.36mm'],
             'GI 450 MM DIA': ['125mm', '106mm', '100mm', '90mm', '80mm', '75mm', '63mm', '53mm', '50mm', '45mm', '40mm', '37.5mm', '31.5mm', '26.5mm', '25mm', '22.4mm', '20mm', '19mm', '16mm', '13.2mm', '12.5mm', '11.2mm', '10mm', '9.5mm', '8mm', '6.7mm', '6.3mm', '5.6mm', '4.75mm', '2.36mm']
         };
-        return sizes[key] || sizes[size] || [];
+        const list = sizes[key] || sizes[size] || [];
+        return list.slice().sort((a, b) => parseSize(b) - parseSize(a));
+    }
+
+    function sortResultsTable() {
+        const tbody = document.getElementById('resultsBody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.rows);
+        if (rows.length <= 1) return;
+        rows.sort((a, b) => {
+            const sizeA = a.cells[3] ? a.cells[3].textContent : '';
+            const sizeB = b.cells[3] ? b.cells[3].textContent : '';
+            return parseSize(sizeB) - parseSize(sizeA);
+        });
+        rows.forEach((row, idx) => {
+            if (row.cells[0]) row.cells[0].textContent = idx + 1;
+            tbody.appendChild(row);
+        });
     }
 
     function updateSelectedDisplay() {
+        sortResultsTable();
         const selectedList = document.getElementById('selectedList');
         if (selectedList) selectedList.innerHTML = '';
         const tbody = document.getElementById('resultsBody');
