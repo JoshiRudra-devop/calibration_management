@@ -861,12 +861,6 @@ document.addEventListener('DOMContentLoaded', function() {
               const reminder = document.getElementById('unsavedReminder');
               if (reminder) reminder.classList.remove('show');
               showLoaderSuccess('Certificate Saved Successfully! 💾');
-              
-              setTimeout(() => {
-                if (result.pdf_url && !window.frameElement) {
-                  window.open(result.pdf_url, '_blank');
-                }
-              }, 1500);
             } else {
               throw new Error(result.message || 'Server rejected saving.');
             }
