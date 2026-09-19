@@ -239,15 +239,6 @@ $instrumentId = $instrument['id'] ?? null;
       const hiddenInput = document.getElementById('selectedSubSizes');
       const sieveSizeSelect = document.getElementById('sieveSize');
       const subSizesDiv = document.getElementById('subSizes');
-      
-      // Ensure checkboxes container is unhidden & generated if a sieve size is selected
-      if (sieveSizeSelect && sieveSizeSelect.value) {
-        if (subSizesDiv) subSizesDiv.style.display = 'block';
-        const checkBoxesDiv = document.getElementById('checkBoxes');
-        if (!checkBoxesDiv || checkBoxesDiv.children.length === 0) {
-          updateSubSizes();
-        }
-      }
 
       if (!hiddenInput || !hiddenInput.value) return 0;
       let savedSizes = [];
