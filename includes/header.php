@@ -31,6 +31,11 @@ $activePage = $activePage ?? '';
   <!-- QR Code (certificate verification stamps) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- docx (only loaded where needed) -->
+<?php
+require_once __DIR__ . '/master_instruments.php';
+$masterInstDict = getMasterInstruments();
+$expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpiration(60) : [];
+?>
   <!-- Config for JS -->
   <script>
     const SHREEJI_CONFIG = {
@@ -40,6 +45,8 @@ $activePage = $activePage ?? '';
       appUrl:           '<?= APP_URL ?>',
       csrfToken:        '<?= htmlspecialchars(csrfToken()) ?>',
     };
+    // Centralized Master Instruments Data
+    window.MASTER_INSTRUMENTS = <?= json_encode($masterInstDict, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     // Set window.SHREEJI_DEBUG = true in browser console to enable debug logging.
     window.SHREEJI_DEBUG = false;
     
@@ -447,6 +454,9 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
         <i class="fas fa-qrcode"></i> Verify Certificate
       </a>
       <?php if (!empty($_SESSION['user_id'])): ?>
+        <a href="<?= APP_URL ?>/master_instruments_manager.php" class="top-brand-header__link" style="margin-right: 1.25rem;">
+          <i class="fas fa-tools"></i> Master Instruments
+        </a>
         <a href="<?= APP_URL ?>/dashboard.php" class="top-brand-header__link" style="margin-right: 1.25rem;">
           <i class="fas fa-chart-line"></i> Dashboard
         </a>
@@ -460,4 +470,60 @@ $isEmbed = isset($_GET['embed']) && $_GET['embed'] === 'true';
       <?php endif; ?>
     </div>
   </header>
+<?php endif; ?>
+
+<?php if (!empty($_SESSION['user_id']) && !empty($expiringMasters) && strpos($_SERVER['PHP_SELF'] ?? '', 'master_instruments_manager.php') === false): ?>
+  <!-- ── Master Instruments Recalibration Alert Modal ── -->
+  <div id="masterRecalibModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.65); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; width: 90%; max-width: 540px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 2px solid #ef4444; overflow: hidden; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 20px 24px; position: relative; display: flex; align-items: center; gap: 14px;">
+        <div style="font-size: 2rem;">🚨</div>
+        <div>
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: white;">RECALIBRATE REQUIRE FOR ALL MASTER INSTRUMENTS</h3>
+          <p style="margin: 4px 0 0 0; font-size: 0.82rem; opacity: 0.9;">Annual calibration expiry notice for master equipment</p>
+        </div>
+        <button onclick="dismissMasterRecalibModal(false)" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+      <div style="padding: 24px;">
+        <p style="margin: 0 0 14px 0; font-size: 0.92rem; color: #334155; line-height: 1.5; font-weight: 600;">
+          Attention: One or more master instruments are expired or due for annual recalibration:
+        </p>
+        <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #991b1b; font-size: 0.88rem; font-weight: 600; display: flex; flex-direction: column; gap: 6px;">
+          <?php foreach ($expiringMasters as $exp): ?>
+            <li>
+              <strong><?= htmlspecialchars($exp['name']) ?></strong> 
+              (Due: <?= htmlspecialchars($exp['due_date']) ?> — 
+              <span style="color: <?= $exp['is_expired'] ? '#dc2626' : '#d97706' ?>;">
+                <?= $exp['is_expired'] ? 'EXPIRED' : $exp['days_left'] . ' days remaining' ?>
+              </span>)
+            </li>
+          <?php endforeach; ?>
+        </ul>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="<?= APP_URL ?>/master_instruments_manager.php" style="display: block; text-align: center; background: #00796b; color: white; font-weight: 700; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(0,121,107,0.3); transition: all 0.2s;">
+            🛠️ UPDATE MASTER INSTRUMENT CALIBRATION DETAILS
+          </a>
+          <button onclick="dismissMasterRecalibModal(true)" style="background: #f1f5f9; color: #475569; font-weight: 600; padding: 10px 20px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; cursor: pointer; transition: all 0.2s;">
+            ⏰ REMIND ME LATER
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!sessionStorage.getItem('master_recalib_remind_later')) {
+        const modal = document.getElementById('masterRecalibModal');
+        if (modal) modal.style.display = 'flex';
+      }
+    });
+    function dismissMasterRecalibModal(isRemindLater) {
+      if (isRemindLater) {
+        sessionStorage.setItem('master_recalib_remind_later', 'true');
+      }
+      const modal = document.getElementById('masterRecalibModal');
+      if (modal) modal.style.display = 'none';
+    }
+  </script>
 <?php endif; ?>

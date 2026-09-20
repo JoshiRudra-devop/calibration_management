@@ -143,13 +143,14 @@ $instrumentId = $instrument['id'] ?? null;
         }
       });
       let tableStartY2=doc.autoTable.previous.finalY;
+      const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
       doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION',  doc.internal.pageSize.getWidth() / 2, tableStartY2+=10, { align: 'center' });
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text('EQUIPMENT NAME  :-DIGITAL VERNIER CALIPER', 14, tableStartY2+=7);
-      doc.text('CALIBRATION BY :-ARSHI ENTERPRISE, AHMEDABAD', 100,  tableStartY2);
-      doc.text('CALIBRATION DATE :-02/08/2026', 14,tableStartY2+=7);
-      doc.text('NEXT DUE DATE  :-01/08/2027', 100, tableStartY2);
+      doc.text('EQUIPMENT NAME  :-' + (master.name || 'DIGITAL VERNIER CALIPER'), 14, tableStartY2+=7);
+      doc.text('CALIBRATION BY :-' + (master.calibrated_by || 'ARSHI ENTERPRISE, AHMEDABAD'), 100,  tableStartY2);
+      doc.text('CALIBRATION DATE :-' + (master.calib_date || '02/08/2026'), 14, tableStartY2+=7);
+      doc.text('NEXT DUE DATE  :-' + (master.due_date || '01/08/2027'), 100, tableStartY2);
 
       doc.setFont("helvetica", "bold"); 
       doc.setFontSize(12); 

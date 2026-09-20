@@ -673,21 +673,31 @@ $instrumentId = $instrument['id'] ?? null;
             doc.text("•REFERENCE CALIBRATION METHOD NO: NCQC/CM/102.", 14, yPosition); yPosition += 4;
             doc.text("•REFERENCE STANDARD NO.IS-2-1960.", 14, yPosition); yPosition += 5;
 
+            const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
+            const masterName = master.name || "DIGITAL VERNIER CALIPER";
+            const masterSerial = master.serial_no || "ACCUPLUS/13-200";
+            const masterRange = master.range_capacity || "0-200MM";
+            const masterLc = master.least_count || '0.001" (0.01MM)';
+            const masterCalib = master.calib_date || "02/08/2026";
+            const masterDue = master.due_date || "01/08/2027";
+            const masterCert = master.cert_no || "62";
+            const masterLab = master.calibrated_by || "IDEMI CALIBRATION LABORATORY";
+
             doc.setFont("helvetica", "bold");
             doc.setFontSize(8.5);
             doc.text("*DETAILS OF OUR MASTER INSTRUMENT THROUGH WHICH SIEVES ARE CALIBRATED", doc.internal.pageSize.getWidth()/2, yPosition, { align: 'center' }); yPosition += 5;
             doc.setFont("helvetica", "bold");       
             doc.setFontSize(7.5);
 
-            doc.text("NAME : DIGITAL VERNIER CALIPER", 14, yPosition);
-            doc.text("SERIAL NO : ACCUPLUS/13-200", 124, yPosition); yPosition += 4;
-            doc.text("RANGE : 0-200MM", 14, yPosition);
-            doc.text('LEAST COUNT : 0.001" (0.01MM)', 124, yPosition); yPosition += 4;
-            doc.text("CALIBRATION DATE : 02/08/2026", 14, yPosition);
-            doc.text("VALID UP TO DATE : 01/08/2027", 124, yPosition); yPosition += 4;
+            doc.text("NAME : " + masterName, 14, yPosition);
+            doc.text("SERIAL NO : " + masterSerial, 124, yPosition); yPosition += 4;
+            doc.text("RANGE : " + masterRange, 14, yPosition);
+            doc.text("LEAST COUNT : " + masterLc, 124, yPosition); yPosition += 4;
+            doc.text("CALIBRATION DATE : " + masterCalib, 14, yPosition);
+            doc.text("VALID UP TO DATE : " + masterDue, 124, yPosition); yPosition += 4;
             doc.text("OUR MASTER INSTRUMENT IS CALIBRATED AND TRACEABLE TO NATIONAL STANDARD THROUGH NABL ACCREDITED ", 14, yPosition); yPosition += 4;
-            doc.text('LABORATORY "IDEMI CALIBRATION LABORATORY."', 14, yPosition); yPosition += 4;
-            doc.text("CALIBRATION CERTIFICATE NO : 62", 14, yPosition); yPosition += 4;
+            doc.text('LABORATORY "' + masterLab + '"', 14, yPosition); yPosition += 4;
+            doc.text("CALIBRATION CERTIFICATE NO : " + masterCert, 14, yPosition); yPosition += 4;
 
             doc.setFont("helvetica", "bold"); 
             doc.setFontSize(12); 
