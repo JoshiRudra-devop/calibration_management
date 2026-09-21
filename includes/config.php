@@ -24,10 +24,10 @@ define('DB_NAME',     $_isLocal ? 'shreeji_instruments' : ($_env['DB_NAME'] ?? '
 define('DB_PORT',     (int)($_env['DB_PORT'] ?? 3306));
 
 // --- Cloudinary ---
-define('CLOUDINARY_CLOUD_NAME',    $_env['CLOUDINARY_CLOUD_NAME']    ?? 'dqlp56p7n');
-define('CLOUDINARY_API_KEY',       $_env['CLOUDINARY_API_KEY']       ?? '325471695773222');
-define('CLOUDINARY_API_SECRET',    $_env['CLOUDINARY_API_SECRET']    ?? 'emjUQeRridUXSpRg2utxRNGDlTA');
-define('CLOUDINARY_UPLOAD_PRESET', $_env['CLOUDINARY_UPLOAD_PRESET'] ?? 'shreeji_instruments');
+define('CLOUDINARY_CLOUD_NAME',    $_env['CLOUDINARY_CLOUD_NAME']    ?? getenv('CLOUDINARY_CLOUD_NAME')    ?? '');
+define('CLOUDINARY_API_KEY',       $_env['CLOUDINARY_API_KEY']       ?? getenv('CLOUDINARY_API_KEY')       ?? '');
+define('CLOUDINARY_API_SECRET',    $_env['CLOUDINARY_API_SECRET']    ?? getenv('CLOUDINARY_API_SECRET')    ?? '');
+define('CLOUDINARY_UPLOAD_PRESET', $_env['CLOUDINARY_UPLOAD_PRESET'] ?? getenv('CLOUDINARY_UPLOAD_PRESET') ?? '');
 
 // --- App ---
 define('APP_NAME',    $_env['APP_NAME']    ?? 'Calibration Management System');

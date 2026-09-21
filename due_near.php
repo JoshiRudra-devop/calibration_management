@@ -25,14 +25,31 @@ if ($rangeFilter === 'overdue') {
 
 $baseWhere = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
 
+// ── Server-Side Pagination ──────────────────────────────────
+$perPage     = 25;
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$offset      = ($currentPage - 1) * $perPage;
+
+$countSql = "SELECT COUNT(*) FROM certificates c JOIN instrument_types it ON it.id = c.instrument_type_id" . $baseWhere;
+$stmtCount = $db->prepare($countSql);
+$stmtCount->execute($params);
+$totalRows  = (int) $stmtCount->fetchColumn();
+$totalPages = (int) ceil($totalRows / $perPage);
+
 $sql = "
     SELECT c.id, c.cert_number, c.party_name, c.site_location, it.label AS instrument_label, it.slug AS instrument_slug, c.calibration_date, c.next_due_date, c.pdf_url
     FROM   certificates c
     JOIN   instrument_types it ON it.id = c.instrument_type_id
-" . $baseWhere . " ORDER BY c.next_due_date ASC";
+" . $baseWhere . " ORDER BY c.next_due_date ASC LIMIT ? OFFSET ?";
 
 $stmt = $db->prepare($sql);
-$stmt->execute($params);
+$paramIdx = 1;
+foreach ($params as $paramVal) {
+    $stmt->bindValue($paramIdx++, $paramVal);
+}
+$stmt->bindValue($paramIdx++, $perPage, PDO::PARAM_INT);
+$stmt->bindValue($paramIdx++, $offset, PDO::PARAM_INT);
+$stmt->execute();
 $certs = $stmt->fetchAll();
 ?>
 
@@ -153,6 +170,41 @@ $certs = $stmt->fetchAll();
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination Controls -->
+      <?php if ($totalPages > 1): ?>
+        <?php
+        $qp = $_GET;
+        unset($qp['page']);
+        $baseQS = http_build_query($qp);
+        $baseQS = $baseQS ? '?' . $baseQS . '&' : '?';
+        ?>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <span style="font-size: 0.9rem; color: var(--text-mid);">
+            Showing <strong><?= number_format($offset + 1) ?>–<?= number_format(min($offset + $perPage, $totalRows)) ?></strong> of <strong><?= number_format($totalRows) ?></strong> certificates
+          </span>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <?php if ($currentPage > 1): ?>
+              <a href="<?= $baseQS ?>page=1" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">« First</a>
+              <a href="<?= $baseQS ?>page=<?= $currentPage - 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">‹ Prev</a>
+            <?php endif; ?>
+
+            <?php
+            $startPage = max(1, $currentPage - 2);
+            $endPage   = min($totalPages, $currentPage + 2);
+            for ($p = $startPage; $p <= $endPage; $p++):
+              $isActive = $p === $currentPage;
+            ?>
+              <a href="<?= $baseQS ?>page=<?= $p ?>" style="padding: 0.4rem 0.75rem; border: 1px solid <?= $isActive ? 'var(--primary)' : 'var(--border)' ?>; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: <?= $isActive ? 'white' : 'var(--primary)' ?>; background: <?= $isActive ? 'var(--primary)' : 'white' ?>; text-decoration: none;"><?= $p ?></a>
+            <?php endfor; ?>
+
+            <?php if ($currentPage < $totalPages): ?>
+              <a href="<?= $baseQS ?>page=<?= $currentPage + 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Next ›</a>
+              <a href="<?= $baseQS ?>page=<?= $totalPages ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Last »</a>
+            <?php endif; ?>
+          </div>
+        </div>
+      <?php endif; ?>
     </div>
 
   </div>

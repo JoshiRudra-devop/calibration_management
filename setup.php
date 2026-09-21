@@ -1,10 +1,14 @@
 <?php
 /**
  * SETUP SCRIPT - Initialize database and admin user
- * Visit: http://localhost/shreeji%20instruments/calibration%20certificate/setup.php
  */
 
 require_once __DIR__ . '/includes/config.php';
+
+$lockFile = __DIR__ . '/.setup_locked';
+if (file_exists($lockFile)) {
+    requireRole('admin');
+}
 
 echo "<!DOCTYPE html>
 <html>

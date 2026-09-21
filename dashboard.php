@@ -8,16 +8,25 @@ include __DIR__ . '/includes/header.php';
 
 $db = getDB();
 
-// Fetch statistics
-$totalCerts   = (int) $db->query("SELECT COUNT(*) FROM certificates")->fetchColumn();
-$totalParties = (int) $db->query("SELECT COUNT(*) FROM parties")->fetchColumn();
-$totalTypes   = (int) $db->query("SELECT COUNT(*) FROM instrument_types")->fetchColumn();
-$thisMonth    = (int) $db->query("SELECT COUNT(*) FROM certificates WHERE MONTH(calibration_date)=MONTH(CURDATE()) AND YEAR(calibration_date)=YEAR(CURDATE())")->fetchColumn();
+// Fetch all dashboard statistics in 1 consolidated fast query
+$stats = $db->query("
+    SELECT 
+        (SELECT COUNT(*) FROM certificates) AS totalCerts,
+        (SELECT COUNT(*) FROM parties) AS totalParties,
+        (SELECT COUNT(*) FROM instrument_types) AS totalTypes,
+        (SELECT COUNT(*) FROM certificates WHERE MONTH(calibration_date) = MONTH(CURDATE()) AND YEAR(calibration_date) = YEAR(CURDATE())) AS thisMonth,
+        (SELECT COUNT(*) FROM certificates WHERE next_due_date < CURDATE()) AS overdueCount,
+        (SELECT COUNT(*) FROM certificates WHERE next_due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)) AS dueThisWeekCount,
+        (SELECT COUNT(*) FROM certificates WHERE next_due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)) AS dueThisMonthCount
+")->fetch(PDO::FETCH_ASSOC);
 
-// Due dates tracking
-$overdueCount      = (int) $db->query("SELECT COUNT(*) FROM certificates WHERE next_due_date < CURDATE()")->fetchColumn();
-$dueThisWeekCount  = (int) $db->query("SELECT COUNT(*) FROM certificates WHERE next_due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)")->fetchColumn();
-$dueThisMonthCount = (int) $db->query("SELECT COUNT(*) FROM certificates WHERE next_due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)")->fetchColumn();
+$totalCerts        = (int)($stats['totalCerts'] ?? 0);
+$totalParties      = (int)($stats['totalParties'] ?? 0);
+$totalTypes        = (int)($stats['totalTypes'] ?? 0);
+$thisMonth         = (int)($stats['thisMonth'] ?? 0);
+$overdueCount      = (int)($stats['overdueCount'] ?? 0);
+$dueThisWeekCount  = (int)($stats['dueThisWeekCount'] ?? 0);
+$dueThisMonthCount = (int)($stats['dueThisMonthCount'] ?? 0);
 
 // Chart data - last 6 months
 $chartStmt = $db->query("

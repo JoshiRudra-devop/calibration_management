@@ -681,6 +681,17 @@ async function prefillForm() {
         setTimeout(restoreSievesState, 50);
         setTimeout(restoreSievesState, 300);
       }
+
+      // 3. Cube Mould / ISI Cube: generate and restore serial input fields
+      if (typeof generateSerialInputs === 'function') {
+        generateSerialInputs();
+        for (const [key, value] of Object.entries(formData)) {
+          if (key.startsWith('serial')) {
+            let sInput = document.getElementById(key);
+            if (sInput) sInput.value = value;
+          }
+        }
+      }
       
       // 3. Sticker rendering trigger
       if (typeof generateInfoSticker === 'function') {

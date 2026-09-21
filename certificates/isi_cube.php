@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../includes/config.php';
 requireLogin();
 
-$pageTitle  = 'ISI Cube Calibration';
+$pageTitle  = 'ISI Cube Mould Calibration';
 $activePage = 'certificate';
 include __DIR__ . '/../includes/header.php';
 
@@ -15,7 +15,7 @@ $instrumentId = $instrument['id'] ?? null;
 
 <?php include __DIR__ . '/../includes/certificate_dock.php'; ?>
 <div class="container">
-    <h2 class="centered">CUBE MOULD CALIBRATION CERTIFICATE</h2>
+    <h2 class="centered">ISI CUBE MOULD CALIBRATION CERTIFICATE</h2>
     <form id="calibrationForm">
       <div class="title_input_pair">
         <label for="certificateNumber">Certificate No:</label>
@@ -51,21 +51,18 @@ $instrumentId = $instrument['id'] ?? null;
         </select>
       </div>
       <div class="title_input_pair">
-        <label for="quantity">NO. OF CUBE</label>
-        <input type="number" id="quantity" name="quantity" required min="1">
+        <label for="quantity">NO. OF CUBE:</label>
+        <input type="number" id="quantity" name="quantity" required min="1" oninput="generateSerialInputs()" onchange="generateSerialInputs()">
       </div>
-      <div id="serialInputs"></div>
+      <div id="serialInputs" style="margin-top: 10px; margin-bottom: 15px;"></div>
       <?php include __DIR__ . '/../includes/certificate_loader.php'; ?>
       
-
   <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=3.6.0&t=<?= time() ?>"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
     window.INSTRUMENT_SLUG = 'isi_cube';
     let pdfSaved = false;
-
-
 
     // IMAGE PRELOADING LOGIC
     let headerImgB64, footerImgB64, stampImgB64, signImgB64;
@@ -105,11 +102,7 @@ $instrumentId = $instrument['id'] ?? null;
       const qtyStr = getVal("quantity");
       const qty = parseInt(qtyStr) || 0;
       let serials = [];
-      for (let i = 1; i <= qty; i++) {
-        serials.push(getVal(`serial${i}`));
-      }
-
-      return {
+      let detailsObj = {
         certificateNumber: certNo,
         calibrationDate: formatDate(getVal("calibrationDate")),
         siteLocation: getVal("siteLocation"),
@@ -117,15 +110,26 @@ $instrumentId = $instrument['id'] ?? null;
         quantity: qtyStr,
         size: getVal("size"),
         nextCalibrationDate: formatDate(getVal("nextCalibrationDate")),
-        serials: serials,
         saveentry: `ISICube_${partyName}_${certNo}`
       };
+
+      for (let i = 1; i <= qty; i++) {
+        const val = getVal(`serial${i}`);
+        serials.push(val);
+        detailsObj[`serial${i}`] = val;
+      }
+      detailsObj.serials = serials;
+
+      return detailsObj;
     }
     window.getFormDetails = getFormDetails;
 
-    function generateSerialInputs() {
-      const qty = parseInt(document.getElementById('quantity').value);
+    window.generateSerialInputs = function() {
+      const qtyInput = document.getElementById('quantity');
+      if (!qtyInput) return;
+      const qty = parseInt(qtyInput.value);
       const container = document.getElementById('serialInputs');
+      if (!container) return;
       if (isNaN(qty) || qty <= 0) {
         container.innerHTML = '';
         return;
@@ -136,16 +140,17 @@ $instrumentId = $instrument['id'] ?? null;
         for (let i = currentCount + 1; i <= qty; i++) {
           const div = document.createElement('div');
           div.className = 'title_input_pair';
-          div.innerHTML = `<label for="serial${i}">Serial No ${i}:</label><input type="text" id="serial${i}" name="serial${i}" required>`;
+          div.style.marginBottom = '10px';
+          div.innerHTML = `<label for="serial${i}">Cube #${i} Serial No:</label><input type="text" id="serial${i}" name="serial${i}" placeholder="Enter Serial No for Cube ${i}" required>`;
           container.appendChild(div);
         }
       } else if (qty < currentCount) {
         for (let i = currentCount; i > qty; i--) {
           const input = document.getElementById(`serial${i}`);
-          if (input) input.parentElement.remove();
+          if (input && input.parentElement) input.parentElement.remove();
         }
       }
-    }
+    };
 
     function incrementCertificateNumber(baseCertNo, increment) {
       if (increment === 0) return baseCertNo;
@@ -172,7 +177,7 @@ $instrumentId = $instrument['id'] ?? null;
       }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(23);
-      doc.text("TEST REPORT FOR CUBE MOULD", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+      doc.text("TEST REPORT FOR ISI CUBE MOULD", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
       Yalign += 7;
       doc.text(`${details.size || ''}`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
@@ -183,7 +188,7 @@ $instrumentId = $instrument['id'] ?? null;
       Yalign += 10;
       doc.text(`NAME OF PARTY        :-     ${details.partyName || ''}`, 14, Yalign);
       Yalign += 10;
-      doc.text(`EQUIPMENT NAME     :-     CUBE MOULD (${details.size || ''})`, 14, Yalign);
+      doc.text(`EQUIPMENT NAME     :-     ISI CUBE MOULD (${details.size || ''})`, 14, Yalign);
       Yalign += 10;
       doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate || ''}`, 14, Yalign);
 
@@ -226,7 +231,8 @@ $instrumentId = $instrument['id'] ?? null;
       const allRows = [];
       const serials = details.serials || [];
       for (let i = 1; i <= qty; i++) {
-        allRows.push([i, serials[i-1] || "", length, height, width]);
+        const serialNo = serials[i-1] || details[`serial${i}`] || "";
+        allRows.push([i, serialNo, length, height, width]);
       }
       const pageCount = Math.ceil(allRows.length / 10);
       for (let page = 0; page < pageCount; page++) {
@@ -248,13 +254,20 @@ $instrumentId = $instrument['id'] ?? null;
             valign: 'middle'
           },
           headStyles: {
-            fontSize: 15,
+            fontSize: 14,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
             halign: 'center',
             valign: 'middle'
+          },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 45 },
+            2: { cellWidth: 39 },
+            3: { cellWidth: 39 },
+            4: { cellWidth: 39 }
           },
           alternateRowStyles: {
             fillColor: [255, 255, 255]
@@ -276,10 +289,11 @@ $instrumentId = $instrument['id'] ?? null;
 
     // Preload images on load & listen to quantity changes
     document.addEventListener("DOMContentLoaded", async function() {
-      // Add quantity change listener to generate serial inputs
       const qtyInput = document.getElementById('quantity');
       if (qtyInput) {
-        qtyInput.addEventListener('input', generateSerialInputs);
+        qtyInput.addEventListener('input', window.generateSerialInputs);
+        qtyInput.addEventListener('change', window.generateSerialInputs);
+        qtyInput.addEventListener('keyup', window.generateSerialInputs);
       }
       await prepareImages();
     });

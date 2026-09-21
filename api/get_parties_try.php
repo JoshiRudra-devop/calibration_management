@@ -10,51 +10,33 @@ requireLogin();
 rateLimitCheck('data_' . ($_SERVER['REMOTE_ADDR'] ?? '0'), 120, 60);
 
 header('Content-Type: application/json');
+header('Cache-Control: private, max-age=60');
 
 $db = getDB();
 
 try {
-    // 1. Fetch unique combinations from certificates table
-    $stmt = $db->query("
-        SELECT DISTINCT party_name, site_location 
-        FROM certificates 
-        WHERE party_name != '' 
-        ORDER BY party_name ASC, site_location ASC
-    ");
-    $certs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // 2. Fetch unique combinations from parties table
-    $stmt2 = $db->query("
-        SELECT DISTINCT name AS party_name, address AS site_location 
-        FROM parties 
-        WHERE name != '' 
-        ORDER BY name ASC
-    ");
-    $parties = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-    
-    // 3. Merge and deduplicate
-    $result = [];
-    $seen = [];
-    
-    foreach (array_merge($parties, $certs) as $row) {
-        $name = trim($row['party_name']);
-        $location = trim($row['site_location'] ?? '');
-        $key = strtolower($name) . '||' . strtolower($location);
-        
-        if (!isset($seen[$key]) && !empty($name)) {
-            $seen[$key] = true;
-            $result[] = [
-                'name' => $name,
-                'site_location' => $location
-            ];
-        }
+    $search = trim($_GET['q'] ?? '');
+    if (!empty($search)) {
+        $searchLike = '%' . $search . '%';
+        $sql = "
+            SELECT party_name AS name, site_location FROM (
+                SELECT DISTINCT party_name, site_location FROM certificates WHERE party_name LIKE ?
+                UNION
+                SELECT DISTINCT name AS party_name, address AS site_location FROM parties WHERE name LIKE ?
+            ) AS combined ORDER BY name ASC LIMIT 50";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$searchLike, $searchLike]);
+    } else {
+        $sql = "
+            SELECT party_name AS name, site_location FROM (
+                SELECT DISTINCT party_name, site_location FROM certificates WHERE party_name != ''
+                UNION
+                SELECT DISTINCT name AS party_name, address AS site_location FROM parties WHERE name != ''
+            ) AS combined ORDER BY name ASC LIMIT 100";
+        $stmt = $db->query($sql);
     }
     
-    // Sort array by name
-    usort($result, function($a, $b) {
-        return strcmp($a['name'], $b['name']);
-    });
-    
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     jsonResponse(true, 'Parties retrieved successfully', ['parties' => $result]);
 } catch (Exception $e) {
     error_log('get_parties_try error: ' . $e->getMessage());

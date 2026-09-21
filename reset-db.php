@@ -1,11 +1,22 @@
 <?php
 /**
  * QUICK RESET - Reinitialize database tables and admin user
- * This file will reset the database schema and create a fresh admin user
+ * CLI Execution Only for Maximum Security
  */
 
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    header('Content-Type: text/html; charset=utf-8');
+    echo "<!DOCTYPE html><html><head><title>403 Forbidden</title></head>
+    <body style='font-family: sans-serif; text-align: center; padding: 30px;'>
+    <h1 style='color: #dc2626;'>403 - Forbidden Access</h1>
+    <p>Database reset operations are restricted to Command Line Execution (CLI) for system security.</p>
+    <p>Run via terminal: <code>php reset-db.php</code></p>
+    </body></html>";
+    exit;
+}
+
 require_once __DIR__ . '/includes/config.php';
-requireRole('admin');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || ($_POST['confirm'] ?? '') !== 'yes') {
     echo "<!DOCTYPE html>

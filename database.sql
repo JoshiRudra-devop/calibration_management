@@ -80,7 +80,8 @@ CREATE TABLE IF NOT EXISTS parties (
   phone        VARCHAR(20),
   email        VARCHAR(150),
   created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FULLTEXT KEY ft_name (name)
+  FULLTEXT KEY ft_name (name),
+  INDEX idx_party_name (name)
 ) ENGINE=InnoDB;
 
 -- ── Certificate counter ───────────────────────────────────────
@@ -156,7 +157,9 @@ CREATE TABLE IF NOT EXISTS certificates (
   INDEX idx_cert_date   (calibration_date),
   INDEX idx_cert_party  (party_name(50)),
   INDEX idx_cert_type   (instrument_type_id),
-  INDEX idx_cert_due    (next_due_date)
+  INDEX idx_cert_due    (next_due_date),
+  INDEX idx_cert_party_id (party_id),
+  INDEX idx_cert_party_due (party_id, next_due_date)
 ) ENGINE=InnoDB;
 
 -- ── CTM readings ─────────────────────────────────────────────

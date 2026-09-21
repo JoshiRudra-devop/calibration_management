@@ -197,9 +197,10 @@ if (!empty($_FILES['pdf_file']['tmp_name'])) {
 // Serialize form_data to JSON string
 $formData = !empty($data['form_data']) ? (is_array($data['form_data']) ? json_encode($data['form_data']) : $data['form_data']) : null;
 
-// ── Insert or Update certificate ──────────────────────────────
-if ($isUpdate) {
-    try {
+try {
+    $db->beginTransaction();
+
+    if ($isUpdate) {
         $sql = "UPDATE certificates SET
                   party_id = ?, party_name = ?, site_location = ?,
                   calibration_date = ?, next_due_date = ?, make = ?, model_no = ?, serial_no = ?,
@@ -237,12 +238,7 @@ if ($isUpdate) {
         // Recreate CTM / Mould relations
         $db->prepare("DELETE FROM ctm_readings WHERE certificate_id = ?")->execute([$certId]);
         $db->prepare("DELETE FROM cube_serials WHERE certificate_id = ?")->execute([$certId]);
-    } catch (PDOException $e) {
-        error_log('Certificate update error: ' . $e->getMessage());
-        jsonResponse(false, 'Failed to update certificate. Please try again.', [], 500);
-    }
-} else {
-    try {
+    } else {
         $sql = "INSERT INTO certificates
                   (cert_number, instrument_type_id, party_id, party_name, site_location,
                    calibration_date, next_due_date, make, model_no, serial_no,
@@ -273,48 +269,54 @@ if ($isUpdate) {
         ]);
         $certId = (int) $db->lastInsertId();
         logCertificateAudit($db, $certId, 'create', $_SESSION['user_id'] ?? null, null);
-    } catch (PDOException $e) {
-        $sqlState   = (string) $e->getCode();
-        $driverCode = (int) ($e->errorInfo[1] ?? 0);
-        if ($sqlState === '23000' || $driverCode === 1062) {
-            jsonResponse(false, 'Certificate number already exists: ' . $certNumber, [], 409);
+    }
+
+    // ── CTM readings ─────────────────────────────────────────────
+    if (!empty($data['ctm_readings']) && is_array($data['ctm_readings'])) {
+        $ins = $db->prepare("INSERT INTO ctm_readings
+            (certificate_id, ring_type, load_kn, deflection,
+             reading_set1, reading_set2, reading_set3, average_kn)
+            VALUES (?,?,?,?,?,?,?,?)");
+
+        foreach ($data['ctm_readings'] as $r) {
+            $ins->execute([
+                $certId,
+                clean($r['ring_type']     ?? ''),
+                (int)($r['load_kn']       ?? 0),
+                (float)($r['deflection']  ?? 0),
+                (float)($r['set1']        ?? 0),
+                (float)($r['set2']        ?? 0),
+                (float)($r['set3']        ?? 0),
+                (float)($r['average']     ?? 0),
+            ]);
         }
-        error_log('Certificate insert error: ' . $e->getMessage());
-        jsonResponse(false, 'Failed to save certificate: ' . $e->getMessage(), [], 500);
     }
-}
 
-// ── CTM readings ─────────────────────────────────────────────
-if (!empty($data['ctm_readings']) && is_array($data['ctm_readings'])) {
-    $ins = $db->prepare("INSERT INTO ctm_readings
-        (certificate_id, ring_type, load_kn, deflection,
-         reading_set1, reading_set2, reading_set3, average_kn)
-        VALUES (?,?,?,?,?,?,?,?)");
-
-    foreach ($data['ctm_readings'] as $r) {
-        $ins->execute([
-            $certId,
-            clean($r['ring_type']     ?? ''),
-            (int)($r['load_kn']       ?? 0),
-            (float)($r['deflection']  ?? 0),
-            (float)($r['set1']        ?? 0),
-            (float)($r['set2']        ?? 0),
-            (float)($r['set3']        ?? 0),
-            (float)($r['average']     ?? 0),
-        ]);
+    // ── Cube serials ─────────────────────────────────────────────
+    if (!empty($data['cube_serials']) && is_array($data['cube_serials'])) {
+        $ins = $db->prepare("INSERT INTO cube_serials (certificate_id, sr_no, serial_no) VALUES (?,?,?)");
+        foreach ($data['cube_serials'] as $i => $serial) {
+            $ins->execute([$certId, $i + 1, clean($serial)]);
+        }
     }
-}
 
-// ── Cube serials ─────────────────────────────────────────────
-if (!empty($data['cube_serials']) && is_array($data['cube_serials'])) {
-    $ins = $db->prepare("INSERT INTO cube_serials (certificate_id, sr_no, serial_no) VALUES (?,?,?)");
-    foreach ($data['cube_serials'] as $i => $serial) {
-        $ins->execute([$certId, $i + 1, clean($serial)]);
+    $db->commit();
+
+    jsonResponse(true, 'Certificate saved successfully', [
+        'cert_id'     => $certId,
+        'cert_number' => $certNumber,
+        'pdf_url'     => $pdfUrl,
+    ]);
+
+} catch (PDOException $e) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
     }
+    $sqlState   = (string) $e->getCode();
+    $driverCode = (int) ($e->errorInfo[1] ?? 0);
+    if ($sqlState === '23000' || $driverCode === 1062) {
+        jsonResponse(false, 'Certificate number already exists: ' . $certNumber, [], 409);
+    }
+    error_log('Certificate save error: ' . $e->getMessage());
+    jsonResponse(false, 'Failed to save certificate: ' . $e->getMessage(), [], 500);
 }
-
-jsonResponse(true, 'Certificate saved successfully', [
-    'cert_id'     => $certId,
-    'cert_number' => $certNumber,
-    'pdf_url'     => $pdfUrl,
-]);

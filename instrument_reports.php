@@ -12,6 +12,12 @@ $instId = isset($_GET['instrument_type_id']) ? (int)$_GET['instrument_type_id'] 
 $selectedInst = null;
 $certs = [];
 
+$perPage     = 25;
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$offset      = ($currentPage - 1) * $perPage;
+$totalRows   = 0;
+$totalPages  = 0;
+
 if ($instId > 0) {
     // Fetch details of selected instrument type
     $stmt = $db->prepare("SELECT * FROM instrument_types WHERE id = ?");
@@ -19,14 +25,23 @@ if ($instId > 0) {
     $selectedInst = $stmt->fetch();
     
     if ($selectedInst) {
-        // Fetch all certificates generated for this instrument type
+        $stmtCount = $db->prepare("SELECT COUNT(*) FROM certificates WHERE instrument_type_id = ?");
+        $stmtCount->execute([$instId]);
+        $totalRows  = (int) $stmtCount->fetchColumn();
+        $totalPages = (int) ceil($totalRows / $perPage);
+
+        // Fetch certificates generated for this instrument type
         $stmtCerts = $db->prepare("
             SELECT c.id, c.cert_number, c.party_name, c.site_location, c.calibration_date, c.next_due_date, c.pdf_url 
             FROM certificates c 
             WHERE c.instrument_type_id = ? 
             ORDER BY c.created_at DESC
+            LIMIT ? OFFSET ?
         ");
-        $stmtCerts->execute([$instId]);
+        $stmtCerts->bindValue(1, $instId, PDO::PARAM_INT);
+        $stmtCerts->bindValue(2, $perPage, PDO::PARAM_INT);
+        $stmtCerts->bindValue(3, $offset, PDO::PARAM_INT);
+        $stmtCerts->execute();
         $certs = $stmtCerts->fetchAll();
     }
 }
@@ -140,6 +155,35 @@ $instruments = $db->query("
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <?php if ($totalPages > 1): ?>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+            <span style="font-size: 0.9rem; color: var(--text-mid);">
+              Showing <strong><?= number_format($offset + 1) ?>–<?= number_format(min($offset + $perPage, $totalRows)) ?></strong> of <strong><?= number_format($totalRows) ?></strong> certificates
+            </span>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <?php if ($currentPage > 1): ?>
+                <a href="?instrument_type_id=<?= $instId ?>&page=1" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">« First</a>
+                <a href="?instrument_type_id=<?= $instId ?>&page=<?= $currentPage - 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">‹ Prev</a>
+              <?php endif; ?>
+
+              <?php
+              $startPage = max(1, $currentPage - 2);
+              $endPage   = min($totalPages, $currentPage + 2);
+              for ($p = $startPage; $p <= $endPage; $p++):
+                $isActive = $p === $currentPage;
+              ?>
+                <a href="?instrument_type_id=<?= $instId ?>&page=<?= $p ?>" style="padding: 0.4rem 0.75rem; border: 1px solid <?= $isActive ? 'var(--primary)' : 'var(--border)' ?>; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: <?= $isActive ? 'white' : 'var(--primary)' ?>; background: <?= $isActive ? 'var(--primary)' : 'white' ?>; text-decoration: none;"><?= $p ?></a>
+              <?php endfor; ?>
+
+              <?php if ($currentPage < $totalPages): ?>
+                <a href="?instrument_type_id=<?= $instId ?>&page=<?= $currentPage + 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Next ›</a>
+                <a href="?instrument_type_id=<?= $instId ?>&page=<?= $totalPages ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Last »</a>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endif; ?>
       </div>
 
     </div>

@@ -8,14 +8,27 @@ include __DIR__ . '/includes/header.php';
 
 $db = getDB();
 
-// Fetch parties with their certificate count
-$parties = $db->query("
+// ── Server-Side Pagination ──────────────────────────────────
+$perPage     = 25;
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$offset      = ($currentPage - 1) * $perPage;
+
+$totalRows  = (int) $db->query("SELECT COUNT(*) FROM parties")->fetchColumn();
+$totalPages = (int) ceil($totalRows / $perPage);
+
+// Fetch parties for current page
+$stmtParties = $db->prepare("
     SELECT p.id, p.name, p.phone, p.email, COUNT(c.id) AS cert_count 
     FROM parties p 
     LEFT JOIN certificates c ON p.id = c.party_id 
     GROUP BY p.id 
     ORDER BY p.name ASC
-")->fetchAll();
+    LIMIT ? OFFSET ?
+");
+$stmtParties->bindValue(1, $perPage, PDO::PARAM_INT);
+$stmtParties->bindValue(2, $offset, PDO::PARAM_INT);
+$stmtParties->execute();
+$parties = $stmtParties->fetchAll();
 
 // Fetch site locations for each party
 $locationsStmt = $db->query("
@@ -129,6 +142,35 @@ while ($row = $locationsStmt->fetch()) {
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination Controls -->
+      <?php if ($totalPages > 1): ?>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <span style="font-size: 0.9rem; color: var(--text-mid);">
+            Showing <strong><?= number_format($offset + 1) ?>–<?= number_format(min($offset + $perPage, $totalRows)) ?></strong> of <strong><?= number_format($totalRows) ?></strong> companies
+          </span>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <?php if ($currentPage > 1): ?>
+              <a href="?page=1" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">« First</a>
+              <a href="?page=<?= $currentPage - 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">‹ Prev</a>
+            <?php endif; ?>
+
+            <?php
+            $startPage = max(1, $currentPage - 2);
+            $endPage   = min($totalPages, $currentPage + 2);
+            for ($p = $startPage; $p <= $endPage; $p++):
+              $isActive = $p === $currentPage;
+            ?>
+              <a href="?page=<?= $p ?>" style="padding: 0.4rem 0.75rem; border: 1px solid <?= $isActive ? 'var(--primary)' : 'var(--border)' ?>; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: <?= $isActive ? 'white' : 'var(--primary)' ?>; background: <?= $isActive ? 'var(--primary)' : 'white' ?>; text-decoration: none;"><?= $p ?></a>
+            <?php endfor; ?>
+
+            <?php if ($currentPage < $totalPages): ?>
+              <a href="?page=<?= $currentPage + 1 ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Next ›</a>
+              <a href="?page=<?= $totalPages ?>" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--primary); text-decoration: none;">Last »</a>
+            <?php endif; ?>
+          </div>
+        </div>
+      <?php endif; ?>
     </div>
 
   </div>
