@@ -230,30 +230,30 @@ $instruments = $db->query("
       <!-- Cards Grid -->
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
         <?php foreach ($instruments as $inst): ?>
-          <div class="card" style="background: white; border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;" onclick="window.location.href='instrument_reports.php?instrument_type_id=<?= $inst['id'] ?>'">
+          <div class="card" style="background: white; border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 195px; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;" onclick="window.location.href='instrument_reports.php?instrument_type_id=<?= $inst['id'] ?>'">
             
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem; min-height: 3.2rem;">
                 <h3 style="font-size: 1.15rem; color: var(--primary-dk); font-weight: 700; margin: 0; line-height: 1.3;">
                   <?= htmlspecialchars($inst['label']) ?>
                 </h3>
-                <span style="font-size: 0.72rem; background: var(--bg); border: 1px solid var(--border); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 600; color: var(--text-lt); text-transform: uppercase;">
+                <span style="font-size: 0.72rem; background: var(--bg); border: 1px solid var(--border); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 600; color: var(--text-lt); text-transform: uppercase; white-space: nowrap;">
                   <?= htmlspecialchars($inst['slug']) ?>
                 </span>
               </div>
-              <p style="color: var(--text-mid); font-size: 0.9rem; margin-top: 0.25rem;">
+              <p style="color: var(--text-mid); font-size: 0.9rem; margin-top: auto; padding-top: 0.25rem;">
                 Total generated: <strong><?= $inst['cert_count'] ?></strong> certificate(s)
               </p>
             </div>
 
             <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 0.5rem;">
               <!-- View Certificates (Detailed List) -->
-              <a href="instrument_reports.php?instrument_type_id=<?= $inst['id'] ?>" class="instrument-action-btn btn-print" style="flex: 1; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; text-decoration: none; text-align: center; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
+              <a href="instrument_reports.php?instrument_type_id=<?= $inst['id'] ?>" class="instrument-action-btn btn-print" style="flex: 1; padding: 0.55rem; border-radius: 6px; font-size: 0.8rem; text-decoration: none; text-align: center; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
                 <i class="fas fa-list"></i> View Certificates
               </a>
               
               <!-- Create New Standalone Link -->
-              <a href="certificates/<?= htmlspecialchars($inst['slug']) ?>.php" onclick="event.stopPropagation();" class="instrument-action-btn btn-save" style="flex: 1; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; text-decoration: none; text-align: center; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
+              <a href="certificates/<?= htmlspecialchars($inst['slug']) ?>.php" onclick="event.stopPropagation();" class="instrument-action-btn btn-save" style="flex: 1; padding: 0.55rem; border-radius: 6px; font-size: 0.8rem; text-decoration: none; text-align: center; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
                 <i class="fas fa-plus"></i> Create New
               </a>
             </div>
