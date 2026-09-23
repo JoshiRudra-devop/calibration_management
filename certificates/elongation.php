@@ -21,6 +21,16 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="certificateNumber">Certificate No:</label>
         <input type="text" id="certificateNumber" required>
       </div>
+      <div class="title_input_pair">
+        <label for="serialNo">Serial No:</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <input type="text" id="serialNo" required>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <input type="checkbox" id="useCertNoAsSerial" style="width: auto; margin: 0; cursor: pointer;" onchange="toggleCertNoAsSerial()">
+            <label for="useCertNoAsSerial" style="font-weight: normal; font-size: 12px; cursor: pointer; display: inline; margin: 0; user-select: none;">Use Certificate No. as Serial No.</label>
+          </div>
+        </div>
+      </div>
       <div class="date">
           <div class="title_input_pair">
               <label for="calibrationDate">Date of Calibration:</label>
@@ -61,8 +71,13 @@ $instrumentId = $instrument['id'] ?? null;
 
  
     window.getFormDetails = function() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNo = document.getElementById("certificateNumber") ? document.getElementById("certificateNumber").value : "";
+      const serialNoVal = document.getElementById("serialNo") ? document.getElementById("serialNo").value : "";
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
+        serialNo: (useCertCheck && useCertCheck.checked) ? certNo : serialNoVal,
+
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         siteLocation: document.getElementById("siteLocation").value,
         partyName: document.getElementById("partyName").value,
@@ -92,7 +107,7 @@ $instrumentId = $instrument['id'] ?? null;
       }
 
       doc.text(`EQUIPMENT NAME     :-     ELOGATION GAUGE`, 14, Yalign += 10);
-      doc.text(`SERIAL NO:- ${details.certificateNumber}`, 150, Yalign);
+      doc.text(`SERIAL NO:- ${details.serialNo}`, 150, Yalign);
       doc.text(`AS PER IS                    :-     IS 2386-1`, 14, Yalign += 10);
       doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
 

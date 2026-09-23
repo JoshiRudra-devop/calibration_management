@@ -21,6 +21,16 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="certificateNumber">Certificate No:</label>
         <input type="text" id="certificateNumber" required>
       </div>
+      <div class="title_input_pair">
+        <label for="serialNo">Serial No:</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <input type="text" id="serialNo" required>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <input type="checkbox" id="useCertNoAsSerial" style="width: auto; margin: 0; cursor: pointer;" onchange="toggleCertNoAsSerial()">
+            <label for="useCertNoAsSerial" style="font-weight: normal; font-size: 12px; cursor: pointer; display: inline; margin: 0; user-select: none;">Use Certificate No. as Serial No.</label>
+          </div>
+        </div>
+      </div>
       <div class="date">
           <div class="title_input_pair">
               <label for="calibrationDate">Date of Calibration:</label>
@@ -81,6 +91,9 @@ $instrumentId = $instrument['id'] ?? null;
       
     // Function to fetch form details
     window.getFormDetails = function() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNo = document.getElementById("certificateNumber") ? document.getElementById("certificateNumber").value : "";
+      const serialNoVal = document.getElementById("serialNo") ? document.getElementById("serialNo").value : "";
       const sizeRaw = document.getElementById("size").value || '';
       const sizeNum = parseInt(sizeRaw.replace(/\D/g, ''), 10);
       let leastCount = 0.01;
@@ -89,6 +102,8 @@ $instrumentId = $instrument['id'] ?? null;
       else if (sizeNum === 300) leastCount = 0.02;
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
+        serialNo: (useCertCheck && useCertCheck.checked) ? certNo : serialNoVal,
+
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         siteLocation: document.getElementById("siteLocation").value,
         size: document.getElementById("size").value,
@@ -130,7 +145,7 @@ window.addCertificateDetails = function(doc, details)
   }
   doc.text(`EQUIPMENT NAME         :     VERNIER CALIPER  ( ${details.type} )`, 14, Yalign+=12);
   doc.text(`SIZE / LEAST COUNT     :     ${details.size} / ${details.leastCount} mm`, 14, Yalign+=12);
-  doc.text(`SERIAL NO / MAKE         :     ${details.certificateNumber} / "${details.make}"`, 14, Yalign+=12);
+  doc.text(`SERIAL NO / MAKE         :     ${details.serialNo} / "${details.make}"`, 14, Yalign+=12);
   
   // --- Site Location with wrapping (only value, not prefix) ---
   const siteLocPrefix = "SITE LOCATION               :     ";

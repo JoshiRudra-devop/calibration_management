@@ -40,6 +40,16 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="instrumentType">Instrument Name:</label>
         <input type="text" id="instrumentType" value="WATER BATH" readonly required>
       </div>
+       <div class="title_input_pair">
+        <label for="serialNo">Serial No:</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <input type="text" id="serialNo" required>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <input type="checkbox" id="useCertNoAsSerial" style="width: auto; margin: 0; cursor: pointer;" onchange="toggleCertNoAsSerial()">
+            <label for="useCertNoAsSerial" style="font-weight: normal; font-size: 12px; cursor: pointer; display: inline; margin: 0; user-select: none;">Use Certificate No. as Serial No.</label>
+          </div>
+        </div>
+      </div>
       <div class="title_input_pair">
         <label for="siteLocation">Site Location:</label>
         <input type="text" id="siteLocation" required>
@@ -60,6 +70,39 @@ $instrumentId = $instrument['id'] ?? null;
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'water_bath';
+
+    function toggleCertNoAsSerial() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNumInput = document.getElementById("certificateNumber");
+      const serialNoInput = document.getElementById("serialNo");
+      
+      if (!useCertCheck || !serialNoInput) return;
+      
+      if (useCertCheck.checked) {
+        if (certNumInput) {
+          serialNoInput.value = certNumInput.value;
+        }
+        serialNoInput.readOnly = true;
+        serialNoInput.style.backgroundColor = "#e2e8f0";
+      } else {
+        serialNoInput.readOnly = false;
+        serialNoInput.style.backgroundColor = "";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const certNumInput = document.getElementById("certificateNumber");
+      if (certNumInput) {
+        certNumInput.addEventListener("input", function() {
+          const useCertCheck = document.getElementById("useCertNoAsSerial");
+          if (useCertCheck && useCertCheck.checked) toggleCertNoAsSerial();
+        });
+        certNumInput.addEventListener("change", function() {
+          const useCertCheck = document.getElementById("useCertNoAsSerial");
+          if (useCertCheck && useCertCheck.checked) toggleCertNoAsSerial();
+        });
+      }
+    });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
@@ -68,14 +111,18 @@ $instrumentId = $instrument['id'] ?? null;
 
     // Function to fetch form details
     window.getFormDetails = function() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNo = document.getElementById("certificateNumber").value;
+      const serialNoVal = document.getElementById("serialNo").value;
+
       return {
-        certificateNumber: document.getElementById("certificateNumber").value,
+        certificateNumber: certNo,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         siteLocation: document.getElementById("siteLocation").value,
         partyName: document.getElementById("partyName").value,
-        instrumentType:document.getElementById("instrumentType").value ,
+        instrumentType: document.getElementById("instrumentType").value,
         make: document.getElementById("make").value,
-        // serialNo: document.getElementById("serialNo").value,
+        serialNo: (useCertCheck && useCertCheck.checked) ? certNo : serialNoVal,
         capacity: document.getElementById("capacity").value,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
       };
@@ -106,7 +153,7 @@ $instrumentId = $instrument['id'] ?? null;
   
   doc.text(`EQUIPMENT NAME     :-     ELECTRICAL WATER BATH`, 14, Yalign += 10);
   doc.text(`CAPICITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
-  doc.text(`SERIAL NO                  :-     ${details.certificateNumber}`, 14, Yalign += 10);
+  doc.text(`SERIAL NO                  :-     ${details.serialNo}`, 14, Yalign += 10);
   doc.text(`NEXT DUE DATE         :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
   
   // --- Site Location with wrapping ---
