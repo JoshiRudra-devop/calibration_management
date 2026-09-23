@@ -123,6 +123,11 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(`3. Reading of Staff-B was taken as 1,600.`, 14, Yalign+=10);
         doc.text(`Hence error is NIL (Within the tolerance Level). Therefore, instrument is found free from`, 14, Yalign+=10);
         doc.text(`collimation error as of Date.`, 14, Yalign+=5);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
+
         doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
         doc.text("PROPRIETOR", 170, 245);
       }

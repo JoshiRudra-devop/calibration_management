@@ -54,7 +54,7 @@ $expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpirati
     window.PDF_COMPANY_NAME = localStorage.getItem('pdfCompanyName') || 'SHREEJI INSTRUMENTS';
     
     // Global Document Preview Modal Setup
-    window.showGlobalPreviewModal = function(pdfUrl) {
+    window.showGlobalPreviewModal = function(pdfUrl, onConfirmSave) {
       let modalOverlay = document.getElementById('globalPreviewModal');
       if (!modalOverlay) {
         modalOverlay = document.createElement('div');
@@ -62,9 +62,12 @@ $expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpirati
         modalOverlay.className = 'preview-modal-overlay';
         modalOverlay.innerHTML = `
           <div class="preview-modal">
-            <div class="preview-modal-header">
+            <div class="preview-modal-header" style="display: flex; align-items: center; justify-content: space-between;">
               <h3><i class="fas fa-file-pdf"></i> Document Preview</h3>
-              <button class="preview-modal-close" onclick="closeGlobalPreviewModal()"><i class="fas fa-times"></i></button>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="previewConfirmContainer" style="display: none;"></div>
+                <button class="preview-modal-close" onclick="closeGlobalPreviewModal()"><i class="fas fa-times"></i></button>
+              </div>
             </div>
             <div class="preview-modal-body">
               <iframe id="globalPreviewIframe" src=""></iframe>
@@ -80,6 +83,11 @@ $expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpirati
             overlay.classList.remove('show');
             setTimeout(() => {
               document.getElementById('globalPreviewIframe').src = '';
+              const confirmContainer = document.getElementById('previewConfirmContainer');
+              if (confirmContainer) {
+                confirmContainer.style.display = 'none';
+                confirmContainer.innerHTML = '';
+              }
             }, 300);
           }
         };
@@ -93,6 +101,23 @@ $expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpirati
       }
       
       document.getElementById('globalPreviewIframe').src = pdfUrl;
+      const confirmContainer = document.getElementById('previewConfirmContainer');
+      if (confirmContainer) {
+        if (typeof onConfirmSave === 'function') {
+          confirmContainer.style.display = 'block';
+          confirmContainer.innerHTML = `<button id="previewConfirmSaveBtn" style="background:#00796b; color:#fff; border:none; padding:7px 15px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px;"><i class="fas fa-save"></i> Confirm & Save All</button>`;
+          const confirmBtn = document.getElementById('previewConfirmSaveBtn');
+          if (confirmBtn) {
+            confirmBtn.onclick = function() {
+              window.closeGlobalPreviewModal();
+              onConfirmSave();
+            };
+          }
+        } else {
+          confirmContainer.style.display = 'none';
+          confirmContainer.innerHTML = '';
+        }
+      }
       
       // Trigger animation
       setTimeout(() => modalOverlay.classList.add('show'), 10);

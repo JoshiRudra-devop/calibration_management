@@ -230,6 +230,11 @@ window.addCertificateDetails = function(doc, details)
   // move cursor below table
   const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : tableStartY + (rows.length + 2) * 7;
   doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, afterTableY);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
+
   doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, afterTableY + 15);
   doc.text("PROPRIETOR", 170, afterTableY + 30);
   

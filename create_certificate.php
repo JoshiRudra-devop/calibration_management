@@ -1049,13 +1049,8 @@ function saveIframePromise(iframe) {
   });
 }
 
-async function saveAllCertificates() {
+async function saveAllCertificates(forceSave = false) {
   const saveBtn = document.querySelector('.btn-save-all');
-  if (saveBtn) {
-    if (saveBtn.disabled) return;
-    saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-  }
 
   if (!validateAllForms()) {
     if (saveBtn) {
@@ -1085,7 +1080,39 @@ async function saveAllCertificates() {
     }
     return;
   }
-  
+
+  // If not forceSave, trigger unified preview modal first so preview is visible before saving
+  if (!forceSave) {
+    Loader.show('Generating unified preview for verification...');
+    try {
+      const doc = await generateUnifiedPDF();
+      Loader.hide();
+      if (doc) {
+        const pdfBlob = doc.output('blob');
+        const pdfUrl  = URL.createObjectURL(pdfBlob);
+        window.showGlobalPreviewModal(pdfUrl, function() {
+          saveAllCertificates(true);
+        });
+        setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
+      } else {
+        alert('Could not generate preview.');
+      }
+    } catch (err) {
+      Loader.hide();
+      alert('Error generating preview: ' + err.message);
+    }
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
+    }
+    return;
+  }
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  }
+
   // Pre-open combined tab synchronously to avoid popup blocker blocking final combined PDF
   const combinedWindow = window.open('about:blank', '_blank');
   if (combinedWindow) {
@@ -1178,32 +1205,23 @@ async function saveAllCertificates() {
         combinedWindow.close();
       }
     }
-    Loader.hide();
-    
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
-    }
-
+    if (typeof Loader !== 'undefined') Loader.success('All certificates saved successfully! 🎉');
     alert(`Successfully saved ${successCount} certificate(s)! Combined PDF opened.`);
     window.location.href = 'index.php';
   } else if (errorCount > 0) {
     if (combinedWindow && !combinedWindow.closed) {
       combinedWindow.close();
     }
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
-    }
     alert(`Saved ${successCount} certificate(s).\nEncountered ${errorCount} error(s):\n- ${errors.join('\n- ')}`);
   } else {
     if (combinedWindow && !combinedWindow.closed) {
       combinedWindow.close();
     }
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
-    }
+  }
+
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save All';
   }
 }
 

@@ -142,6 +142,11 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(` degrees, 0 minutes, 0 seconds, Hence Error-Nil. `, 14, Yalign+=5);
       doc.text(`•Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign+=5);
       doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
+
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
       doc.text("PROPRIETOR", 170, 245);
     }

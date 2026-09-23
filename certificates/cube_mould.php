@@ -257,6 +257,11 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableEndY + 10);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
+
         doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 145, 230);
         doc.text("PROPRIETOR", 170, 245);
         addFooterImages(doc);
