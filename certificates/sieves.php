@@ -628,23 +628,24 @@ $instrumentId = $instrument['id'] ?? null;
             doc.text("Test Results", doc.internal.pageSize.getWidth()/2, currentY, { align: 'center' });
             currentY += 3;
 
-            const chunk = testResults.splice(0, 6);
+            const chunk = testResults.splice(0, 10);
 
             doc.autoTable({
                 head: [['SR NO.', 'MAKE', 'SIEVE', 'SIEVE SIZE', 'RESULT']],
                 body: chunk,
                 startY: currentY,
                 styles: { 
-                    fontSize: 8,
+                    fontSize: 7.5,
                     textColor: [0,0,0],
-                    fontStyle:"bold",  
-                    lineColor:[87, 86, 85],
+                    fontStyle: "bold",  
+                    lineColor: [87, 86, 85],
                     lineWidth: 0.2,
                     halign: 'center',
                     valign: 'middle',
+                    cellPadding: 0.8
                 },
                 headStyles: {
-                    fontSize: 10,
+                    fontSize: 9,
                     fillColor: [255, 255, 255],
                     textColor: [0,0,0],
                     lineColor: [0, 0, 0],
@@ -701,13 +702,9 @@ $instrumentId = $instrument['id'] ?? null;
 
             doc.setFont("helvetica", "bold"); 
             doc.setFontSize(12); 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
 
-            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 230);
-            doc.text("PROPRIETOR", 170, 245);
+            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, Math.max(yPosition + 12, 230));
+            doc.text("PROPRIETOR", 170, Math.max(yPosition + 25, 245));
         }
     };
 
