@@ -42,6 +42,20 @@ $instrumentId = $instrument['id'] ?? null;
         <input type="text" id="instrumentType" value="SLUMCONE" required>
       </div>
       <div class="title_input_pair">
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" value="1" min="1" required>
+      </div>
+      <div class="title_input_pair">
+        <label for="serialNo">Serial No:</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <input type="text" id="serialNo" required>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <input type="checkbox" id="useCertNoAsSerial" style="width: auto; margin: 0; cursor: pointer;" onchange="toggleCertNoAsSerial()">
+            <label for="useCertNoAsSerial" style="font-weight: normal; font-size: 12px; cursor: pointer; display: inline; margin: 0; user-select: none;">Use Certificate No. as Serial No.</label>
+          </div>
+        </div>
+      </div>
+      <div class="title_input_pair">
         <label for="make">Make:</label>
         <input type="text" id="make" required>
       </div>
@@ -56,6 +70,57 @@ $instrumentId = $instrument['id'] ?? null;
   <script>
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'slumcone';
+
+    function incrementCertificateNumber(baseCertNo, increment) {
+      if (!baseCertNo || increment === 0) return baseCertNo;
+      let val = baseCertNo;
+      for (let i = 0; i < increment; i++) {
+        const match = val.match(/^(.*?)(\d+)$/);
+        if (match) {
+          const prefix = match[1];
+          const numStr = match[2];
+          const nextNum = parseInt(numStr, 10) + 1;
+          const paddedNum = String(nextNum).padStart(numStr.length, '0');
+          val = prefix + paddedNum;
+        } else {
+          break;
+        }
+      }
+      return val;
+    }
+
+    function toggleCertNoAsSerial() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNumInput = document.getElementById("certificateNumber");
+      const serialNoInput = document.getElementById("serialNo");
+      
+      if (!useCertCheck || !serialNoInput) return;
+      
+      if (useCertCheck.checked) {
+        if (certNumInput) {
+          serialNoInput.value = certNumInput.value;
+        }
+        serialNoInput.readOnly = true;
+        serialNoInput.style.backgroundColor = "#e2e8f0";
+      } else {
+        serialNoInput.readOnly = false;
+        serialNoInput.style.backgroundColor = "";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const certNumInput = document.getElementById("certificateNumber");
+      if (certNumInput) {
+        certNumInput.addEventListener("input", function() {
+          const useCertCheck = document.getElementById("useCertNoAsSerial");
+          if (useCertCheck && useCertCheck.checked) toggleCertNoAsSerial();
+        });
+        certNumInput.addEventListener("change", function() {
+          const useCertCheck = document.getElementById("useCertNoAsSerial");
+          if (useCertCheck && useCertCheck.checked) toggleCertNoAsSerial();
+        });
+      }
+    });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
@@ -64,115 +129,133 @@ $instrumentId = $instrument['id'] ?? null;
 
     // Function to fetch form details
     window.getFormDetails = function() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNo = document.getElementById("certificateNumber").value;
+      const serialNoVal = document.getElementById("serialNo") ? document.getElementById("serialNo").value : "";
+
       return {
-        certificateNumber: document.getElementById("certificateNumber").value,
+        certificateNumber: certNo,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         siteLocation: document.getElementById("siteLocation").value,
         partyName: document.getElementById("partyName").value,
         instrumentType: document.getElementById("instrumentType").value,
         make: document.getElementById("make").value,
+        quantity: document.getElementById("quantity") ? (parseInt(document.getElementById("quantity").value) || 1) : 1,
+        serialNo: (useCertCheck && useCertCheck.checked) ? certNo : serialNoVal,
+        useCertNoAsSerial: useCertCheck ? useCertCheck.checked : false,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),
-        saveentry: ` ${document.getElementById("certificateNumber").value || "Unknown"} `
+        saveentry: ` ${certNo || "Unknown"} `
       };
     }
 
     window.addCertificateDetails = function(doc, details) {
-      let Yalign = 50;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(25);
-      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) qty = 1;
 
-      doc.setFontSize(12);
-      const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
-      
-      const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
-      const lines1 = doc.splitTextToSize(para1, maxWidth);
-      doc.text(lines1, 12, Yalign += 15);
-      Yalign += (lines1.length * 6); // Add height for paragraph 1
-      
-      let hori_axis = Yalign + 5;
-      const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
-      const lines2 = doc.splitTextToSize(para2, maxWidth);
-      doc.text(lines2, 12, hori_axis += 9);
-      hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
+      for (let page = 0; page < qty; page++) {
+        if (page > 0) doc.addPage();
 
-      doc.setFontSize(10);
-      // Certificate Details
-      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, hori_axis += 10);
-      doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
-      const partyPrefix = "NAME OF PARTY       :-    ";
-      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
-      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-      hori_axis += 10;
-      doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
-      for (let i = 1; i < partyLines.length; i++) {
-        hori_axis += 4.5;
-        doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
-      }
+        let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
 
-      doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
-      doc.text(`SERIAL NO / MAKE    :-    ${details.certificateNumber} / ${details.make}`, 14, hori_axis += 10);
+        let Yalign = 50;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
-      const siteLocPrefix = "SITE LOCATION          :-    ";
-      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
-      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
-      hori_axis += 10;
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
-      for (let i = 1; i < siteLocLines.length; i++) {
-        hori_axis += 4.5;
-        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
-      }
+        doc.setFontSize(12);
+        const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
+        
+        const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+        const lines1 = doc.splitTextToSize(para1, maxWidth);
+        doc.text(lines1, 12, Yalign += 15);
+        Yalign += (lines1.length * 6); // Add height for paragraph 1
+        
+        let hori_axis = Yalign + 5;
+        const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
+        const lines2 = doc.splitTextToSize(para2, maxWidth);
+        doc.text(lines2, 12, hori_axis += 9);
+        hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
 
-      doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 140, hori_axis);
-      doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
-
-      const data = [
-        ["TOP DIA", "100 + 3.0 - 1.5", " 100.10"],
-        ["BOTTOM DIA", "200 + 3.0 - 1.5", "200.80"],
-        ["HEIGHT", "300 + 1.5 - 1.5", "300.40"],
-      ];
-
-      doc.autoTable({
-        head: [['  ', 'AS PER IS(MM)', 'ACTUAL MEASURED(AVG. OF THREE)']],
-        body: data,
-        startY: hori_axis + 5,
-        styles: {
-          fontSize: 9.5,
-          textColor: [0, 0, 0],
-          lineColor: [87, 86, 85],
-          lineWidth: 0.2,
-          halign: 'center',  // horizontal align to center
-          valign: 'middle',  // vertical align to middle
-          cellPadding: 0.5,
-          fontStyle: 'bold'
-        },
-        headStyles: {
-          fontSize: 10.5,
-          fillColor: [255, 255, 255],
-          textColor: [0, 0, 0],
-          lineColor: [0, 0, 0],
-          lineWidth: 0.2,
-          halign: 'center',  // horizontal align to center
-          valign: 'middle',  // vertical align to middle
-        },
-        alternateRowStyles: {
-          fillColor: [255, 255, 255]
+        doc.setFontSize(10);
+        // Certificate Details
+        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 10);
+        doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
+        const partyPrefix = "NAME OF PARTY       :-    ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        hori_axis += 10;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
+        for (let i = 1; i < partyLines.length; i++) {
+          hori_axis += 4.5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
         }
-      });
-      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, finalY);
 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY += 5);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
+        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
+        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make}`, 14, hori_axis += 10);
 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
-      doc.text("PROPRIETOR", 170, 240);
+        const siteLocPrefix = "SITE LOCATION          :-    ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+        hori_axis += 10;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          hori_axis += 4.5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
+        }
+
+        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 140, hori_axis);
+        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
+
+        const data = [
+          ["TOP DIA", "100 + 3.0 - 1.5", " 100.10"],
+          ["BOTTOM DIA", "200 + 3.0 - 1.5", "200.80"],
+          ["HEIGHT", "300 + 1.5 - 1.5", "300.40"],
+        ];
+
+        doc.autoTable({
+          head: [['  ', 'AS PER IS(MM)', 'ACTUAL MEASURED(AVG. OF THREE)']],
+          body: data,
+          startY: hori_axis + 5,
+          styles: {
+            fontSize: 9.5,
+            textColor: [0, 0, 0],
+            lineColor: [87, 86, 85],
+            lineWidth: 0.2,
+            halign: 'center',  // horizontal align to center
+            valign: 'middle',  // vertical align to middle
+            cellPadding: 0.5,
+            fontStyle: 'bold'
+          },
+          headStyles: {
+            fontSize: 10.5,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',  // horizontal align to center
+            valign: 'middle',  // vertical align to middle
+          },
+          alternateRowStyles: {
+            fillColor: [255, 255, 255]
+          }
+        });
+        let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, finalY);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, finalY += 5);
+        doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, finalY += 4);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 224);
+        doc.text("PROPRIETOR", 170, 240);
+      }
     }
 
     async function generateInfoSticker() {
