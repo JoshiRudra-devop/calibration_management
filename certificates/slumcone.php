@@ -21,8 +21,6 @@ $instrumentId = $instrument['id'] ?? null;
         <label for="certificateNumber">Certificate No:</label>
         <input type="text" id="certificateNumber" required>
       </div>
-      <div class="certificate-status" id="certificateStatus"></div>
-      <div id="certificateNumberError" class="error-message">This certificate number already exists!</div>
       <div class="date">
         <div class="title_input_pair">
           <label for="calibrationDate">Date of Calibration:</label>

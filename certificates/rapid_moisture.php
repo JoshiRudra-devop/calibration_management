@@ -19,9 +19,8 @@ $instrumentId = $instrument['id'] ?? null;
     <form id="calibrationForm">
       <div class="title_input_pair">
         <label for="certificateNumber">Certificate No:</label>
-        <input type="text" class=".error-input" id="certificateNumber" required>
+        <input type="text" id="certificateNumber" required>
       </div>
-      <div id="certificateNumberError" class="error-message">This certificate number already exists!</div>
       <div class="date">
         <div class="title_input_pair">
           <label for="calibrationDate">Date of Calibration:</label>
