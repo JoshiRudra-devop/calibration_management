@@ -239,25 +239,35 @@ $instrumentId = $instrument['id'] ?? null;
         doc.autoTable({
           head: tableHead,
           body: data,
-          startY: tableStartY,
+          startY: tableStartY + 2,
+          margin: { left: 14, right: 14 },
           styles: { 
-            fontSize: 9.5,
-            lineColor:[0,0,0],
-            textColor:[0,0,0],
-            lineWidth: 0.2,
+            fontSize: 10.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+            lineWidth: 0.3,
             halign: 'center',
             valign: 'middle',
-            cellPadding: 0.5,
+            cellPadding: 3.5,
+            minCellHeight: 9.5,
             fontStyle: 'bold'
           },
           headStyles: {
-            fontSize: 10.5,
+            fontSize: 11,
             fillColor: [255, 255, 255],
-            textColor: [0,0,0],
+            textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
-            lineWidth: 0.2,
+            lineWidth: 0.3,
             halign: 'center',
             valign: 'middle',
+            cellPadding: 4,
+            minCellHeight: 12
+          },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 45 },
+            2: { cellWidth: 45 },
+            3: { cellWidth: 'auto' }
           },
           alternateRowStyles: {
             fillColor: [255, 255, 255]
@@ -265,17 +275,15 @@ $instrumentId = $instrument['id'] ?? null;
         });
       }
 
-      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
-      doc.setFont("helvetica", "bold");
-      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : 180;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);
       doc.setFontSize(8.5);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
       doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", 14, endY += 4);
-      let sigY = Math.max(endY + 15, 225);
+      let sigY = Math.max(endY + 12, 230);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
