@@ -1,0 +1,75 @@
+=== aggregate_impact.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== autolevel.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== cone_penetro.php ===
+  CAL BY matches (2): ['CALIBRATION BY       :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== core_cutter.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ["let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));", 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== ctm.php ===
+  CAL BY matches (2): ['CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, curY + 10);  ', 'CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  ']
+  endY line(s): []
+=== cube_mould.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== digital_thermo.php ===
+  CAL BY matches (2): ['CALIBRATED BY       :-     YOGESH B JOSHI', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ["let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));", 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== elongation.php ===
+  CAL BY matches (2): ['CALIBRATION BY :-', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = tableStartY2 + 2;', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);']
+=== flakness.php ===
+  CAL BY matches (2): ['CALIBRATION BY :-', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = tableStartY2 + 2;', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);']
+=== general.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign += 15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== hydrometer.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ["let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));", 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== isi_cube.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== measuring_cyl.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ["let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));", 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== oven.php ===
+  CAL BY matches (2): ['calibrated by', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== ph_meter.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);']
+=== pycnometer.php ===
+  CAL BY matches (2): ['CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ["let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));", 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== rapid_moisture.php ===
+  CAL BY matches (0): []
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 2 : 180;']
+=== sand_pouring.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = Yalign + 4;', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 6);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 5);', 'let sigY = Math.max(endY + 15, 225);']
+=== sieves.php ===
+  CAL BY matches (0): []
+  endY line(s): []
+=== slumcone.php ===
+  CAL BY matches (0): []
+  endY line(s): []
+=== total_station.php ===
+  CAL BY matches (0): []
+  endY line(s): []
+=== vernier_caliper.php ===
+  CAL BY matches (0): []
+  endY line(s): []
+=== water_bath.php ===
+  CAL BY matches (2): ['calibrated by', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== weigh_batcher.php ===
+  CAL BY matches (2): ['calibrated by', 'CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'let sigY = Math.max(endY + 15, 225);']
+=== weight_balance.php ===
+  CAL BY matches (1): ['CALIBRATED BY: YOGESH B JOSHI']
+  endY line(s): ['let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : 180;', 'doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);', 'doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);', 'doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);', 'doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", 14, endY += 4);', 'let sigY = Math.max(endY + 12, 230);']

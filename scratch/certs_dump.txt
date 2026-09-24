@@ -1,0 +1,589 @@
+==================== aggregate_impact.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign=50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+      doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+      doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+      doc.setFontSize(15);
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=15);
+      doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY         :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 15;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+==================== autolevel.php ====================
+window.addCertificateDetails = function(doc, details) {     
+        let Yalign=48;
+        const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
+        const formattedCalibrationDate = formatDateToWords(document.getElementById("calibrationDate").value);
+        const formattedNextDate = formatDateToWords(document.getElementById("nextCalibrationDate").value);
+
+        doc.setFontSize(15);
+        doc.setFont("helvetica", "bold");   
+        doc.text(`DATE:${details.calibrationDate}`, 155, Yalign);
+        doc.text(`REF No:${details.certificateNumber}`, 10, Yalign)
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=15, { align: 'center' });
+        doc.setFontSize(15);
+        doc.text(`FOR , ${details.make}  AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+        doc.text(`MODLE : ${details.modelNo}  ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 11;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
+==================== cone_penetro.php ====================
+window.addCertificateDetails = function(doc, details)
+     {
+      let Yalign=53;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=15);
+      doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+      doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+
+      doc.setFontSize(15);
+      doc.text(`DATE: ${details.calibrationDate}`, 155, Yalign+=15);
+      doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign+=15);
+      doc.text(`EQUIPMENT NAME      :     CONE PENETROMETER`, 14, Yalign+=15);
+      doc.text(`SERIAL NO / MAKE      :     ${details.serialNo} / ${details.make}`, 14, Yalign+=15);
+       // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
+      const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth , Yalign +=10);
+      }
+==================== core_cutter.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  details = details || {};
+  let qty = parseInt(details.quantity);
+  if (isNaN(qty) || qty <= 0) qty = 1;
+
+  for (let page = 0; page < qty; page++) {
+    if (page > 0) doc.addPage();
+
+    let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
+    let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
+
+    let Yalign = 50;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(25);
+    doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+    doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+    doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+    doc.setFontSize(15);
+    
+    // Certificate Details
+    doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+    doc.text(`REF NO                         :     ${pageCertNo}`, 14, Yalign);
+    
+    // --- Party Name with wrapping (only value, not prefix) ---
+    const partyNamePrefix = "NAME OF PARTY         :     ";
+    const prefixWidth = doc.getTextWidth(partyNamePrefix);
+    const maxWidth = 180 - prefixWidth;
+    const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+    
+    doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+    for (let i = 1; i < partyNameLines.length; i++) {
+      doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+    }
+==================== ctm.php ====================
+window.addCertificateDetails = function(doc, details) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 46, { align: "center" });
+      doc.setFontSize(10);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      let curY = 56;
+      doc.text(`DATE:-${details.calibrationDate}`, 160, curY);
+      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, curY);
+
+      curY += 9;
+      const partyPrefix = "NAME OF PARTY       :-    ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, curY);
+      for (let i = 1; i < partyLines.length; i++) {
+        curY += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, curY);
+      }
+==================== cube_mould.php ====================
+window.addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+      }
+==================== digital_thermo.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign = 50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      doc.text(`REF NO                         :-      ${details.certificateNumber}`, 14, Yalign);
+      const partyPrefix = "NAME OF PARTY         :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+==================== elongation.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(10);
+      Yalign += 12;
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign);
+      doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY        :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+==================== flakness.php ====================
+window.addCertificateDetails = function(doc, details){
+      
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+    // Spacing
+    doc.setFontSize(10);
+    doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign+=12);
+    doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
+
+    const partyPrefix = "NAME OF PARTY        :-     ";
+    const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+    const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+    Yalign += 10;
+    doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+    for (let i = 1; i < partyLines.length; i++) {
+      Yalign += 4.5;
+      doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+    }
+==================== general.php ====================
+window.addCertificateDetails = function(doc, details) {
+        let Yalign = 50;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign += 10);
+        doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign += 7);
+        doc.text("equipment traceable to international standards.", 12, Yalign += 7);
+
+        doc.setFontSize(15);
+        // Certificate Details
+        doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign += 15);
+        doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 15;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
+==================== hydrometer.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+==================== isi_cube.php ====================
+window.addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+      }
+==================== measuring_cyl.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+==================== oven.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  
+  // Spacing
+  doc.setFontSize(12);
+  doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping ---
+  const partyNamePrefix = "NAME OF PARTY        :-     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 5);
+  }
+==================== ph_meter.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign=50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY             :-     ${details.partyName}`, 14, Yalign+=10);
+      doc.text(`EQUIPMENT NAME          :-     PH METER`, 14, Yalign+=10);
+      doc.text(`AS PER IS                          :-     IS 4309`, 14, Yalign+=10);
+      doc.text(`MAKE  &  RANGE            :-     ${details.make}  &  "0 ~ 14PH" `, 14, Yalign+=10);
+      doc.text(`SERIAL NO                        :-     ${details.serialNo}`, 14, Yalign+=10);
+      doc.text(`NEXT DUE DATE               :-     ${details.nextCalibrationDate}`, 14, Yalign+=10);
+
+      // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION                :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth;
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || '', maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign += 4);
+      }
+==================== pycnometer.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+==================== rapid_moisture.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+     
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");   
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=12);
+      doc.text(`REF NO                          :-    ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY          :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 5;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+==================== sand_pouring.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(11);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+==================== sieves.php ====================
+window.addCertificateDetails = function(doc, details) {
+        const testResults = [];
+        document.querySelectorAll('#resultsBody tr').forEach(row => {
+            const cells = row.cells;
+            if (cells && cells.length >= 5) {
+                testResults.push([cells[0].textContent, cells[1].textContent, cells[2].textContent, cells[3].textContent, cells[4].textContent]);
+            }
+==================== slumcone.php ====================
+window.addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) qty = 1;
+
+      for (let page = 0; page < qty; page++) {
+        if (page > 0) doc.addPage();
+
+        let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
+
+        let Yalign = 50;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+        doc.setFontSize(12);
+        const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
+        
+        const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+        const lines1 = doc.splitTextToSize(para1, maxWidth);
+        doc.text(lines1, 12, Yalign += 15);
+        Yalign += (lines1.length * 6); // Add height for paragraph 1
+        
+        let hori_axis = Yalign + 5;
+        const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
+        const lines2 = doc.splitTextToSize(para2, maxWidth);
+        doc.text(lines2, 12, hori_axis += 9);
+        hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
+
+        doc.setFontSize(10);
+        // Certificate Details
+        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 10);
+        doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
+        const partyPrefix = "NAME OF PARTY       :-    ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        hori_axis += 10;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
+        for (let i = 1; i < partyLines.length; i++) {
+          hori_axis += 4.5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
+        }
+==================== total_station.php ====================
+window.addCertificateDetails = function(doc, details) {
+      doc.setFont("helvetica", "bold");
+      let Yalign=48;
+      const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(15);
+      doc.text(`TEST CERTIFICATE FOR`,  doc.internal.pageSize.getWidth() / 2, Yalign,{ align: 'center' });
+      doc.text("ELECTRONIC TOTAL STATION", doc.internal.pageSize.getWidth() /2,Yalign+=7,{ align: 'center' });
+      doc.setFontSize(25);   
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=9, { align: 'center' });
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(15);  
+      doc.text(`REF NO                          :     ${details.certificateNumber}`, 14, Yalign+=10);
+      const partyPrefix = "NAME OF PARTY          :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 8;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+==================== vernier_caliper.php ====================
+window.addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(9);
+  const disclaimerText = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+  const disclaimerLines = doc.splitTextToSize(disclaimerText, 190);
+  doc.text(disclaimerLines, 10, Yalign += 12);
+  Yalign += (disclaimerLines.length - 1) * 7;
+  Yalign += 4;
+  doc.setFontSize(10);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 150, Yalign+=12);
+  doc.text(`REF NO                            :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY           :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 12);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+==================== water_bath.php ====================
+window.addCertificateDetails = function(doc, details) {
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  
+  // Spacing
+  doc.setFontSize(15);
+  doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping ---
+  const partyNamePrefix = "NAME OF PARTY        :-     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 6);
+  }
+==================== weigh_batcher.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign = 50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      // Spacing
+      doc.setFontSize(15);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      doc.text(`REF NO                        :-    ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign += 10);
+      doc.text(`EQUIPMENT NAME     :-     WEIGH BATCHER`, 14, Yalign += 10);
+      doc.text(`CAPACITY & MAKE     :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+      doc.text(`SR NO                           :-     ${details.serialNo}`, 14, Yalign += 10);
+      doc.text(`NEXT DUE DATE          :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+      // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
+      const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign += 7);
+      }
+==================== weight_balance.php ====================
+window.addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(10);
+      doc.text(`DATE:-${details.calibrationDate}`, 160, 55);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, 55);
+
+      let y = 64;
+      const partyPrefix = "NAME OF PARTY        :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, y);
+      for (let i = 1; i < partyLines.length; i++) {
+        y += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, y);
+      }

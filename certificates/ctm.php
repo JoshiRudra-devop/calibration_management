@@ -562,12 +562,12 @@ $instrumentId = $instrument['id'] ?? null;
       
       let endY = 195;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 5);
-      doc.setFontSize(8.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
-      let sigY = Math.max(endY + 15, 225);
+      doc.setFontSize(11);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 7);
+      doc.setFontSize(10.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 7);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 6);
+      let sigY = Math.max(endY + 18, 225);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);

@@ -1,0 +1,3587 @@
+==================== aggregate_impact.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign=50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+      doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+      doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+      doc.setFontSize(15);
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=15);
+      doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY         :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 15;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
+      doc.text(`EQUIPMENT NAME      :      AGGREGATE IMPACT VALUE APP`, 14, Yalign+=15);
+      doc.text(`SERIAL NO                   :     ${details.serialNo}`, 14, Yalign+=15);
+      doc.text(`MAKE                            :     ${details.make}(AS PER IS 2386)`, 14, Yalign+=15);
+
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - prefixWidth);
+      Yalign += 15;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign);
+      }
+      doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+      doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.certificateNumber || "N/A" },
+        { label: "MAKE", value: details.make || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+  
+==================== autolevel.php ====================
+addCertificateDetails = function(doc, details) {     
+        let Yalign=48;
+        const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
+        const formattedCalibrationDate = formatDateToWords(document.getElementById("calibrationDate").value);
+        const formattedNextDate = formatDateToWords(document.getElementById("nextCalibrationDate").value);
+
+        doc.setFontSize(15);
+        doc.setFont("helvetica", "bold");   
+        doc.text(`DATE:${details.calibrationDate}`, 155, Yalign);
+        doc.text(`REF No:${details.certificateNumber}`, 10, Yalign)
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=15, { align: 'center' });
+        doc.setFontSize(15);
+        doc.text(`FOR , ${details.make}  AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+        doc.text(`MODLE : ${details.modelNo}  ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 11;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
+        doc.text(`EQUIPMENT NAME      :     AUTO LEVEL`, 14, Yalign+=9);
+        doc.text(`MAKE                            :     ${details.make}`, 14, Yalign+=9);
+        doc.text(`MODEL NO                   :     ${details.modelNo}`, 14, Yalign+=9);
+        doc.text(`SERIAL NO                   :     ${details.serialNo}`, 14, Yalign+=9);
+        doc.text(`DATE                             :     ${details.calibrationDate}`, 14, Yalign+=9);
+        doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=9);
+        doc.setFontSize(12);
+        doc.text(`This is to certify that ${details.make} Automatic Level-${details.modelNo} Serial No ${details.serialNo} Been Checked`, 14, Yalign+=10);
+        doc.text(` By us as under One year warranty.`, 14, Yalign+=5);
+        doc.text(`1. Level was kept At a distance of 20 meter from staff-A and 30 meter from Staff-B, Which`, 14, Yalign+=10);
+        doc.text(`were Pre-fixed at same level in our workshop (permanent bench-mark of same elevation).`, 14, Yalign+=5);
+        doc.text(`2. Reading of Staff-A was taken as 1,600`, 14, Yalign+=10);
+        doc.text(`3. Reading of Staff-B was taken as 1,600.`, 14, Yalign+=10);
+        doc.text(`Hence error is NIL (Within the tolerance Level). Therefore, instrument is found free from`, 14, Yalign+=10);
+        doc.text(`collimation error as of Date.`, 14, Yalign+=5);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+      }
+     
+      async function generateInfoSticker() {
+        const { jsPDF } = window.jspdf;
+        const width = 40 * 2.83465;
+        const height = 30 * 2.83465;
+        const doc = new jsPDF({
+          orientation: "landscape",
+          unit: "pt",
+          format: [width, height]
+        });
+        const details = getFormDetails();
+        const primaryBlue = [19, 52, 165];
+        const accentRed = [228, 34, 21];
+        doc.setDrawColor(...primaryBlue);
+        doc.setLineWidth(3);
+        doc.rect(5, 5, width - 10, height - 10);
+        
+        const tableLeft = 15;
+        const tableTop = 20;
+        const tableWidth = width - 30;
+        const rowHeight = 14;
+        const labelWidth = tableWidth * 0.4;
+        const tableData = [
+          { label: "SERIAL NO.", value: details.serialNo || "N/A" },
+          { label: "MODEL", value: details.modelNo || "N/A" },
+          { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+          { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+        ];
+        
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(1);
+        doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+        tableData.forEach((row, index) => {
+          const rowY = tableTop + (index * rowHeight);
+          if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+          doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+          doc.setFillColor(255, 255, 255);
+          doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+          const labelY = rowY + rowHeight / 2 + 1;
+          const valueY = rowY + rowHeight / 2 + 1;
+          doc.setFont("times", "bold");
+          doc.setFontSize(4.5);
+          doc.setTextColor(...primaryBlue);
+          doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+          doc.setFont("times", "normal");
+          doc.setFontSize(4.5);
+          doc.setTextColor(0, 0, 0);
+          doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+        });
+        
+        stickerPdfBlob = doc.output('blob');
+        const pdfURL = URL.createObjectURL(stickerPdfBlob);
+        const frame = document.getElementById("stickerPreviewFrame");
+        frame.src = pdfURL;
+        frame.style.display = "block";
+        const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+        dockDownloadBtn.style.display = "block";
+        frame.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      async function downloadSticker() {
+        if (!stickerPdfBlob) {
+          alert('Please generate the sticker first!');
+          return;
+        }
+        const details = getFormDetails();
+        const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.modelNo || 'Unknown'}.pdf`;
+        await savePDFWithLocation(stickerPdfBlob, fileName);
+      }
+      
+    
+==================== cone_penetro.php ====================
+addCertificateDetails = function(doc, details)
+     {
+      let Yalign=53;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=15);
+      doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+      doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+
+      doc.setFontSize(15);
+      doc.text(`DATE: ${details.calibrationDate}`, 155, Yalign+=15);
+      doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY         :     ${details.partyName}`, 14, Yalign+=15);
+      doc.text(`EQUIPMENT NAME      :     CONE PENETROMETER`, 14, Yalign+=15);
+      doc.text(`SERIAL NO / MAKE      :     ${details.serialNo} / ${details.make}`, 14, Yalign+=15);
+       // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
+      const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth , Yalign +=10);
+      }
+      Yalign += ((siteLocLines.length - 1)+5) ;
+      doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+      doc.text(`CALIBRATION BY       :     YOGESH BHAI`, 14, Yalign+=15);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+   
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.certificateNumber || "N/A" },
+        { label: "MAKE", value: details.make || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+   
+  
+==================== core_cutter.php ====================
+addCertificateDetails = function(doc, details)
+{
+  details = details || {};
+  let qty = parseInt(details.quantity);
+  if (isNaN(qty) || qty <= 0) qty = 1;
+
+  for (let page = 0; page < qty; page++) {
+    if (page > 0) doc.addPage();
+
+    let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
+    let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
+
+    let Yalign = 50;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(25);
+    doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+    doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+    doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+    doc.setFontSize(15);
+    
+    // Certificate Details
+    doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+    doc.text(`REF NO                         :     ${pageCertNo}`, 14, Yalign);
+    
+    // --- Party Name with wrapping (only value, not prefix) ---
+    const partyNamePrefix = "NAME OF PARTY         :     ";
+    const prefixWidth = doc.getTextWidth(partyNamePrefix);
+    const maxWidth = 180 - prefixWidth;
+    const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+    
+    doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+    for (let i = 1; i < partyNameLines.length; i++) {
+      doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+    }
+    doc.text(`EQUIPMENT NAME      :     CORE  CUTTER  AS PAR IS : 2720  `, 14, Yalign+=15);
+    doc.text(`SIZE                               :    130MM  X 100MM `, 14, Yalign+=15);
+    doc.text(`SERIAL NO                   :     ${pageSerialNo}`, 14, Yalign+=15);
+    
+    // --- Site Location with wrapping (only value, not prefix) ---
+    const siteLocPrefix = "SITE LOCATION           :     ";
+    const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+    const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+    const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+    
+    doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+    for (let i = 1; i < siteLocLines.length; i++) {
+      doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+    }
+
+    doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+    doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
+    doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+  }
+}
+  
+==================== ctm.php ====================
+addCertificateDetails = function(doc, details) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 46, { align: "center" });
+      doc.setFontSize(10);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      let curY = 56;
+      doc.text(`DATE:-${details.calibrationDate}`, 160, curY);
+      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, curY);
+
+      curY += 9;
+      const partyPrefix = "NAME OF PARTY       :-    ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, curY);
+      for (let i = 1; i < partyLines.length; i++) {
+        curY += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, curY);
+      }
+
+      curY += 9;
+      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, curY);
+      curY += 9;
+      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, curY);
+      curY += 9;
+      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, curY);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, curY);
+
+      curY += 9;
+      const siteLocPrefix = "SITE LOCATION         :-    ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, curY);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        curY += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, curY);
+      } 
+
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "bold");
+      let RING = String(details.ring);
+
+      curY += 9;
+      if(RING === "1000KN"){
+        doc.text(`CALIBRATION INSTRUMENT 1000KN`, 14, curY);  
+        doc.text(`PROVING RING NO:1000KN 065 IS 4169:2014`, 14, curY + 5);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, curY + 10);  
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        const startX = 13;
+        const startY = 133;
+        const cellWidth = 30;
+        const cellHeight = 6.2;
+
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
+
+        const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
+        for (let k = 0; k < 6; k++) {
+          const x = startX + k * cellWidth;
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
+        }
+
+        const fixedValuesColumn1 = ["79.1", "155.2", "232.3", "308.1", "384.4", "460.1","536.7", "613.4", "689.7", "766.1"];
+        const fixedValuesColumn2 = ["100", "200", "300", "400", "500", "600", "700", "800", "900", "1000"];
+
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 6; j++) {
+            const x = startX + j * cellWidth;
+            const y = startY + i * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+
+            let textValue = "";
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs1000[i] || "";
+
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
+            doc.text(textValue, centeredX, y + 4.5);
+          }
+        }
+      }
+      else if(RING === "2000KN"){
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 110);  
+        doc.text(`PROVING RING NO:2000KN 094 IS 4169:2014`, 14, 115);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        const startX = 13;
+        const startY = 133;
+        const cellWidth = 30;
+        const cellHeight = 6.2;
+
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
+
+        const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
+        for (let k = 0; k < 6; k++) {
+          const x = startX + k * cellWidth;
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
+        }
+
+        const fixedValuesColumn1 = ["84.1", "168.6", "254.7", "342.1", "429.1", "513.9", "600.9", "689.2", "776.7", "865.8"];
+        const fixedValuesColumn2 = ["200", "400", "600", "800", "1000", "1200", "1400", "1600", "1800", "2000"];
+
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 6; j++) {
+            const x = startX + j * cellWidth;
+            const y = startY + i * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+
+            let textValue = "";
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs2000[i] || "";
+
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
+            doc.text(textValue, centeredX, y + 4.5);
+          }
+        }
+      }
+      else if(RING === "2000KN new"){
+        doc.text(`CALIBRATION INSTRUMENT 2000KN`, 14, 110);  
+        doc.text(`PROVING RING NO:2000KN 381 IS 4169:2014`, 14, 115);  
+        doc.text(`CALIBRATED BY : NATIONAL COUNCIL FOR CEMENT AND BUILDING MATERIALS`, 14, 120);  
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        const startX = 13;
+        const startY = 133;
+        const cellWidth = 30;
+        const cellHeight = 6.2;
+
+        doc.text(`IN DIVISIONS`, 16, 132.5);
+        doc.text(`KN`, 174, 132.5);
+
+        const fixedTexts = ["DEFLECTION", "LOAD IN KN", "1st SET IN KN", "2nd SET IN KN", "3rd SET IN KN", "AVERAGE IN"];
+
+        for (let k = 0; k < 6; k++) {
+          const x = startX + k * cellWidth;
+          doc.rect(x, 124, cellWidth, 9);
+          doc.text(fixedTexts[k], x + 2, 129);
+        }
+
+        const fixedValuesColumn1 = ["73.1","145.1","215.2","284.7","356.1","427.4","498.1","569.4","641.3","714.1"];
+        const fixedValuesColumn2 = ["200", "400", "600", "800", "1000", "1200", "1400", "1600", "1800", "2000"];
+
+        for (let i = 0; i < 10; i++) {
+          for (let j = 0; j < 6; j++) {
+            const x = startX + j * cellWidth;
+            const y = startY + i * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+
+            let textValue = "";
+            if (j === 0) textValue = fixedValuesColumn1[i];
+            else if (j === 1) textValue = fixedValuesColumn2[i];
+            else textValue = details.inputs2000new[i] || "";
+
+            const textWidth = doc.getTextWidth(textValue);
+            const centeredX = x + (cellWidth - textWidth) / 2;
+            doc.text(textValue, centeredX, y + 4.5);
+          }
+        }
+      }
+      
+      let endY = 195;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 5);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+  
+==================== cube_mould.php ====================
+addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+      }
+      let sizeStr = details.size || "";
+      let [length, height, width] = sizeStr.includes("x") ? sizeStr.split("x").map(s => s.trim()) : [sizeStr, "", ""];
+      if (!length) length = "";
+      if (!height) height = "";
+      if (!width) width = "";
+      const headers = [["SR.NO", "LENGTH", "HEIGHT", "WIDTH"]];
+      const allRows = [];
+      for (let i = 1; i <= qty; i++) {
+        allRows.push([i, length, height, width]);
+      }
+      const pageCount = Math.ceil(allRows.length / 10);
+      for (let page = 0; page < pageCount; page++) {
+        if (page > 0) doc.addPage();
+        let pageRows = allRows.slice(page * 10, page * 10 + 10);
+        let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageDetails = { ...details, certificateNumber: refNo };
+        let tableY = drawHeader(doc, pageDetails, 50, true);
+        if (typeof doc.autoTable === 'function') {
+          try {
+            doc.autoTable({
+              head: headers,
+              body: pageRows,
+              startY: tableY + 1,
+              styles: {
+                fontSize: 12,
+                lineColor: [0, 0, 0],
+                textColor: [0, 0, 0],
+                lineWidth: 0.2,
+                halign: 'center',
+                valign: 'middle'
+              },
+              headStyles: {
+                fontSize: 15,
+                fillColor: [255, 255, 255],
+                textColor: [0, 0, 0],
+                lineColor: [0, 0, 0],
+                lineWidth: 0.2,
+                halign: 'center',
+                valign: 'middle'
+              },
+              alternateRowStyles: {
+                fillColor: [255, 255, 255]
+              }
+            });
+          } catch (ae) {
+            console.error("autoTable error in cube_mould.php:", ae);
+          }
+        } else {
+          let curY = tableY + 5;
+          doc.setFontSize(14);
+          doc.rect(14, curY, 180, 8);
+          doc.text("SR.NO", 20, curY + 6);
+          doc.text("LENGTH", 60, curY + 6);
+          doc.text("HEIGHT", 110, curY + 6);
+          doc.text("WIDTH", 160, curY + 6);
+          curY += 8;
+          doc.setFontSize(12);
+          for (let r of pageRows) {
+            doc.rect(14, curY, 180, 8);
+            doc.text(String(r[0]), 20, curY + 6);
+            doc.text(String(r[1]), 60, curY + 6);
+            doc.text(String(r[2]), 110, curY + 6);
+            doc.text(String(r[3]), 160, curY + 6);
+            curY += 8;
+          }
+          if (!doc.autoTable) doc.autoTable = {};
+          doc.autoTable.previous = { finalY: curY };
+        }
+        let tableEndY = (doc.autoTable && doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : tableY + 40;
+        let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+        addFooterImages(doc);
+      }
+    };
+    function addCertificateDetails(doc, details) {
+      return window.addCertificateDetails(doc, details);
+    }
+
+    // Preload images on load
+    document.addEventListener("DOMContentLoaded", async function() {
+      try {
+        await prepareImages();
+      } catch (e) {
+        if (window.SHREEJI_DEBUG) console.error("Error preloading images:", e);
+      }
+    });
+  
+==================== digital_thermo.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign = 50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      doc.text(`REF NO                         :-      ${details.certificateNumber}`, 14, Yalign);
+      const partyPrefix = "NAME OF PARTY         :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
+      doc.text(`EQUIPEMENT NAME    :-     DIGITAL THERMOMETER`, 14, Yalign += 10);
+      doc.text(`CAPACITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+      doc.text(`SERIAL NO                    :-     ${details.serialNo}`, 14, Yalign += 10);
+      doc.text(`NEXT DUE DATE           :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+
+      const siteLocPrefix = "SITE LOCATION            :-     ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      Yalign += 10;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+      }
+      const tableStartY = Yalign;
+      const data = [
+        [ "1", " 50"," 50"],
+        [ "2", " 100"," 100" ],
+        [ "3", " 150"," 150" ],
+        [ "4", " 200"," 200" ],
+        [ "5", " 250"," 250" ],
+        [ "6", " 300"," 300" ]
+      ];
+      doc.autoTable({
+        head: [['SR.NO', 'STANDARD TEMPERATURE', 'STANDARD TEMPERATURE BY 1 St BUCKET “A”']],
+        body: data,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 12 ,
+          textColor:[0,0,0],
+          lineColor:[0,0,0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fontSize: 15,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2 = doc.autoTable.previous.finalY;
+      doc.setFontSize(12); 
+      doc.setFont("helvetica", "bold"); 
+      doc.text("CALIBRATED BY       :-     YOGESH B JOSHI", 14, tableStartY2 += 5);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+    }
+    
+    // --- Sticker logic ---
+async function generateInfoSticker() {
+    if (!document.getElementById("calibrationForm").reportValidity()) return;
+    const stickerPreviewFrame = document.getElementById("stickerPreviewFrame");
+    stickerPreviewFrame.style.display = "block";
+    const downloadButton = document.getElementById("downloadStickerBtn");
+    downloadButton.style.display = "block";
+    stickerPdfBlob = null; // Reset previous blob
+    const details = getFormDetails();
+  const { jsPDF } = window.jspdf;
+  // A4 size in points
+  const a4Width = 210 * 2.83465;
+  const a4Height = 297 * 2.83465;
+  // Sticker size
+  const stickerWidth = 60 * 2.83465;
+  const stickerHeight = 30 * 2.83465;
+  // Desired position on A4 (e.g., 5cm left, 10cm top)
+  const posX = 5 * 2.83465;
+  const posY = 10 * 2.83465;
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: [a4Width, a4Height]
+  });
+
+  // Draw sticker (same code as in generateInfoSticker, but use posX/posY as offsets)
+  const primaryBlue = [19, 52, 165];
+  const accentRed = [228, 34, 21];
+
+  // Blue border at specific spot
+  doc.setDrawColor(...primaryBlue);
+  doc.setLineWidth(3);
+  doc.rect(posX, posY, stickerWidth, stickerHeight);
+
+  // Logo
+  const logoImg = new Image();
+  logoImg.src = "logo.jpeg";
+  await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+  if (logoImg.width) {
+    doc.addImage(logoImg, "JPEG", posX + 8, posY + 4, 12, 16);
+  }
+
+  // Header text
+  doc.setFont("times", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(...accentRed);
+  doc.text(window.PDF_COMPANY_NAME, posX + 30, posY + 13);
+
+  doc.setFont("times", "normal");
+  doc.setFontSize(6);
+  doc.setTextColor(...primaryBlue);
+  doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", posX + 30, posY + 20, { align: "left" });
+
+  // Table
+  const tableLeft = posX + 5;
+  const tableTop = posY + 22;
+  const tableWidth = stickerWidth - 10;
+  const rowHeight = 14;
+  const labelWidth = tableWidth * 0.4;
+  const tableData = [
+    { label: "INST ID NO.", value: details.certificateNumber || "N/A" },
+    { label: "CAPACITY", value: details.capacity || "N/A" },
+    { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+    { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+  ];
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(1);
+  doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+  tableData.forEach((row, index) => {
+    const rowY = tableTop + (index * rowHeight);
+    if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+    doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+    doc.setFillColor(255, 255, 255);
+    doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+    const labelY = rowY + rowHeight / 2;
+    const valueY = rowY + rowHeight / 2;
+    doc.setFont("times", "bold");
+    doc.setFontSize(9.4);
+    doc.setTextColor(...primaryBlue);
+    doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+  });
+
+  // Print window
+  const pdfBlob = doc.output('blob');
+  const pdfURL = URL.createObjectURL(pdfBlob);
+  const printWindow = window.open(pdfURL, '_blank');
+  if (printWindow) {
+    printWindow.onload = function () { printWindow.print(); };
+  }
+}
+async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+    async function sharePDF() {
+      if (!document.getElementById("calibrationForm").reportValidity()) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      addCertificateDetails(doc, getFormDetails());
+      addImg(doc, getFormDetails());
+      const pdfBlob = doc.output('blob');
+      const pdfFile = new File([pdfBlob], "certificate.pdf", { type: "application/pdf" });
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: 'Calibration Certificate',
+            text: 'Here is your calibration certificate PDF.'
+          });
+        } catch (err) {
+          alert('Sharing cancelled or not supported.');
+        }
+      } else {
+        alert('Web Share API not supported or file sharing not available in your browser.');
+      }
+    }
+  
+==================== elongation.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(10);
+      Yalign += 12;
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign);
+      doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY        :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 10;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
+      doc.text(`EQUIPMENT NAME     :-     ELOGATION GAUGE`, 14, Yalign += 10);
+      doc.text(`SERIAL NO:- ${details.serialNo}`, 150, Yalign);
+      doc.text(`AS PER IS                    :-     IS 2386-1`, 14, Yalign += 10);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
+
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      Yalign += 10;
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+      }
+
+      const tableStartY = Yalign;
+      const sieveData = [
+        ['50.00 MM', '40.00 MM', '81.00 MM', '81.00 MM'],
+        ['40.00 MM', '31.50 MM', '64.40 MM', '64.40 MM'],
+        ['31.50 MM', '25.00 MM', '40.50 MM', '40.50 MM'],
+        ['25.00 MM', '20.00 MM', '32.40 MM', '32.40 MM'],
+        ['20.00 MM', '16.00 MM', '25.60 MM', '25.60 MM'],
+        ['16.00 MM', '12.50 MM', '20.00 MM', '20.20 MM'],
+        ['12.50 MM', '10.00 MM', '14.67 MM', '14.67 MM'],
+        ['10.00 MM', '6.30 MM', '81.00 MM', '81.00 MM']
+      ];
+      doc.autoTable({
+        head: [['PASSING SIEVE', 'RATAINED SIEVE', 'REQUIRED GAUGE', 'ACTUAL GAUGE SIZE']],
+        body: sieveData,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 8,
+          textColor:[0,0,0],
+          lineColor:[87, 86, 85],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fontSize: 10,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2=doc.autoTable.previous.finalY;
+      const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
+      doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION',  doc.internal.pageSize.getWidth() / 2, tableStartY2+=10, { align: 'center' });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text('EQUIPMENT NAME  :-' + (master.name || 'DIGITAL VERNIER CALIPER'), 14, tableStartY2+=7);
+      doc.text('CALIBRATION BY :-' + (master.calibrated_by || 'ARSHI ENTERPRISE, AHMEDABAD'), 100,  tableStartY2);
+      doc.text('CALIBRATION DATE :-' + (master.calib_date || '02/08/2026'), 14, tableStartY2+=7);
+      doc.text('NEXT DUE DATE  :-' + (master.due_date || '01/08/2027'), 100, tableStartY2);
+
+      let endY = tableStartY2 + 2;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      // 60mm width (increased by 2cm), 30mm height
+      const width = 60 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+
+      // Blue border starting at 0, no white margin
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(0, 0, width, height);
+
+      // Logo
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 8, 4, 12, 16); // enlarged logo
+      }
+
+      // Header text
+      doc.setFont("times", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 30, 13);
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(6);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", 30, 20, { align: "left" });
+
+      // Table
+      const tableLeft = 5;
+      const tableTop = 22;
+      const tableWidth = width - 10;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "CERT NO.", value: details.certificateNumber || "N/A" },
+        { label: "PARTY", value: details.partyName || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2;
+        const valueY = rowY + rowHeight / 2;
+        doc.setFont("times", "bold");
+        doc.setFontSize(9.4);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+     
+==================== flakness.php ====================
+addCertificateDetails = function(doc, details){
+      
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+    // Spacing
+    doc.setFontSize(10);
+    doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign+=12);
+    doc.text(`REF NO                    :-     ${details.certificateNumber}`, 14, Yalign);
+
+    const partyPrefix = "NAME OF PARTY        :-     ";
+    const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+    const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+    Yalign += 10;
+    doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+    for (let i = 1; i < partyLines.length; i++) {
+      Yalign += 4.5;
+      doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+    }
+
+    doc.text(`EQUIPMENT NAME     :-     FLAKNESS GAUGE`, 14, Yalign+=10);
+    doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, Yalign);
+    doc.text(`AS PER IS                    :-     IS 2386-1`, 14, Yalign+=10);
+    doc.text(`SERIAL NO:- ${details.serialNo}`, 150, Yalign);
+
+    const siteLocPrefix = "SITE LOCATION          :-     ";
+    const prefixWidth = doc.getTextWidth(siteLocPrefix);
+    const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - prefixWidth);
+    Yalign += 10;
+    doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+    for (let i = 1; i < siteLocLines.length; i++) {
+      Yalign += 4.5;
+      doc.text(siteLocLines[i], 14 + prefixWidth, Yalign);
+    }
+
+    const tableStartY = Yalign;
+    // Result container
+    const sieveData = [
+        ['63.00 mm', '50.00 mm', '33.90 mm', '33.90 mm'],
+        ['50.00 mm', '40.00 mm', '27.00 mm', '270.00 mm'],
+        ['40.00 mm', '31.00 mm', '21.45 mm', '21.45 mm'],
+        ['31.50 mm', '25.00 mm', '16.95 mm', '16.95 mm'],
+        ['25.00 mm', '20.00 mm', '13.50 mm', '13.50 mm'],
+        ['20.00 mm', '16.00 mm', '10.80 mm', '10.80 mm'],
+        ['16.00 mm', '12.50 mm', '8.55 mm', '8.55 mm'],
+        ['12.50 mm', '10.00 mm', '6.75 mm', '6.75 mm'],
+        ['10.00 mm', '6.30 mm', '4.89 mm', '4.89 mm'],
+    ];
+
+    doc.autoTable({
+        head: [['PASSING SIEVE', 'RATAINED SIEVE', 'REQUIRED GAUGE', 'ACTUAL GAUGE SIZE']],
+        body: sieveData,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 8 ,
+          lineColor:[87, 86, 85],
+          lineWidth: 0.2,
+          halign: 'center',  // horizontal align to center
+          valign: 'middle',  // vertical align to middle
+        },
+        headStyles: {
+          fontSize: 10,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',  // horizontal align to center
+          valign: 'middle',  // vertical align to middle
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+    });
+    let tableStartY2=doc.autoTable.previous.finalY;
+    const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
+    // Additional section
+    doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION',  doc.internal.pageSize.getWidth() / 2, tableStartY2+=10, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text('EQUIPMENT NAME  :-' + (master.name || 'DIGITAL VERNIER CALIPER'), 14, tableStartY2+=7);
+    doc.text('CALIBRATION BY :-' + (master.calibrated_by || 'ARSHI ENTERPRISE, AHMEDABAD'), 100,  tableStartY2);
+    doc.text('CALIBRATION DATE :-' + (master.calib_date || '02/08/2026'), 14, tableStartY2+=7);
+    doc.text('NEXT DUE DATE  :-' + (master.due_date || '01/08/2027'), 100, tableStartY2);
+
+      let endY = tableStartY2 + 2;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+   // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      // 60mm width (increased by 2cm), 30mm height
+      const width = 60 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+
+      // Blue border starting at 0, no white margin
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(0, 0, width, height);
+
+      // Logo
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 8, 4, 12, 16); // enlarged logo
+      }
+
+      // Header text
+      doc.setFont("times", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 30, 13);
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(6);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", 30, 20, { align: "left" });
+
+      // Table
+      const tableLeft = 5;
+      const tableTop = 22;
+      const tableWidth = width - 10;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "CERT NO.", value: details.certificateNumber || "N/A" },
+        { label: "PARTY", value: details.partyName || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2;
+        const valueY = rowY + rowHeight / 2;
+        doc.setFont("times", "bold");
+        doc.setFontSize(9.4);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+    
+   
+==================== general.php ====================
+addCertificateDetails = function(doc, details) {
+        let Yalign = 50;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign += 10);
+        doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign += 7);
+        doc.text("equipment traceable to international standards.", 12, Yalign += 7);
+
+        doc.setFontSize(15);
+        // Certificate Details
+        doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign += 15);
+        doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+
+        const partyPrefix = "NAME OF PARTY         :     ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        Yalign += 15;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < partyLines.length; i++) {
+          Yalign += 5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+        }
+
+        doc.text(`EQUIPMENT NAME      :     ${details.equipmentType}`, 14, Yalign += 15);
+        doc.text(`SERIAL NO / MAKE      :     ${details.serialNo} / ${details.make}`, 14, Yalign += 15);
+
+        const siteLocPrefix = "SITE LOCATION           :     ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+        Yalign += 15;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          Yalign += 5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+        }
+
+        doc.text(`CAPACITY                    :     ${details.capacity}`, 14, Yalign += 15);
+        doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign += 15);
+        doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign += 15);
+
+        doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+      }
+
+      async function generateInfoSticker() {
+        const { jsPDF } = window.jspdf;
+        const width = 40 * 2.83465;
+        const height = 30 * 2.83465;
+        const doc = new jsPDF({
+          orientation: "landscape",
+          unit: "pt",
+          format: [width, height]
+        });
+        const details = getFormDetails();
+        const primaryBlue = [19, 52, 165];
+        const accentRed = [228, 34, 21];
+        doc.setDrawColor(...primaryBlue);
+        doc.setLineWidth(3);
+        doc.rect(5, 5, width - 10, height - 10);
+        
+        const tableLeft = 15;
+        const tableTop = 20;
+        const tableWidth = width - 30;
+        const rowHeight = 14;
+        const labelWidth = tableWidth * 0.4;
+        const tableData = [
+          { label: "SERIAL NO.", value: details.serialNo || "N/A" },
+          { label: "MODEL", value: details.equipmentType || "N/A" },
+          { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+          { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+        ];
+        
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(1);
+        doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+        tableData.forEach((row, index) => {
+          const rowY = tableTop + (index * rowHeight);
+          if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+          doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+          doc.setFillColor(255, 255, 255);
+          doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+          const labelY = rowY + rowHeight / 2 + 1;
+          const valueY = rowY + rowHeight / 2 + 1;
+          doc.setFont("times", "bold");
+          doc.setFontSize(4.5);
+          doc.setTextColor(...primaryBlue);
+          doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+          doc.setFont("times", "normal");
+          doc.setFontSize(4.5);
+          doc.setTextColor(0, 0, 0);
+          doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+        });
+        
+        stickerPdfBlob = doc.output('blob');
+        const pdfURL = URL.createObjectURL(stickerPdfBlob);
+        const frame = document.getElementById("stickerPreviewFrame");
+        frame.src = pdfURL;
+        frame.style.display = "block";
+        const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+        dockDownloadBtn.style.display = "block";
+        frame.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      async function downloadSticker() {
+        if (!stickerPdfBlob) {
+          alert('Please generate the sticker first!');
+          return;
+        }
+        const details = getFormDetails();
+        const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.equipmentType || 'Unknown'}.pdf`;
+        await savePDFWithLocation(stickerPdfBlob, fileName);
+      }
+    
+==================== hydrometer.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+  doc.text(`EQUIPMENT NAME      :     SOIL HYDROMETER    `, 14, Yalign+=15);
+  doc.text(`CAPACITY / MAKE        :    ${details.capacity} / ${details.make} `, 14, Yalign+=15);
+  doc.text(`SERIAL NO                     :     ${details.serialNo}`, 14, Yalign+=15);
+  
+  // --- Site Location with wrapping (only value, not prefix) ---
+  const siteLocPrefix = "SITE LOCATION            :     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+  }
+
+  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
+  doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+}
+  
+==================== isi_cube.php ====================
+addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+      }
+      let sizeStr = details.size || "";
+      let parts = (sizeStr || "").split(/x/i).map(s => s.trim()).filter(Boolean);
+      let length = parts[0] || "";
+      let height = parts[1] || parts[0] || "";
+      let width  = parts[2] || parts[0] || "";
+      const headers = [["SR.NO", "SERIAL NO", "LENGTH", "HEIGHT", "WIDTH"]];
+      const allRows = [];
+      const serials = details.serials || [];
+      for (let i = 1; i <= qty; i++) {
+        const serialNo = serials[i-1] || details[`serial${i}`] || "";
+        allRows.push([i, serialNo, length, height, width]);
+      }
+      const pageCount = Math.ceil(allRows.length / 10);
+      for (let page = 0; page < pageCount; page++) {
+        if (page > 0) doc.addPage();
+        let pageRows = allRows.slice(page * 10, page * 10 + 10);
+        let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageDetails = { ...details, certificateNumber: refNo };
+        let tableY = drawHeader(doc, pageDetails, 50, true);
+        doc.autoTable({
+          head: headers,
+          body: pageRows,
+          startY: tableY + 1,
+          styles: {
+            fontSize: 12,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle'
+          },
+          headStyles: {
+            fontSize: 14,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle'
+          },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 45 },
+            2: { cellWidth: 39 },
+            3: { cellWidth: 39 },
+            4: { cellWidth: 39 }
+          },
+          alternateRowStyles: {
+            fillColor: [255, 255, 255]
+          }
+        });
+        let tableEndY = (doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : tableY + 40;
+        let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+        addFooterImages(doc);
+      }
+    };
+    function addCertificateDetails(doc, details) {
+      return window.addCertificateDetails(doc, details);
+    }
+
+    // Preload images on load & listen to quantity changes
+    document.addEventListener("DOMContentLoaded", async function() {
+      const qtyInput = document.getElementById('quantity');
+      if (qtyInput) {
+        qtyInput.addEventListener('input', window.generateSerialInputs);
+        qtyInput.addEventListener('change', window.generateSerialInputs);
+        qtyInput.addEventListener('keyup', window.generateSerialInputs);
+      }
+      await prepareImages();
+    });
+  
+==================== measuring_cyl.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+  doc.text(`EQUIPMENT NAME      :     MEASURING CYLINDER`, 14, Yalign+=15);
+  doc.text(`SIZE                                 :     ${details.size} /   (${details.type})`, 14, Yalign+=15);
+  doc.text(`SERIAL NO                  :     ${details.serialNo}`, 14, Yalign+=15);
+  
+  // --- Site Location with wrapping (only value, not prefix) ---
+  const siteLocPrefix = "SITE LOCATION          :     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+  }
+
+  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
+  doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+}
+  
+==================== oven.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  
+  // Spacing
+  doc.setFontSize(12);
+  doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping ---
+  const partyNamePrefix = "NAME OF PARTY        :-     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 5);
+  }
+ 
+  
+  doc.text(`EQUIPMENT NAME     :-     ELECTRICAL HOT AIR OVEN(${details.size})`, 14, Yalign += 10);
+  doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+  doc.text(`SR NO                          :-     ${details.serialNo}`, 14, Yalign += 10);
+  doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+  
+  // --- Site Location with wrapping ---
+  const siteLocPrefix = "SITE LOCATION          :-     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 5);
+  }
+
+  
+  const tableStartY = Yalign += 10;
+  const data = [
+    ["1", " 50", "50"],
+    ["2", " 100", "100"],
+    ["3", " 150", "150"],
+    ["4", " 200", "200"],
+    ["5", " 250", "250"],
+    ["6", " 300", "300"]
+  ];
+  
+  doc.autoTable({
+    head: [['SR.NO', 'STANDARD TEMPERATURE', 'STANDARD TEMPERATURE BY 1 St BUCKET "A"']],
+    body: data,
+    startY: tableStartY + 10,
+    styles: {
+      fontSize: 12,
+      lineColor: [0, 0, 0],
+      textColor: [0, 0, 0],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle',
+    },
+    headStyles: {
+      fontSize: 15,
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle',
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255]
+    }
+  });
+  
+  let tableStartY2 = doc.autoTable.previous.finalY;
+  // Add calibrated by
+  let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+}
+
+     
+==================== ph_meter.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign=50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text(`DATE:-${details.calibrationDate}`, 162, Yalign+=10);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY             :-     ${details.partyName}`, 14, Yalign+=10);
+      doc.text(`EQUIPMENT NAME          :-     PH METER`, 14, Yalign+=10);
+      doc.text(`AS PER IS                          :-     IS 4309`, 14, Yalign+=10);
+      doc.text(`MAKE  &  RANGE            :-     ${details.make}  &  "0 ~ 14PH" `, 14, Yalign+=10);
+      doc.text(`SERIAL NO                        :-     ${details.serialNo}`, 14, Yalign+=10);
+      doc.text(`NEXT DUE DATE               :-     ${details.nextCalibrationDate}`, 14, Yalign+=10);
+
+      // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION                :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth;
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || '', maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign += 4);
+      }
+      Yalign += ((siteLocLines.length - 1) + 5);
+      const tableStartY = Yalign;
+      const calibrationData = [
+        ['1', '7.00', '7.00', '0.00'],
+        ['2', '4.00', '4.00', '0.00'],
+        ['3', '10.00', '9.78', '0.22']
+      ];
+      doc.autoTable({
+        head: [['SR NO', 'STANDARD BUFFER SOLUTION PH', 'TEST METER READING PH', 'ERROR']],
+        body: calibrationData,
+        startY: tableStartY + 0,
+        styles: {   
+          fontSize: 8,
+          textColor:[0,0,0],
+          lineColor:[87, 86, 85],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fontSize: 10,
+          fillColor: [255, 255, 255],
+          textColor: [0,0,0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',
+          valign: 'middle',
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2=doc.autoTable.previous.finalY;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text('NOTE: This Certificate Refer To The Value Obtained At The Time Of Calibration, Environment', 14, tableStartY2+=10);
+      doc.text('Condition During Calibration 25°C ± 2°C', 14, tableStartY2+=5);
+      doc.text('Detail Of Standard Use For Calibration:', 14, tableStartY2+=8);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text('STANDARD BUFFER SOLUTION & DISTILLED WATER', 14, tableStartY2+=6);
+      doc.setFont("helvetica", "bold");
+      doc.text('Note: This Certificate Refer The Value Obtained At The Time Of Calibration', 14, tableStartY2+=8);
+
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(12); 
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      // 60mm width (increased by 2cm), 30mm height
+      const width = 60 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+
+      // Blue border starting at 0, no white margin
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(0, 0, width, height);
+
+      // Logo
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 8, 4, 12, 16); // enlarged logo
+      }
+
+      // Header text
+      doc.setFont("times", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 30, 13);
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(6);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", 30, 20, { align: "left" });
+
+      // Table
+      const tableLeft = 5;
+      const tableTop = 22;
+      const tableWidth = width - 10;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "CERT NO.", value: details.certificateNumber || "N/A" },
+        { label: "PARTY", value: details.partyName || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2;
+        const valueY = rowY + rowHeight / 2;
+        doc.setFont("times", "bold");
+        doc.setFontSize(9.4);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+     
+==================== pycnometer.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(15);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+  doc.text(`EQUIPMENT NAME      :     PYCNOMETER   BOTTLE   `, 14, Yalign+=15);
+  doc.text(`SIZE                               :    ${details.size} `, 14, Yalign+=15);
+  doc.text(`SERIAL NO                    :     ${details.serialNo}`, 14, Yalign+=15);
+  
+  // --- Site Location with wrapping (only value, not prefix) ---
+  const siteLocPrefix = "SITE LOCATION            :     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+  }
+
+  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
+  doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+}
+  
+==================== rapid_moisture.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+     
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");   
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=12);
+      doc.text(`REF NO                          :-    ${details.certificateNumber}`, 14, Yalign);
+
+      const partyPrefix = "NAME OF PARTY          :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 5;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
+      doc.text(`EQUIPMENT NAME       :     RAPID MOISTURE METER`, 14, Yalign += 5);
+      doc.text(`RANGE                           :     0-50 %`, 14, Yalign += 5);
+      doc.text(`SERIAL NO / MAKE       :     ${details.serialNo} / ${details.make}`, 14, Yalign += 5);
+
+      if (details.siteLocation) {
+        const siteLocPrefix = "SITE LOCATION            :     ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation, 180 - siteLocPrefixWidth);
+        Yalign += 5;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          Yalign += 4.5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+        }
+      }
+
+      doc.text(`NEXT DUE DATE           :     ${details.nextCalibrationDate}`, 14, Yalign += 5);
+
+      doc.setFontSize(9);
+      doc.text("TABLE TO CONVERT RAPID MOISTURE METER READING TO PERCENTAGE MOISTURE CONTENT ON DRY WEIGHT BASIS.", 14, Yalign+=5);
+
+      const head = [
+        [
+          "Rapid Moisture Meter Reading %",
+          "Moisture Content on Dry Weight Basis %",
+          "Rapid Moisture Meter Reading %",
+          "Moisture Content on Dry Weight Basis %"
+        ]
+      ];
+
+      const data = [
+        [ "01", "1",  "26", "27" ],
+        [ "02", "2",  "27", "28" ],
+        [ "03", "3",  "28", "29" ],
+        [ "04", "4",  "29", "30" ],
+        [ "05", "5",  "30", "32" ],
+        [ "06", "6",  "31", "33" ],
+        [ "07", "7",  "32", "34" ],
+        [ "08", "8",  "33", "35" ],
+        [ "09", "9",  "34", "36" ],
+        [ "10", "10", "35", "37" ],
+        [ "11", "12", "36", "38" ],
+        [ "12", "13", "37", "39" ],
+        [ "13", "14", "38", "40" ],
+        [ "14", "15", "39", "41" ],
+        [ "15", "16", "40", "42" ],
+        [ "16", "17", "41", "43" ],
+        [ "17", "18", "42", "44" ],
+        [ "18", "19", "43", "45" ],
+        [ "19", "20", "44", "46" ],
+        [ "20", "21", "45", "47" ],
+        [ "21", "22", "46", "48" ],
+        [ "22", "23", "47", "49" ],
+        [ "23", "24", "48", "50" ],
+        [ "24", "25", "49", "51" ],
+        [ "25", "26", "50", "52" ],
+      ];
+
+      doc.autoTable({
+        head: head,
+        body: data,
+        startY: Yalign+=3,
+        theme: 'grid',
+        styles: {
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle',
+            fontSize: 8.2,
+            fontStyle: 'bold',
+            cellPadding: 0.4
+        },
+        headStyles: {
+            fontSize: 8.2,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle'
+        }
+      });
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 2 : 180;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      doc.text("• NOTE: This calibration report refers to 'Oven Drying Method'.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.serialNo || "N/A" },
+        { label: "MAKE", value: details.make || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+  
+==================== sand_pouring.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
+  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
+  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  doc.setFontSize(11);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
+  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY         :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+  doc.text(`EQUIPMENT NAME      :     SAND POURING CYLINDER   `, 14, Yalign+=15);
+  doc.text(`SIZE                               :    ${details.size} `, 14, Yalign+=15);
+  doc.text(`SERIAL NO                    :     ${details.serialNo}`, 14, Yalign+=15);
+  
+  // --- Site Location with wrapping (only value, not prefix) ---
+  const siteLocPrefix = "SITE LOCATION            :     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+  }
+
+  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
+  let endY = Yalign + 4;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+  doc.setFontSize(10.5);
+  doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 6);
+  doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 5);
+  let sigY = Math.max(endY + 15, 225);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+  doc.text("PROPRIETOR", 170, sigY + 15);
+}
+  
+==================== sieves.php ====================
+addCertificateDetails = function(doc, details) {
+        const testResults = [];
+        document.querySelectorAll('#resultsBody tr').forEach(row => {
+            const cells = row.cells;
+            if (cells && cells.length >= 5) {
+                testResults.push([cells[0].textContent, cells[1].textContent, cells[2].textContent, cells[3].textContent, cells[4].textContent]);
+            }
+        });
+
+        // Fallback for direct data if DOM table rows are absent
+        if (testResults.length === 0) {
+            let subSizesArr = [];
+            const rawSub = details.selectedSubSizes || document.getElementById('selectedSubSizes')?.value || '';
+            try {
+                subSizesArr = JSON.parse(rawSub);
+            } catch (e) {
+                if (typeof rawSub === 'string' && rawSub.length > 0) {
+                    subSizesArr = rawSub.split(',').map(s => s.trim()).filter(Boolean);
+                }
+            }
+            if (Array.isArray(subSizesArr) && subSizesArr.length > 0) {
+                const sieveName = details.sieveSize || document.getElementById('sieveSize')?.value || 'GI SIEVE';
+                const makeName = details.make || document.getElementById('make')?.value || 'ASC';
+                subSizesArr.forEach((sz, idx) => {
+                    testResults.push([(idx + 1).toString(), makeName, sieveName, sz, 'OK']);
+                });
+            }
+        }
+
+        // Sort by size descending
+        testResults.sort((a, b) => parseSize(b[3]) - parseSize(a[3]));
+
+        // Reassign SR NO.
+        testResults.forEach((row, index) => {
+            row[0] = (index + 1).toString();
+        });
+
+        let isFirstPage = true;
+        let pageIndex = 1;
+        let currentY = 46;
+        const rawCertNo = details.certificateNumber !== undefined && details.certificateNumber !== null ? String(details.certificateNumber).trim() : '';
+
+        while (testResults.length > 0) {
+            if (!isFirstPage) {
+                doc.addPage();
+                currentY = 46;
+                pageIndex++;
+            }
+
+            const currentCertNo = (pageIndex > 1 && rawCertNo) ? `${rawCertNo}-${pageIndex}` : rawCertNo;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(25);   
+            doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth()/2, currentY, { align: 'center' });
+
+            doc.setFont("helvetica", "bold"); 
+            doc.setFontSize(10);  
+
+            currentY = 58;
+            if (currentCertNo) {
+                doc.text(`REF NO:- ${currentCertNo}`, 140, currentY);
+            }
+
+            const partyPrefix = "NAME OF PARTY           :-     ";
+            const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+            const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+            doc.text(partyPrefix + (partyLines[0] || ""), 14, currentY);
+            for (let i = 1; i < partyLines.length; i++) {
+                currentY += 4.5;
+                doc.text(partyLines[i], 14 + partyPrefixWidth, currentY);
+            }
+
+            currentY += 8;
+            doc.text(`EQUIPMENT NAME        :-     TEST SIEVES`, 14, currentY);
+            currentY += 8;
+
+            // Site Location with auto-wrapping
+            const siteLocPrefix = "SITE LOCATION             :-     ";
+            const prefixWidth = doc.getTextWidth(siteLocPrefix);
+            const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - prefixWidth);
+            doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, currentY);
+            for (let l = 1; l < siteLocLines.length; l++) {
+                currentY += 4.5;
+                doc.text(siteLocLines[l], 14 + prefixWidth, currentY);
+            }
+            currentY += 8;
+
+            doc.text(`CALIBRATION DATE     :-     ${details.calibrationDate || ''}`, 14, currentY);
+            currentY += 8;
+            doc.text(`NEXT DUE DATE            :-     ${details.nextCalibrationDate || ''}`, 14, currentY);
+            currentY += 8;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);   
+            doc.text("Test Results", doc.internal.pageSize.getWidth()/2, currentY, { align: 'center' });
+            currentY += 3;
+
+            const chunk = testResults.splice(0, 10);
+
+            doc.autoTable({
+                head: [['SR NO.', 'MAKE', 'SIEVE', 'SIEVE SIZE', 'RESULT']],
+                body: chunk,
+                startY: currentY,
+                styles: { 
+                    fontSize: 7.5,
+                    textColor: [0,0,0],
+                    fontStyle: "bold",  
+                    lineColor: [87, 86, 85],
+                    lineWidth: 0.2,
+                    halign: 'center',
+                    valign: 'middle',
+                    cellPadding: 0.8
+                },
+                headStyles: {
+                    fontSize: 9,
+                    fillColor: [255, 255, 255],
+                    textColor: [0,0,0],
+                    lineColor: [0, 0, 0],
+                    lineWidth: 0.2,
+                    halign: 'center',
+                    valign: 'middle',
+                },
+                alternateRowStyles: {
+                    fillColor: [255, 255, 255]
+                }
+            });
+
+            currentY = doc.autoTable.previous.finalY + 3;
+            isFirstPage = false;
+
+            let yPosition = currentY;
+            doc.setFontSize(8.5);
+            doc.setFont("helvetica", "bold");
+            doc.text("*REMARKS:-", doc.internal.pageSize.getWidth()/2, yPosition+=2, { align: 'center' }); yPosition += 4;
+            doc.setFont("helvetica", "bold"); 
+            doc.setFontSize(7.5);
+            doc.text("•THESE RESULTS ARE OBTAINED AT THE TIME OF CALIBRATION.", 14, yPosition); yPosition += 4;
+            doc.text("•ANY HAND WRITTEN CORRECTION (EXCEPT @ OR PHOTOCOPIES OF THE REPORT INVALIDATES THIS CERTIFICATE).", 14, yPosition); yPosition += 4;
+            doc.text("•ENVIRONMENT CONDITION DURING CALIBRATION: 20 + 2.C, 40 TO 60% RH.", 14, yPosition); yPosition += 4;
+            doc.text("•THE UNCERTAINTIES ARE FOR A CONFIDENCE PROBABILITY OF NOT LESS THAN 95%. ", 14, yPosition); yPosition += 4;
+            doc.text("•REFERENCE CALIBRATION METHOD NO: NCQC/CM/102.", 14, yPosition); yPosition += 4;
+            doc.text("•REFERENCE STANDARD NO.IS-2-1960.", 14, yPosition); yPosition += 5;
+
+            const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
+            const masterName = master.name || "DIGITAL VERNIER CALIPER";
+            const masterSerial = master.serial_no || "ACCUPLUS/13-200";
+            const masterRange = master.range_capacity || "0-200MM";
+            const masterLc = master.least_count || '0.001" (0.01MM)';
+            const masterCalib = master.calib_date || "02/08/2026";
+            const masterDue = master.due_date || "01/08/2027";
+            const masterCert = master.cert_no || "62";
+            const masterLab = master.calibrated_by || "IDEMI CALIBRATION LABORATORY";
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8.5);
+            doc.text("*DETAILS OF OUR MASTER INSTRUMENT THROUGH WHICH SIEVES ARE CALIBRATED", doc.internal.pageSize.getWidth()/2, yPosition, { align: 'center' }); yPosition += 5;
+            doc.setFont("helvetica", "bold");       
+            doc.setFontSize(7.5);
+
+            doc.text("NAME : " + masterName, 14, yPosition);
+            doc.text("SERIAL NO : " + masterSerial, 124, yPosition); yPosition += 4;
+            doc.text("RANGE : " + masterRange, 14, yPosition);
+            doc.text("LEAST COUNT : " + masterLc, 124, yPosition); yPosition += 4;
+            doc.text("CALIBRATION DATE : " + masterCalib, 14, yPosition);
+            doc.text("VALID UP TO DATE : " + masterDue, 124, yPosition); yPosition += 4;
+            doc.text("OUR MASTER INSTRUMENT IS CALIBRATED AND TRACEABLE TO NATIONAL STANDARD THROUGH NABL ACCREDITED ", 14, yPosition); yPosition += 4;
+            doc.text('LABORATORY "' + masterLab + '"', 14, yPosition); yPosition += 4;
+            doc.text("CALIBRATION CERTIFICATE NO : " + masterCert, 14, yPosition); yPosition += 4;
+
+            doc.setFont("helvetica", "bold"); 
+            doc.setFontSize(12); 
+
+            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, Math.max(yPosition + 12, 230));
+            doc.text("PROPRIETOR", 170, Math.max(yPosition + 25, 245));
+        }
+    };
+
+    async function generateInfoSticker() {
+        const { jsPDF } = window.jspdf;
+        const width = 40 * 2.83465;
+        const height = 30 * 2.83465;
+        const doc = new jsPDF({
+            orientation: "landscape",
+            unit: "pt",
+            format: [width, height]
+        });
+        const details = getFormDetails();
+        const primaryBlue = [19, 52, 165];
+        const accentRed = [228, 34, 21];
+        doc.setDrawColor(...primaryBlue);
+        doc.setLineWidth(3);
+        doc.rect(5, 5, width - 10, height - 10);
+        const logoImg = new Image();
+        logoImg.src = "logo.jpeg";
+        await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+        if (logoImg.width) {
+            doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+        }
+        doc.setFont("times", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(...accentRed);
+        doc.text(window.PDF_COMPANY_NAME, 32, 13);
+        doc.setFont("times", "normal");
+        doc.setFontSize(4);
+        doc.setTextColor(...primaryBlue);
+        doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+        const tableLeft = 15;
+        const tableTop = 20;
+        const tableWidth = width - 30;
+        const rowHeight = 14;
+        const labelWidth = tableWidth * 0.4;
+        const tableData = [
+            { label: "INST. ID NO.", value: details.certificateNumber || "N/A" },
+            { label: "MAKE", value: details.make || "N/A" },
+            { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+            { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+        ];
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(1);
+        doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+        tableData.forEach((row, index) => {
+            const rowY = tableTop + (index * rowHeight);
+            if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+            doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+            doc.setFillColor(255, 255, 255);
+            doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+            const labelY = rowY + rowHeight / 2 + 1;
+            const valueY = rowY + rowHeight / 2 + 1;
+            doc.setFont("times", "bold");
+            doc.setFontSize(4.5);
+            doc.setTextColor(...primaryBlue);
+            doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+            doc.setFont("times", "normal");
+            doc.setFontSize(4.5);
+            doc.setTextColor(0, 0, 0);
+            doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+        });
+        stickerPdfBlob = doc.output('blob');
+        const pdfURL = URL.createObjectURL(stickerPdfBlob);
+        const frame = document.getElementById("stickerPreviewFrame");
+        frame.src = pdfURL;
+        frame.style.display = "block";
+        const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+        if (dockDownloadBtn) dockDownloadBtn.style.display = "block";
+        frame.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadSticker() {
+        if (!stickerPdfBlob) {
+            alert('Please generate the sticker first!');
+            return;
+        }
+        const details = getFormDetails();
+        const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+        await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+
+==================== slumcone.php ====================
+addCertificateDetails = function(doc, details) {
+      details = details || {};
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) qty = 1;
+
+      for (let page = 0; page < qty; page++) {
+        if (page > 0) doc.addPage();
+
+        let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
+
+        let Yalign = 50;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(25);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+        doc.setFontSize(12);
+        const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
+        
+        const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+        const lines1 = doc.splitTextToSize(para1, maxWidth);
+        doc.text(lines1, 12, Yalign += 15);
+        Yalign += (lines1.length * 6); // Add height for paragraph 1
+        
+        let hori_axis = Yalign + 5;
+        const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
+        const lines2 = doc.splitTextToSize(para2, maxWidth);
+        doc.text(lines2, 12, hori_axis += 9);
+        hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
+
+        doc.setFontSize(10);
+        // Certificate Details
+        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 10);
+        doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
+        const partyPrefix = "NAME OF PARTY       :-    ";
+        const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+        const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+        hori_axis += 10;
+        doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
+        for (let i = 1; i < partyLines.length; i++) {
+          hori_axis += 4.5;
+          doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
+        }
+
+        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
+        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make}`, 14, hori_axis += 10);
+
+        const siteLocPrefix = "SITE LOCATION          :-    ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+        hori_axis += 10;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          hori_axis += 4.5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
+        }
+
+        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 14, hori_axis += 10);
+        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
+
+        const data = [
+          ["TOP DIA", "100 + 3.0 - 1.5", " 100.10"],
+          ["BOTTOM DIA", "200 + 3.0 - 1.5", "200.80"],
+          ["HEIGHT", "300 + 1.5 - 1.5", "300.40"],
+        ];
+
+        doc.autoTable({
+          head: [['  ', 'AS PER IS(MM)', 'ACTUAL MEASURED(AVG. OF THREE)']],
+          body: data,
+          startY: hori_axis + 5,
+          styles: {
+            fontSize: 9.5,
+            textColor: [0, 0, 0],
+            lineColor: [87, 86, 85],
+            lineWidth: 0.2,
+            halign: 'center',  // horizontal align to center
+            valign: 'middle',  // vertical align to middle
+            cellPadding: 0.5,
+            fontStyle: 'bold'
+          },
+          headStyles: {
+            fontSize: 10.5,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',  // horizontal align to center
+            valign: 'middle',  // vertical align to middle
+          },
+          alternateRowStyles: {
+            fillColor: [255, 255, 255]
+          }
+        });
+        let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
+        doc.setFont("helvetica", "bold");
+        let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+      }
+    }
+
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.certificateNumber || "N/A" },
+        { label: "EQUIPMENT", value: "SLUMCONE" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+
+  
+==================== total_station.php ====================
+addCertificateDetails = function(doc, details) {
+      doc.setFont("helvetica", "bold");
+      let Yalign=48;
+      const saveentry = `${details.make} ${details.modelNo || "Unknown"} ${details.serialNo || "Unknown"}`;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(15);
+      doc.text(`TEST CERTIFICATE FOR`,  doc.internal.pageSize.getWidth() / 2, Yalign,{ align: 'center' });
+      doc.text("ELECTRONIC TOTAL STATION", doc.internal.pageSize.getWidth() /2,Yalign+=7,{ align: 'center' });
+      doc.setFontSize(25);   
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=9, { align: 'center' });
+      doc.setFont("helvetica", "bold"); 
+      doc.setFontSize(15);  
+      doc.text(`REF NO                          :     ${details.certificateNumber}`, 14, Yalign+=10);
+      const partyPrefix = "NAME OF PARTY          :     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      Yalign += 8;
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
+      for (let i = 1; i < partyLines.length; i++) {
+        Yalign += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
+      }
+
+      doc.text(`EQUIPMENT NAME       :     ELECTRONIC TOTAL STATION`, 14, Yalign += 8);
+      doc.text(`MAKE                              :     ${details.make}`, 14, Yalign += 8);
+      doc.text(`MODEL NO                     :     ${details.modelNo} `, 14, Yalign += 8);
+      doc.text(`SERIAL NO                     :     ${details.serialNo}`, 14, Yalign += 8);
+
+      if (details.siteLocation) {
+        const siteLocPrefix = "SITE LOCATION            :     ";
+        const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+        const siteLocLines = doc.splitTextToSize(details.siteLocation, 180 - siteLocPrefixWidth);
+        Yalign += 8;
+        doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
+        for (let i = 1; i < siteLocLines.length; i++) {
+          Yalign += 4.5;
+          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+        }
+      }
+
+      doc.text(`DATE                               :     ${details.calibrationDate}`, 14, Yalign += 8);
+      doc.text(`NEXT DUE DATE            :     ${details.nextCalibrationDate}`, 14, Yalign += 8);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(`i. GENERAL CHECKING AS UNDER. `, 14, Yalign+=8);
+      doc.text(`•Diaphragm of the Instrument checked. Found Satisfactory.`, 14, Yalign+=5);
+      doc.text(`•Optical Plummet checked in all 360 Degrees. Found Satisfactory.`, 14, Yalign+=5);
+      doc.text(`•Bubble checked in all 360 degrees. Found Accurate.`, 14, Yalign+=5);
+      doc.text(`ii. HORIZONTAL CIRCLE CHECKED AS UNDER. `, 14, Yalign+=8);
+      doc.text(`•Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`, 14, Yalign+=5);
+      doc.text(`•Telescope reversed. Point sighted Y' approx. 15 meter away from instrument. `, 14, Yalign+=5);
+      doc.text(`•Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again. `, 14, Yalign+=5);
+      doc.text(`•Telescope reversed. It automatically sighted point 'Y' Error - Nil.`, 14, Yalign+=5);
+      doc.text(`iii. VERTICAL CIRCLE CHECKED AS UNDER.`, 14, Yalign+=8);
+      doc.text(`•Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument). `, 14, Yalign+=5);
+      doc.text(`•Vertical Circle reading was 90 degree, O minute, O second.`, 14, Yalign+=5);
+      doc.text(`•Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270  `, 14, Yalign+=5);
+      doc.text(` degrees, 0 minutes, 0 seconds, Hence Error-Nil. `, 14, Yalign+=5);
+      doc.text(`•Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign+=5);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.serialNo || "N/A" },
+        { label: "MODEL", value: details.modelNo || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+
+  
+  
+==================== vernier_caliper.php ====================
+addCertificateDetails = function(doc, details)
+{
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  doc.setFontSize(9);
+  const disclaimerText = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+  const disclaimerLines = doc.splitTextToSize(disclaimerText, 190);
+  doc.text(disclaimerLines, 10, Yalign += 12);
+  Yalign += (disclaimerLines.length - 1) * 7;
+  Yalign += 4;
+  doc.setFontSize(10);
+  
+  // Certificate Details
+  doc.text(`DATE: ${details.calibrationDate}`, 150, Yalign+=12);
+  doc.text(`REF NO                            :     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping (only value, not prefix) ---
+  const partyNamePrefix = "NAME OF PARTY           :     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 12);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+  }
+  doc.text(`EQUIPMENT NAME         :     VERNIER CALIPER  ( ${details.type} )`, 14, Yalign+=12);
+  doc.text(`SIZE / LEAST COUNT     :     ${details.size} / ${details.leastCount} mm`, 14, Yalign+=12);
+  doc.text(`SERIAL NO / MAKE         :     ${details.serialNo} / "${details.make}"`, 14, Yalign+=12);
+  
+  // --- Site Location with wrapping (only value, not prefix) ---
+  const siteLocPrefix = "SITE LOCATION               :     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 12);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+  }
+
+  doc.text(`NEXT DUE DATE              :     ${details.nextCalibrationDate}`, 14, Yalign+=12);
+  doc.setFontSize(10);
+  // Insert calibration results table (values adapt to least count)
+  // Hardcoded measured values per size based on calibration data
+  const sizeNum = parseInt((details.size || '').replace(/\D/g, ''), 10);
+  let rows = [];
+
+  if (sizeNum === 150) {
+    // 150 mm data from image
+    rows = [
+      ["1", "0.00", "0.00", "0.00", "0.00"],
+      ["2", "20.00", "20.00", "20.00", "20.00"],
+      ["3", "50.00", "50.00", "50.00", "50.00"],
+      ["4", "100.00", "100.01", "100.01", "100.02"],
+      ["5", "150.00", "150.02", "150.02", "150.01"]
+    ];
+  } else if (sizeNum === 200) {
+    // 200 mm data from image
+    rows = [
+      ["1", "0.00", "0.00", "0.00", "0.00"],
+      ["2", "50.00", "50.01", "50.01", "50.00"],
+      ["3", "100.00", "100.02", "100.02", "100.01"],
+      ["4", "150.00", "150.02", "150.02", "150.02"],
+      ["5", "200.00", "200.03", "200.03", "200.02"]
+    ];
+  } else if (sizeNum === 300) {
+    // 300 mm data (estimated based on pattern)
+    rows = [
+      ["1", "0.00", "0.00", "0.00", "0.00"],
+      ["2", "100.00", "100.02", "100.02", "100.01"],
+      ["3", "200.00", "200.03", "200.03", "200.02"],
+      ["4", "300.00", "300.04", "300.04", "300.03"]
+    ];
+  } else {
+    // Default fallback
+    rows = [["1", "0.00", "0.00", "0.00", "0.00"]];
+  }
+
+  // reserve some vertical space then render the table
+  const tableStartY = Yalign + 10;
+  doc.autoTable({
+    startY: tableStartY,
+    head: [["S. No.", "Standard Value in (mm)", "Inside Measured Value (mm)", "Outside Measured Value (mm)", "Depth Measured Value (mm)"]],
+    body: rows,
+    styles: {
+      fontSize: 9,
+      textColor: 0,
+      fillColor: [255, 255, 255],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.5,
+      halign: 'center'
+    },
+    headStyles: {
+      fillColor: [255, 255, 255],
+      textColor: 0,
+      halign: 'center'
+    },
+    bodyStyles: {
+      fillColor: [255, 255, 255],
+      textColor: 0,
+      halign: 'center'
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255]
+    },
+    theme: 'grid',
+    margin: { left: 12, right: 12 }
+  });
+
+  // move cursor below table
+  const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : tableStartY + (rows.length + 2) * 7;
+  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, afterTableY);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
+      doc.setFont("helvetica", "bold");
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+  
+  if (typeof renderQRCode === 'function') {
+    renderQRCode(doc, details.certificateNumber, afterTableY + 10);
+  }
+}
+// --- Least-count variable (millimetres) derived from the `#size` input ---
+let leastCount = 0;
+
+function updateLeastCount() {
+  const el = document.getElementById('size');
+  if (!el) return;
+  const raw = el.value || '';
+  const n = parseInt(raw.replace(/\D/g, ''), 10);
+  if (n === 150) leastCount = 0.01;
+  else if (n === 200) leastCount = 0.02;
+  else if (n === 300) leastCount = 0.02;
+  else leastCount = 0.01; // default fallback
+  window.leastCount = leastCount; // expose for console/debugging
+}
+
+updateLeastCount();
+const _sizeEl = document.getElementById('size');
+if (_sizeEl) _sizeEl.addEventListener('change', updateLeastCount);
+  
+==================== water_bath.php ====================
+addCertificateDetails = function(doc, details) {
+  let Yalign = 50;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(25);
+  doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+  
+  // Spacing
+  doc.setFontSize(15);
+  doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+  doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, Yalign);
+  
+  // --- Party Name with wrapping ---
+  const partyNamePrefix = "NAME OF PARTY        :-     ";
+  const prefixWidth = doc.getTextWidth(partyNamePrefix);
+  const maxWidth = 180 - prefixWidth;
+  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < partyNameLines.length; i++) {
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 6);
+  }
+
+  
+  doc.text(`EQUIPMENT NAME     :-     ELECTRICAL WATER BATH`, 14, Yalign += 10);
+  doc.text(`CAPICITY & MAKE      :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+  doc.text(`SERIAL NO                  :-     ${details.serialNo}`, 14, Yalign += 10);
+  doc.text(`NEXT DUE DATE         :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+  
+  // --- Site Location with wrapping ---
+  const siteLocPrefix = "SITE LOCATION          :-     ";
+  const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+  const siteLocMaxWidth = 180 - siteLocPrefixWidth;
+  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+  for (let i = 1; i < siteLocLines.length; i++) {
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 6);
+  }
+ 
+  
+  const tableStartY = Yalign;
+  const data = [
+    ["1", " 20'C", " 20'C"],
+    ["2", " 40'C", " 40'C"],
+    ["3", " 60'C", " 60'C"],
+    ["4", " 80'C", " 80'C"],
+    ["5", " 100'C", " 100'C"],
+    ["6", " 110'C", " 110'C"]
+  ];
+  
+  doc.autoTable({
+    head: [['SR.NO', 'STANDARD TEMPERATURE', 'STANDARD TEMPERATURE BY 1 St Bucket "A"']],
+    body: data,
+    startY: tableStartY + 10,
+    styles: {
+      fontSize: 12,
+      textColor: [0, 0, 0],
+      lineColor: [87, 86, 85],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle',
+    },
+    headStyles: {
+      fontSize: 15,
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle',
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255]
+    }
+  });
+  
+  let tableStartY2 = doc.autoTable.previous.finalY;
+  // Add calibrated by
+  let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+
+}
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.certificateNumber || "N/A" },
+        { label: "EQUIPMENT", value: "WATER BATH" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+   
+==================== weigh_batcher.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign = 50;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      // Spacing
+      doc.setFontSize(15);
+      doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign += 10);
+      doc.text(`REF NO                        :-    ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`NAME OF PARTY        :-     ${details.partyName}`, 14, Yalign += 10);
+      doc.text(`EQUIPMENT NAME     :-     WEIGH BATCHER`, 14, Yalign += 10);
+      doc.text(`CAPACITY & MAKE     :-     ${details.capacity} & ${details.make}`, 14, Yalign += 10);
+      doc.text(`SR NO                           :-     ${details.serialNo}`, 14, Yalign += 10);
+      doc.text(`NEXT DUE DATE          :-     ${details.nextCalibrationDate}`, 14, Yalign += 10);
+      // --- Site Location with wrapping (only value, not prefix) ---
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const prefixWidth = doc.getTextWidth(siteLocPrefix);
+      const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
+      const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        doc.text(siteLocLines[i], 14 + prefixWidth, Yalign += 7);
+      }
+      Yalign += ((siteLocLines.length - 1) + 5);
+      const tableStartY = Yalign;
+      const data = [
+        ["1", " 50KG", "50KG", "50KG"],
+        ["2", " 100KG", "100KG", "100KG"],
+        ["3", " 150KG", "15OKG", "150KG"],
+        ["4", " 200KG", "200KG", "200KG"],
+        ["5", " 250KG", "25OKG", "250KG"],
+      ];
+
+      doc.autoTable({
+        head: [['SR.NO', 'STANDARD WEIGHTS', 'WEIGHT SHOWN BY 1 ST BUCKET', 'WEIGHT SHOWN BY 2ND BUCKET']],
+        body: data,
+        startY: tableStartY + 10,
+        styles: { 
+          fontSize: 12,
+          lineColor: [87, 86, 85],
+          textColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',  // horizontal align to center
+          valign: 'middle',  // vertical align to middle
+        },
+        headStyles: {
+          fontSize: 15,
+          fillColor: [255, 255, 255],
+          textColor: [0, 0, 0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.2,
+          halign: 'center',  // horizontal align to center
+          valign: 'middle',  // vertical align to middle
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        }
+      });
+      let tableStartY2 = doc.autoTable.previous.finalY;
+      // Add calibrated by
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      let sigY = Math.max(endY + 15, 225);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+     // // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.serialNo || "N/A" },
+        { label: "MAKE", value: details.make || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+  
+==================== weight_balance.php ====================
+addCertificateDetails = function(doc, details) {
+      let Yalign = 46;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+      doc.setFontSize(10);
+      doc.text(`DATE:-${details.calibrationDate}`, 160, 55);
+      doc.text(`REF NO                        :-     ${details.certificateNumber}`, 14, 55);
+
+      let y = 64;
+      const partyPrefix = "NAME OF PARTY        :-     ";
+      const partyPrefixWidth = doc.getTextWidth(partyPrefix);
+      const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
+      doc.text(partyPrefix + (partyLines[0] || ""), 14, y);
+      for (let i = 1; i < partyLines.length; i++) {
+        y += 4.5;
+        doc.text(partyLines[i], 14 + partyPrefixWidth, y);
+      }
+
+      y += 9;
+      doc.text(`EQUIPMENT NAME     :-     WEIGHT BALANCE`, 14, y);
+      y += 9;
+      doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, y);
+      y += 9;
+      doc.text(`SR NO                          :-     ${details.serialNo}`, 14, y);
+      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, y);
+
+      y += 9;
+      const siteLocPrefix = "SITE LOCATION          :-     ";
+      const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
+      const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, y);
+      for (let i = 1; i < siteLocLines.length; i++) {
+        y += 4.5;
+        doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, y);
+      }
+
+      // Get table data for selected capacity
+      const data = capacityTables[details.capacity] || [];
+      let tableStartY = y + 6;
+
+      if (data.length > 0) {
+        let tableHead;
+        if (details.capacity === "600 g") {
+          tableHead = [['SR.NO', 'APPLIED WEIGHT IN (g)', 'ACTUAL VALUE IN (g)', 'UNCERTANITY AT 95% C.L. (COVARAGE FACTOR k=2)']];
+        } else {
+          tableHead = [['SR.NO', 'APPLIED WEIGHT IN (KG)', 'ACTUAL VALUE IN (g/kg)', 'UNCERTANITY AT 95% C.L. (COVARAGE FACTOR k=2)']];
+        }
+        doc.autoTable({
+          head: tableHead,
+          body: data,
+          startY: tableStartY + 2,
+          margin: { left: 14, right: 14 },
+          styles: { 
+            fontSize: 10.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+            lineWidth: 0.3,
+            halign: 'center',
+            valign: 'middle',
+            cellPadding: 3.5,
+            minCellHeight: 9.5,
+            fontStyle: 'bold'
+          },
+          headStyles: {
+            fontSize: 11,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.3,
+            halign: 'center',
+            valign: 'middle',
+            cellPadding: 4,
+            minCellHeight: 12
+          },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 45 },
+            2: { cellWidth: 45 },
+            3: { cellWidth: 'auto' }
+          },
+          alternateRowStyles: {
+            fillColor: [255, 255, 255]
+          }
+        });
+      }
+
+      let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : 180;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 6);
+      doc.setFontSize(8.5);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
+      doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", 14, endY += 4);
+      let sigY = Math.max(endY + 12, 230);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 15);
+    }
+    // --- Sticker logic ---
+    async function generateInfoSticker() {
+      const { jsPDF } = window.jspdf;
+      const width = 40 * 2.83465;
+      const height = 30 * 2.83465;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: [width, height]
+      });
+      const details = getFormDetails();
+      const primaryBlue = [19, 52, 165];
+      const accentRed = [228, 34, 21];
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(3);
+      doc.rect(5, 5, width - 10, height - 10);
+      const logoImg = new Image();
+      logoImg.src = "logo.jpeg";
+      await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+      if (logoImg.width) {
+        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+      }
+      doc.setFont("times", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...accentRed);
+      doc.text(window.PDF_COMPANY_NAME, 32, 13);
+      doc.setFont("times", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(...primaryBlue);
+      doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", width / 2, 18, { align: "center" });
+      const tableLeft = 15;
+      const tableTop = 20;
+      const tableWidth = width - 30;
+      const rowHeight = 14;
+      const labelWidth = tableWidth * 0.4;
+      const tableData = [
+        { label: "INST. ID NO.", value: details.serialNo || "N/A" },
+        { label: "CAPACITY", value: details.capacity || "N/A" },
+        { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+        { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+      ];
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+      tableData.forEach((row, index) => {
+        const rowY = tableTop + (index * rowHeight);
+        if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+        const labelY = rowY + rowHeight / 2 + 1;
+        const valueY = rowY + rowHeight / 2 + 1;
+        doc.setFont("times", "bold");
+        doc.setFontSize(4.5);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+        doc.setFont("times", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+      });
+      stickerPdfBlob = doc.output('blob');
+      const pdfURL = URL.createObjectURL(stickerPdfBlob);
+      const frame = document.getElementById("stickerPreviewFrame");
+      frame.src = pdfURL;
+      frame.style.display = "block";
+      const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+      dockDownloadBtn.style.display = "block";
+      frame.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    async function downloadSticker() {
+      if (!stickerPdfBlob) {
+        alert('Please generate the sticker first!');
+        return;
+      }
+      const details = getFormDetails();
+      const fileName = `InfoSticker_${details.serialNo || 'Unknown'}_${details.capacity || 'Unknown'}.pdf`;
+      await savePDFWithLocation(stickerPdfBlob, fileName);
+    }
+ 
