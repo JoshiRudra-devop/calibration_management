@@ -401,7 +401,7 @@ $certs = $stmt->fetchAll();
                   </td>
                   <td style="padding: 1rem; display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
                     <?php if ($cert['pdf_url']): ?>
-                      <a href="<?= htmlspecialchars($cert['pdf_url']) ?>" target="_blank" style="color: var(--accent); font-weight: 600; text-decoration: underline; font-size: 0.85rem;">View PDF</a>
+                      <a href="api/proxy_pdf.php?url=<?= urlencode($cert['pdf_url']) ?>" target="_blank" style="color: var(--accent); font-weight: 600; text-decoration: underline; font-size: 0.85rem;">View PDF</a>
                     <?php endif; ?>
                     <a href="certificates/<?= htmlspecialchars($cert['instrument_slug']) ?>.php?id=<?= $cert['id'] ?>" style="color: var(--primary); font-weight: 600; text-decoration: underline; font-size: 0.85rem;">Edit/Prefill</a>
                     <button type="button" onclick="deleteCertificate(<?= $cert['id'] ?>, '<?= htmlspecialchars($cert['cert_number'], ENT_QUOTES) ?>')" class="btn-delete" title="Delete Certificate">
@@ -465,6 +465,28 @@ $certs = $stmt->fetchAll();
 <script>
 // ── Bulk Operations on Filtered Data ─────────────────────────────────
 
+function showLoader(msg) {
+  if (typeof Loader !== 'undefined' && Loader.show) {
+    Loader.show(msg);
+  } else {
+    console.log('[Loader]', msg);
+  }
+}
+
+function hideLoader() {
+  if (typeof Loader !== 'undefined' && Loader.hide) {
+    Loader.hide();
+  }
+}
+
+function showLoaderSuccess(msg) {
+  if (typeof Loader !== 'undefined' && Loader.success) {
+    Loader.success(msg);
+  } else {
+    alert(msg);
+  }
+}
+
 async function fetchFilteredCertificatesData() {
   const currentParams = new URLSearchParams(window.location.search);
   const response = await fetch('api/get_filtered_certificates.php?' + currentParams.toString());
@@ -477,37 +499,108 @@ async function fetchFilteredCertificatesData() {
 
 async function getCombinedPDFBlob() {
   const certs = await fetchFilteredCertificatesData();
-  const pdfCerts = certs.filter(c => c.pdf_url && c.pdf_url.trim() !== '');
-  if (pdfCerts.length === 0) {
-    throw new Error('No PDF files found for the currently filtered records.');
+  if (!certs || certs.length === 0) {
+    throw new Error('No matching records found for the applied filter.');
   }
 
-  showLoader(`Loading ${pdfCerts.length} certificates for merging...`);
-  const mergedPdf = await PDFLib.PDFDocument.create();
+  showLoader(`Fetching records for ${certs.length} certificate(s)...`);
 
-  let loadedCount = 0;
-  for (const cert of pdfCerts) {
-    loadedCount++;
-    showLoader(`Fetching & merging PDF ${loadedCount} of ${pdfCerts.length} (${cert.cert_number})...`);
-    
-    try {
-      const proxyUrl = 'api/proxy_pdf.php?url=' + encodeURIComponent(cert.pdf_url);
-      const pdfBytesRes = await fetch(proxyUrl);
-      if (!pdfBytesRes.ok) {
-        console.warn(`Failed to proxy fetch PDF for cert ${cert.cert_number}`);
-        continue;
+  const pdfLibObj = window.PDFLib || (typeof PDFLib !== 'undefined' ? PDFLib : null);
+  if (!pdfLibObj || !pdfLibObj.PDFDocument) {
+    throw new Error('PDF merging library (PDFLib) failed to load. Please refresh the page.');
+  }
+
+  const mergedPdf = await pdfLibObj.PDFDocument.create();
+
+  // Filter certificates that have pdf_url
+  const pdfCerts = certs.filter(c => c.pdf_url && c.pdf_url.trim() !== '');
+
+  let mergedPagesCount = 0;
+
+  if (pdfCerts.length > 0) {
+    let loadedCount = 0;
+    for (const cert of pdfCerts) {
+      loadedCount++;
+      showLoader(`Merging certificate PDF ${loadedCount} of ${pdfCerts.length} (${cert.cert_number})...`);
+      
+      try {
+        const proxyUrl = 'api/proxy_pdf.php?url=' + encodeURIComponent(cert.pdf_url);
+        const pdfBytesRes = await fetch(proxyUrl);
+        if (!pdfBytesRes.ok) {
+          console.warn(`Failed to fetch PDF for cert ${cert.cert_number}: ${pdfBytesRes.statusText}`);
+          continue;
+        }
+        const pdfBytes = await pdfBytesRes.arrayBuffer();
+        
+        // Validate magic bytes (%PDF)
+        if (pdfBytes.byteLength < 4) continue;
+        const headerBytes = new Uint8Array(pdfBytes.slice(0, 4));
+        const headerStr = String.fromCharCode(...headerBytes);
+        if (headerStr !== '%PDF') {
+          console.warn(`Invalid PDF header for cert ${cert.cert_number}`);
+          continue;
+        }
+
+        const pdfDoc = await pdfLibObj.PDFDocument.load(pdfBytes);
+        const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        copiedPages.forEach((page) => {
+          mergedPdf.addPage(page);
+          mergedPagesCount++;
+        });
+      } catch (err) {
+        console.error(`Error merging PDF for ${cert.cert_number}:`, err);
       }
-      const pdfBytes = await pdfBytesRes.arrayBuffer();
-      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-      const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-      copiedPages.forEach((page) => mergedPdf.addPage(page));
-    } catch (err) {
-      console.error(`Error merging PDF ${cert.cert_number}:`, err);
     }
   }
 
-  if (mergedPdf.getPageCount() === 0) {
-    throw new Error('Could not merge any PDF files. Please verify PDF links.');
+  // If no Cloudinary PDFs could be merged, generate a combined PDF document directly on client side for all certs
+  if (mergedPagesCount === 0) {
+    showLoader(`Generating combined document for ${certs.length} record(s)...`);
+    const { jsPDF } = window.jspdf;
+    for (const cert of certs) {
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text("SHREEJI INSTRUMENTS", 105, 25, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text("CALIBRATION CERTIFICATE SUMMARY", 105, 35, { align: 'center' });
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Certificate No:`, 20, 55);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.cert_number || 'N/A'}`, 65, 55);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Party / Company:`, 20, 65);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.party_name || 'N/A'}`, 65, 65);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Instrument:`, 20, 75);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.instrument_label || 'N/A'}`, 65, 75);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Site Location:`, 20, 85);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.site_location || 'N/A'}`, 65, 85);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Calibration Date:`, 20, 95);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.calibration_date || 'N/A'}`, 65, 95);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Next Due Date:`, 20, 105);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${cert.next_due_date || 'N/A'}`, 65, 105);
+
+      const pageBytes = doc.output('arraybuffer');
+      const pageDoc = await pdfLibObj.PDFDocument.load(pageBytes);
+      const copiedPages = await mergedPdf.copyPages(pageDoc, pageDoc.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
   }
 
   const mergedPdfBytes = await mergedPdf.save();
@@ -533,17 +626,26 @@ async function previewFilteredPDF() {
 
 async function exportCombinedPDF() {
   try {
-    showLoader('Building combined PDF file...');
+    showLoader('Building combined PDF file for filtered records...');
     const blob = await getCombinedPDFBlob();
+    
+    const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    // Direct download trigger to device
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    link.style.display = 'none';
     link.href = blobUrl;
-    link.download = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+    link.download = fileName;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-    showLoaderSuccess('Combined PDF Downloaded!');
+    
+    setTimeout(() => {
+      if (link.parentNode) document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    }, 5000);
+
+    showLoaderSuccess('Combined PDF saved directly to device! 📄✨');
   } catch (err) {
     hideLoader();
     alert('Export Error: ' + err.message);
@@ -574,9 +676,9 @@ async function generateCombinedStickers() {
   try {
     showLoader('Fetching filtered records for Info Stickers...');
     const certs = await fetchFilteredCertificatesData();
-    if (certs.length === 0) {
-      alert('No matching records found to generate stickers.');
+    if (!certs || certs.length === 0) {
       hideLoader();
+      alert('No matching records found to generate stickers.');
       return;
     }
 
@@ -643,7 +745,7 @@ async function generateCombinedStickers() {
         doc.setTextColor(...primaryBlue);
         doc.text(row.label, tableLeft + 3, midY, { baseline: 'middle' });
 
-        // Value (truncated if too long)
+        // Value
         doc.setFont('times', 'normal');
         doc.setFontSize(4.2);
         doc.setTextColor(0, 0, 0);
@@ -654,20 +756,22 @@ async function generateCombinedStickers() {
     });
 
     const stickerBlob = doc.output('blob');
+    const fileName = `InfoStickers_Filtered_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    // Direct download trigger to device
     const blobUrl = URL.createObjectURL(stickerBlob);
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = blobUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      if (link.parentNode) document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    }, 5000);
 
-    if (typeof window.showGlobalPreviewModal === 'function') {
-      window.showGlobalPreviewModal(blobUrl);
-    } else {
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `InfoStickers_Filtered_${new Date().toISOString().slice(0,10)}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    showLoaderSuccess(`Info Stickers Generated (${certs.length} pages)!`);
+    showLoaderSuccess(`Info Stickers Saved to Device (${certs.length} records)! 🏷️`);
   } catch (err) {
     hideLoader();
     alert('Sticker Error: ' + err.message);
@@ -690,8 +794,13 @@ async function shareCombinedPDF() {
       showLoaderSuccess('Shared successfully!');
     } else {
       const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, '_blank');
-      showLoaderSuccess('PDF opened in new tab for sharing!');
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showLoaderSuccess('Combined PDF downloaded to device! 📄');
     }
   } catch (err) {
     hideLoader();

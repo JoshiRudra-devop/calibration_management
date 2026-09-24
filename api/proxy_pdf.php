@@ -1,17 +1,20 @@
 <?php
 // ============================================================
-//  API: Proxy PDF Fetcher (Bypasses CORS for PDF merging)
+//  API: Proxy PDF Fetcher (Bypasses CORS & handles remote errors)
 //  GET /api/proxy_pdf.php?url=...
 // ============================================================
 require_once __DIR__ . '/../includes/config.php';
 requireLogin();
 
-$url = $_GET['url'] ?? '';
+$rawUrl = $_GET['url'] ?? '';
 
-if (empty($url)) {
+if (empty($rawUrl)) {
     http_response_code(400);
     die('Missing URL parameter');
 }
+
+// Clean and encode spaces in URL
+$url = str_replace(' ', '%20', trim($rawUrl));
 
 // Handle relative local URLs if any
 if (str_starts_with($url, 'uploads/')) {
@@ -53,30 +56,50 @@ if (!$isAllowed) {
     die('Access to URL host denied.');
 }
 
-$pdfData = false;
+$pdfData  = false;
+$httpCode = 0;
+
 if (function_exists('curl_init')) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    $pdfData = curl_exec($ch);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    $pdfData  = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 }
 
-if ($pdfData === false || strlen($pdfData) === 0) {
+if (($pdfData === false || $httpCode !== 200) && function_exists('stream_context_create')) {
     $arrContextOptions = [
         "ssl" => [
             "verify_peer" => false,
             "verify_peer_name" => false,
         ],
+        "http" => [
+            "user_agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+            "timeout" => 30
+        ]
     ];
     $pdfData = @file_get_contents($url, false, stream_context_create($arrContextOptions));
+    if ($pdfData !== false) {
+        $httpCode = 200;
+    }
 }
 
-if ($pdfData === false || strlen($pdfData) === 0) {
+// Verify that the retrieved binary content is actually a valid PDF (%PDF magic bytes)
+if ($pdfData === false || strlen($pdfData) < 4 || substr($pdfData, 0, 4) !== '%PDF') {
     http_response_code(502);
-    die('Failed to fetch PDF resource.');
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to fetch valid PDF binary stream from target URL. Remote status code: ' . $httpCode,
+        'url' => $url
+    ]);
+    exit;
 }
 
 header('Content-Type: application/pdf');
