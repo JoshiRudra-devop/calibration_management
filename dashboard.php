@@ -234,10 +234,52 @@ $certs = $stmt->fetchAll();
     </div>
 
     <!-- Certificate Directory & Filtering (View Option) -->
+    <style>
+      .filtered-btn {
+        padding: 0.55rem 1rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      }
+      .filtered-btn:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        transform: translateY(-1px);
+      }
+      .filtered-btn.btn-save {
+        background: var(--primary, #00796b);
+        color: #ffffff;
+        border: 1px solid var(--primary, #00796b);
+        box-shadow: 0 2px 4px rgba(0,121,107,0.25);
+      }
+      .filtered-btn.btn-save:hover {
+        background: #004d40;
+        border-color: #004d40;
+      }
+      .filtered-btn.btn-print, .filtered-btn.btn-share {
+        border-style: dashed;
+        background: #f8fafc;
+      }
+    </style>
+
     <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md); margin-bottom: 2rem;">
-      <h3 style="margin-bottom: 1.5rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Certificate History & Filtering</h3>
+      <h3 style="margin-bottom: 1.5rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <span>Certificate History & Filtering</span>
+        <span style="font-size: 0.85rem; font-weight: 700; color: #0369a1; background: #e0f2fe; padding: 0.35rem 0.75rem; border-radius: 6px;">
+          <?= number_format($totalRows) ?> Matching Record(s)
+        </span>
+      </h3>
       
-      <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; align-items: end;">
+      <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
         <!-- Period Filter -->
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <label style="font-weight: 600; font-size: 0.9rem; color: var(--text-mid);">Period</label>
@@ -293,6 +335,36 @@ $certs = $stmt->fetchAll();
           <a href="dashboard.php" style="padding: 0.6rem; background: #e2e8f0; color: var(--text-mid); border: none; border-radius: 6px; font-weight: 600; text-align: center; text-decoration: none;">Reset</a>
         </div>
       </form>
+
+      <!-- Actions Toolbar for All Filtered Records -->
+      <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-layer-group"></i> Filtered Data Operations:
+          </span>
+          <span style="font-size: 0.82rem; color: #475569; background: #e2e8f0; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700;">
+            <?= number_format($totalRows) ?> Records
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+          <button type="button" onclick="previewFilteredPDF()" class="filtered-btn" title="Preview Combined PDF of Filtered Records">
+            📋 Preview Certificate
+          </button>
+          <button type="button" onclick="exportCombinedPDF()" class="filtered-btn btn-save" title="Download Merged PDF of All Filtered Certificates">
+            📄 SAVE (Combined PDF)
+          </button>
+          <button type="button" onclick="printCombinedPDF()" class="filtered-btn btn-print" title="Print All Filtered Certificates Combined">
+            🖨️ Print
+          </button>
+          <button type="button" onclick="generateCombinedStickers()" class="filtered-btn btn-sticker" title="Generate Multi-page Info Stickers for All Filtered Records">
+            🏷️ Generate Info Sticker
+          </button>
+          <button type="button" onclick="shareCombinedPDF()" class="filtered-btn btn-share" title="Share Combined PDF of Filtered Records">
+            📤 Share PDF
+          </button>
+        </div>
+      </div>
 
       <!-- History Table -->
       <div style="overflow-x: auto;">
@@ -388,8 +460,247 @@ $certs = $stmt->fetchAll();
   </div>
 </div>
 
+<script src="assets/js/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
+// ── Bulk Operations on Filtered Data ─────────────────────────────────
+
+async function fetchFilteredCertificatesData() {
+  const currentParams = new URLSearchParams(window.location.search);
+  const response = await fetch('api/get_filtered_certificates.php?' + currentParams.toString());
+  const result = await response.json();
+  if (!result.success || !result.data || !result.data.certificates) {
+    throw new Error(result.message || 'Failed to fetch filtered certificate records');
+  }
+  return result.data.certificates;
+}
+
+async function getCombinedPDFBlob() {
+  const certs = await fetchFilteredCertificatesData();
+  const pdfCerts = certs.filter(c => c.pdf_url && c.pdf_url.trim() !== '');
+  if (pdfCerts.length === 0) {
+    throw new Error('No PDF files found for the currently filtered records.');
+  }
+
+  showLoader(`Loading ${pdfCerts.length} certificates for merging...`);
+  const mergedPdf = await PDFLib.PDFDocument.create();
+
+  let loadedCount = 0;
+  for (const cert of pdfCerts) {
+    loadedCount++;
+    showLoader(`Fetching & merging PDF ${loadedCount} of ${pdfCerts.length} (${cert.cert_number})...`);
+    
+    try {
+      const proxyUrl = 'api/proxy_pdf.php?url=' + encodeURIComponent(cert.pdf_url);
+      const pdfBytesRes = await fetch(proxyUrl);
+      if (!pdfBytesRes.ok) {
+        console.warn(`Failed to proxy fetch PDF for cert ${cert.cert_number}`);
+        continue;
+      }
+      const pdfBytes = await pdfBytesRes.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+      const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    } catch (err) {
+      console.error(`Error merging PDF ${cert.cert_number}:`, err);
+    }
+  }
+
+  if (mergedPdf.getPageCount() === 0) {
+    throw new Error('Could not merge any PDF files. Please verify PDF links.');
+  }
+
+  const mergedPdfBytes = await mergedPdf.save();
+  return new Blob([mergedPdfBytes], { type: 'application/pdf' });
+}
+
+async function previewFilteredPDF() {
+  try {
+    showLoader('Preparing combined PDF preview...');
+    const blob = await getCombinedPDFBlob();
+    const blobUrl = URL.createObjectURL(blob);
+    if (typeof window.showGlobalPreviewModal === 'function') {
+      window.showGlobalPreviewModal(blobUrl);
+    } else {
+      window.open(blobUrl, '_blank');
+    }
+    showLoaderSuccess('Preview ready!');
+  } catch (err) {
+    hideLoader();
+    alert('Preview Error: ' + err.message);
+  }
+}
+
+async function exportCombinedPDF() {
+  try {
+    showLoader('Building combined PDF file...');
+    const blob = await getCombinedPDFBlob();
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    showLoaderSuccess('Combined PDF Downloaded!');
+  } catch (err) {
+    hideLoader();
+    alert('Export Error: ' + err.message);
+  }
+}
+
+async function printCombinedPDF() {
+  try {
+    showLoader('Preparing combined PDF for printing...');
+    const blob = await getCombinedPDFBlob();
+    const blobUrl = URL.createObjectURL(blob);
+    const printWin = window.open(blobUrl, '_blank');
+    if (printWin) {
+      setTimeout(() => {
+        try { printWin.print(); } catch (e) {}
+      }, 1000);
+      showLoaderSuccess('Print dialog opened!');
+    } else {
+      showLoaderSuccess('PDF opened in new tab for printing.');
+    }
+  } catch (err) {
+    hideLoader();
+    alert('Print Error: ' + err.message);
+  }
+}
+
+async function generateCombinedStickers() {
+  try {
+    showLoader('Fetching filtered records for Info Stickers...');
+    const certs = await fetchFilteredCertificatesData();
+    if (certs.length === 0) {
+      alert('No matching records found to generate stickers.');
+      hideLoader();
+      return;
+    }
+
+    showLoader(`Generating Info Stickers for ${certs.length} record(s)...`);
+    const { jsPDF } = window.jspdf;
+    
+    // Sticker dimensions: 60mm x 30mm landscape
+    const width = 60 * 2.83465;
+    const height = 30 * 2.83465;
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'pt',
+      format: [width, height]
+    });
+
+    const primaryBlue = [19, 52, 165];
+
+    certs.forEach((cert, index) => {
+      if (index > 0) {
+        doc.addPage([width, height], 'landscape');
+      }
+
+      // Outer border
+      doc.setDrawColor(...primaryBlue);
+      doc.setLineWidth(2.5);
+      doc.rect(4, 4, width - 8, height - 8);
+
+      // Table layout
+      const tableLeft = 10;
+      const tableTop = 10;
+      const tableWidth = width - 20;
+      const rowHeight = 12.5;
+      const labelWidth = tableWidth * 0.38;
+
+      const formatDateStr = (str) => {
+        if (!str) return 'N/A';
+        const d = new Date(str);
+        if (isNaN(d.getTime())) return str;
+        return d.toLocaleDateString('en-GB'); // DD/MM/YYYY
+      };
+
+      const tableData = [
+        { label: 'CERT NO.', value: cert.cert_number || 'N/A' },
+        { label: 'PARTY', value: cert.party_name || 'N/A' },
+        { label: 'INSTRUMENT', value: cert.instrument_label || 'N/A' },
+        { label: 'CALIB. DATE', value: formatDateStr(cert.calibration_date) },
+        { label: 'NEXT DUE', value: formatDateStr(cert.next_due_date) }
+      ];
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.8);
+      doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+
+      tableData.forEach((row, rIdx) => {
+        const rowY = tableTop + (rIdx * rowHeight);
+        if (rIdx > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+        doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+
+        const midY = rowY + rowHeight / 2 + 1;
+
+        // Label
+        doc.setFont('times', 'bold');
+        doc.setFontSize(4.2);
+        doc.setTextColor(...primaryBlue);
+        doc.text(row.label, tableLeft + 3, midY, { baseline: 'middle' });
+
+        // Value (truncated if too long)
+        doc.setFont('times', 'normal');
+        doc.setFontSize(4.2);
+        doc.setTextColor(0, 0, 0);
+        let valText = String(row.value);
+        if (valText.length > 28) valText = valText.substring(0, 26) + '..';
+        doc.text(valText, tableLeft + labelWidth + 4, midY, { baseline: 'middle' });
+      });
+    });
+
+    const stickerBlob = doc.output('blob');
+    const blobUrl = URL.createObjectURL(stickerBlob);
+
+    if (typeof window.showGlobalPreviewModal === 'function') {
+      window.showGlobalPreviewModal(blobUrl);
+    } else {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `InfoStickers_Filtered_${new Date().toISOString().slice(0,10)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    showLoaderSuccess(`Info Stickers Generated (${certs.length} pages)!`);
+  } catch (err) {
+    hideLoader();
+    alert('Sticker Error: ' + err.message);
+  }
+}
+
+async function shareCombinedPDF() {
+  try {
+    showLoader('Generating shareable combined PDF...');
+    const blob = await getCombinedPDFBlob();
+    const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+    const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      await navigator.share({
+        files: [pdfFile],
+        title: 'Filtered Calibration Certificates',
+        text: 'Merged PDF of filtered calibration certificates from Shreeji Instruments'
+      });
+      showLoaderSuccess('Shared successfully!');
+    } else {
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+      showLoaderSuccess('PDF opened in new tab for sharing!');
+    }
+  } catch (err) {
+    hideLoader();
+    if (err.name !== 'AbortError') {
+      alert('Share Error: ' + err.message);
+    }
+  }
+}
+
 const partyLocations = <?= json_encode($partyLocations) ?>;
 const selectedLocation = <?= json_encode($_GET['location'] ?? '') ?>;
 
