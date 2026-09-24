@@ -146,7 +146,7 @@ function addQRCodeToPDF(doc, certNumber) {
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       try {
-        doc.addImage(qrDataUrl, 'PNG', 8, 222, 25, 25, undefined, 'FAST');
+        doc.addImage(qrDataUrl, 'PNG', 8, 245, 25, 25, undefined, 'FAST');
       } catch (e) {
         console.error("Error adding QR code image to page " + i, e);
       }
