@@ -520,7 +520,7 @@ async function fetchFilteredCertificatesData() {
   return certs;
 }
 
-async function getCombinedPDFBlob() {
+async function getCombinedPDFBlob(includeLetterhead = true) {
   const certs = await fetchFilteredCertificatesData();
   if (!certs || certs.length === 0) {
     throw new Error('No matching records found for the applied filter.');
@@ -534,6 +534,27 @@ async function getCombinedPDFBlob() {
   }
 
   const mergedPdf = await pdfLibObj.PDFDocument.create();
+
+  // Load letterhead images if includeLetterhead is true (for SAVE or SHARE)
+  let headerImg = null, footerImg = null, stampImg = null, signImg = null;
+  if (includeLetterhead) {
+    try {
+      const fetchImg = (url) => fetch(url).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null);
+      const [hBytes, fBytes, stBytes, siBytes] = await Promise.all([
+        fetchImg('assets/images/header.jpeg'),
+        fetchImg('assets/images/footer.jpeg'),
+        fetchImg('assets/images/stamp.jpeg'),
+        fetchImg('assets/images/sign.jpeg')
+      ]);
+
+      if (hBytes)  headerImg  = await mergedPdf.embedJpg(hBytes).catch(() => null);
+      if (fBytes)  footerImg  = await mergedPdf.embedJpg(fBytes).catch(() => null);
+      if (stBytes) stampImg   = await mergedPdf.embedJpg(stBytes).catch(() => null);
+      if (siBytes) signImg    = await mergedPdf.embedJpg(siBytes).catch(() => null);
+    } catch (e) {
+      console.warn('Letterhead image load warning:', e);
+    }
+  }
 
   // Filter certificates that have pdf_url
   const pdfCerts = certs.filter(c => c.pdf_url && c.pdf_url.trim() !== '');
@@ -576,53 +597,83 @@ async function getCombinedPDFBlob() {
     }
   }
 
-  // If no Cloudinary PDFs could be merged, generate a combined PDF document directly on client side for all certs
-  if (mergedPagesCount === 0) {
-    showLoader(`Generating combined document for ${certs.length} record(s)...`);
-    const { jsPDF } = window.jspdf;
-    for (const cert of certs) {
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(18);
-      doc.text("SHREEJI INSTRUMENTS", 105, 25, { align: 'center' });
-      doc.setFontSize(14);
-      doc.text("CALIBRATION CERTIFICATE SUMMARY", 105, 35, { align: 'center' });
-      
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Certificate No:`, 20, 55);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.cert_number || 'N/A'}`, 65, 55);
+  // Apply Letterhead manipulation on every page in mergedPdf
+  const pageCount = mergedPdf.getPageCount();
+  for (let i = 0; i < pageCount; i++) {
+    const page = mergedPdf.getPage(i);
+    const { width, height } = page.getSize();
 
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Party / Company:`, 20, 65);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.party_name || 'N/A'}`, 65, 65);
+    if (!includeLetterhead) {
+      // PREVIEW & PRINT: Remove/white-out images of header, footer, stamp, and sign
+      // 1. Top Header image whiteout (top 33mm)
+      page.drawRectangle({
+        x: 0,
+        y: height - (33 * 2.83465),
+        width: width,
+        height: 33 * 2.83465,
+        color: PDFLib.rgb(1, 1, 1)
+      });
 
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Instrument:`, 20, 75);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.instrument_label || 'N/A'}`, 65, 75);
+      // 2. Bottom Footer image whiteout (bottom 27mm)
+      page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: width,
+        height: 27 * 2.83465,
+        color: PDFLib.rgb(1, 1, 1)
+      });
 
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Site Location:`, 20, 85);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.site_location || 'N/A'}`, 65, 85);
+      // 3. Stamp image whiteout
+      page.drawRectangle({
+        x: 98 * 2.83465,
+        y: height - (254 * 2.83465),
+        width: 39 * 2.83465,
+        height: 39 * 2.83465,
+        color: PDFLib.rgb(1, 1, 1)
+      });
 
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Calibration Date:`, 20, 95);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.calibration_date || 'N/A'}`, 65, 95);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Next Due Date:`, 20, 105);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${cert.next_due_date || 'N/A'}`, 65, 105);
-
-      const pageBytes = doc.output('arraybuffer');
-      const pageDoc = await pdfLibObj.PDFDocument.load(pageBytes);
-      const copiedPages = await mergedPdf.copyPages(pageDoc, pageDoc.getPageIndices());
-      copiedPages.forEach((page) => mergedPdf.addPage(page));
+      // 4. Sign image whiteout
+      page.drawRectangle({
+        x: 158 * 2.83465,
+        y: height - (244 * 2.83465),
+        width: 44 * 2.83465,
+        height: 14 * 2.83465,
+        color: PDFLib.rgb(1, 1, 1)
+      });
+    } else {
+      // SAVE & SHARE: Draw letterhead images (header, footer, stamp, sign)
+      if (headerImg) {
+        page.drawImage(headerImg, {
+          x: 3 * 2.83465,
+          y: height - (33 * 2.83465),
+          width: 204 * 2.83465,
+          height: 30 * 2.83465
+        });
+      }
+      if (footerImg) {
+        page.drawImage(footerImg, {
+          x: 0,
+          y: 0,
+          width: width,
+          height: 27 * 2.83465
+        });
+      }
+      if (stampImg) {
+        page.drawImage(stampImg, {
+          x: 100 * 2.83465,
+          y: height - (252 * 2.83465),
+          width: 35 * 2.83465,
+          height: 35 * 2.83465
+        });
+      }
+      if (signImg) {
+        page.drawImage(signImg, {
+          x: 160 * 2.83465,
+          y: height - (242 * 2.83465),
+          width: 40 * 2.83465,
+          height: 10 * 2.83465
+        });
+      }
     }
   }
 
@@ -632,8 +683,8 @@ async function getCombinedPDFBlob() {
 
 async function previewFilteredPDF() {
   try {
-    showLoader('Preparing combined PDF preview...');
-    const blob = await getCombinedPDFBlob();
+    showLoader('Preparing combined PDF preview (format without letterhead)...');
+    const blob = await getCombinedPDFBlob(false);
     const blobUrl = URL.createObjectURL(blob);
     if (typeof window.showGlobalPreviewModal === 'function') {
       window.showGlobalPreviewModal(blobUrl);
@@ -649,12 +700,11 @@ async function previewFilteredPDF() {
 
 async function exportCombinedPDF() {
   try {
-    showLoader('Building combined PDF file for filtered records...');
-    const blob = await getCombinedPDFBlob();
+    showLoader('Building combined PDF file with full letterhead images...');
+    const blob = await getCombinedPDFBlob(true);
     
     const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
 
-    // Direct download trigger to device
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.style.display = 'none';
@@ -677,8 +727,8 @@ async function exportCombinedPDF() {
 
 async function printCombinedPDF() {
   try {
-    showLoader('Preparing combined PDF for printing...');
-    const blob = await getCombinedPDFBlob();
+    showLoader('Preparing combined PDF for printing (without letterhead)...');
+    const blob = await getCombinedPDFBlob(false);
     const blobUrl = URL.createObjectURL(blob);
     const printWin = window.open(blobUrl, '_blank');
     if (printWin) {
@@ -692,6 +742,38 @@ async function printCombinedPDF() {
   } catch (err) {
     hideLoader();
     alert('Print Error: ' + err.message);
+  }
+}
+
+async function shareCombinedPDF() {
+  try {
+    showLoader('Generating shareable combined PDF with full letterhead images...');
+    const blob = await getCombinedPDFBlob(true);
+    const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+    const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      await navigator.share({
+        files: [pdfFile],
+        title: 'Filtered Calibration Certificates',
+        text: 'Merged PDF of filtered calibration certificates from Shreeji Instruments'
+      });
+      showLoaderSuccess('Shared successfully!');
+    } else {
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showLoaderSuccess('Combined PDF downloaded to device! 📄');
+    }
+  } catch (err) {
+    hideLoader();
+    if (err.name !== 'AbortError') {
+      alert('Share Error: ' + err.message);
+    }
   }
 }
 
