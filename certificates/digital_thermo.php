@@ -76,7 +76,7 @@ $instrumentId = $instrument['id'] ?? null;
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
-    let stickerPdfBlob = null;
+    window.stickerPdfBlob = null;
     
     window.getFormDetails = function() {
       const useCertCheck = document.getElementById("useCertNoAsSerial");
@@ -218,7 +218,7 @@ async function generateInfoSticker() {
 
   // Logo
   const logoImg = new Image();
-  logoImg.src = "logo.jpeg";
+  logoImg.src = "../assets/images/logo.png";
   await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
   if (logoImg.width) {
     doc.addImage(logoImg, "JPEG", posX + 8, posY + 4, 12, 16);
@@ -277,13 +277,13 @@ async function generateInfoSticker() {
   }
 }
 async function downloadSticker() {
-      if (!stickerPdfBlob) {
+      if (!window.stickerPdfBlob) {
         alert('Please generate the sticker first!');
         return;
       }
       const details = getFormDetails();
       const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
-      await savePDFWithLocation(stickerPdfBlob, fileName);
+      await savePDFWithLocation(window.stickerPdfBlob, fileName);
     }
     async function sharePDF() {
       if (!document.getElementById("calibrationForm").reportValidity()) return;
@@ -307,7 +307,10 @@ async function downloadSticker() {
         alert('Web Share API not supported or file sharing not available in your browser.');
       }
     }
-  </script>
+  
+    window.generateInfoSticker = generateInfoSticker;
+    window.downloadSticker = downloadSticker;
+</script>
 
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

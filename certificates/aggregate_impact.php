@@ -71,7 +71,7 @@ $instrumentId = $instrument['id'] ?? null;
     window.INSTRUMENT_SLUG = 'aggregate_impact';
   </script>
   <script>
-    let stickerPdfBlob = null;
+    window.stickerPdfBlob = null;
     
     window.getFormDetails = function() {
       const useCertCheck = document.getElementById("useCertNoAsSerial");
@@ -146,7 +146,7 @@ $instrumentId = $instrument['id'] ?? null;
     // --- Sticker logic ---
     async function generateInfoSticker() {
       const { jsPDF } = window.jspdf;
-      const width = 40 * 2.83465;
+      const width = 60 * 2.83465;
       const height = 30 * 2.83465;
       const doc = new jsPDF({
         orientation: "landscape",
@@ -160,10 +160,10 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setLineWidth(3);
       doc.rect(5, 5, width - 10, height - 10);
       const logoImg = new Image();
-      logoImg.src = "logo.jpeg";
+      logoImg.src = "../assets/images/logo.png";
       await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
       if (logoImg.width) {
-        doc.addImage(logoImg, "JPEG", 20, 7, 5, 7);
+        doc.addImage(logoImg, "PNG", 8, 4, 12, 16);
       }
       doc.setFont("times", "bold");
       doc.setFontSize(8);
@@ -204,7 +204,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setTextColor(0, 0, 0);
         doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
       });
-      stickerPdfBlob = doc.output('blob');
+      window.stickerPdfBlob = doc.output('blob');
       const pdfURL = URL.createObjectURL(stickerPdfBlob);
       const frame = document.getElementById("stickerPreviewFrame");
       frame.src = pdfURL;
@@ -214,15 +214,18 @@ $instrumentId = $instrument['id'] ?? null;
       frame.scrollIntoView({ behavior: 'smooth' });
     }
     async function downloadSticker() {
-      if (!stickerPdfBlob) {
+      if (!window.stickerPdfBlob) {
         alert('Please generate the sticker first!');
         return;
       }
       const details = getFormDetails();
       const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}_${details.make || 'Unknown'}.pdf`;
-      await savePDFWithLocation(stickerPdfBlob, fileName);
+      await savePDFWithLocation(window.stickerPdfBlob, fileName);
     }
-  </script>
+  
+    window.generateInfoSticker = generateInfoSticker;
+    window.downloadSticker = downloadSticker;
+</script>
 
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

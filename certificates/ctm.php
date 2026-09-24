@@ -236,7 +236,7 @@ $instrumentId = $instrument['id'] ?? null;
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     window.INSTRUMENT_SLUG = 'ctm';
-    let stickerPdfBlob = null;
+    window.stickerPdfBlob = null;
     // NOTE: pdfSaved is already declared as a global `let` in general-v3.js —
     // redeclaring it here throws "Identifier 'pdfSaved' has already been declared",
     // which is a parse-time SyntaxError that silently kills this entire <script> block.
@@ -267,7 +267,7 @@ $instrumentId = $instrument['id'] ?? null;
 
     window.generateInfoSticker = async function() {
       const { jsPDF } = window.jspdf;
-      const width = 40 * 2.83465;
+      const width = 60 * 2.83465;
       const height = 30 * 2.83465;
       const doc = new jsPDF({
         orientation: "landscape",
@@ -335,7 +335,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setTextColor(0, 0, 0);
         doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
       });
-      stickerPdfBlob = doc.output('blob');
+      window.stickerPdfBlob = doc.output('blob');
       const pdfURL = URL.createObjectURL(stickerPdfBlob);
       const frame = document.getElementById("stickerPreviewFrame");
       frame.src = pdfURL;
@@ -346,12 +346,12 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     window.downloadSticker = async function() {
-      if (!stickerPdfBlob) {
+      if (!window.stickerPdfBlob) {
         alert('Please generate the sticker first!');
         return;
       }
       const certificateNumber = document.getElementById("certificateNumber").value;
-      await savePDFWithLocation(stickerPdfBlob, `CTM_Sticker_${certificateNumber}.pdf`);
+      await savePDFWithLocation(window.stickerPdfBlob, `CTM_Sticker_${certificateNumber}.pdf`);
     };
 
     window.getFormDetails = function() {

@@ -202,10 +202,10 @@ $instrumentId = $instrument['id'] ?? null;
 
       // Logo
       const logoImg = new Image();
-      logoImg.src = "logo.jpeg";
+      logoImg.src = "../assets/images/logo.png";
       await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
       if (logoImg.width) {
-        doc.addImage(logoImg, "JPEG", 8, 4, 12, 16); // enlarged logo
+        doc.addImage(logoImg, "PNG", 8, 4, 12, 16); // enlarged logo
       }
 
       // Header text
@@ -252,7 +252,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(row.value, tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
       });
 
-      stickerPdfBlob = doc.output('blob');
+      window.stickerPdfBlob = doc.output('blob');
       const pdfURL = URL.createObjectURL(stickerPdfBlob);
       const frame = document.getElementById("stickerPreviewFrame");
       frame.src = pdfURL;
@@ -262,15 +262,18 @@ $instrumentId = $instrument['id'] ?? null;
       frame.scrollIntoView({ behavior: 'smooth' });
     }
     async function downloadSticker() {
-      if (!stickerPdfBlob) {
+      if (!window.stickerPdfBlob) {
         alert('Please generate the sticker first!');
         return;
       }
       const details = getFormDetails();
       const fileName = `InfoSticker_${details.certificateNumber || 'Unknown'}.pdf`;
-      await savePDFWithLocation(stickerPdfBlob, fileName);
+      await savePDFWithLocation(window.stickerPdfBlob, fileName);
     }
-     </script>
+     
+    window.generateInfoSticker = generateInfoSticker;
+    window.downloadSticker = downloadSticker;
+</script>
 
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

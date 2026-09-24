@@ -33,7 +33,7 @@ window.addQRCodeToPDF = function(doc, certNumber) {
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         try {
-          doc.addImage(qrDataUrl, 'PNG', 8, 245, 25, 25, undefined, 'FAST');
+          doc.addImage(qrDataUrl, 'PNG', 8, 245, 22, 22, undefined, 'FAST');
         } catch (e) {}
       }
     }
@@ -925,6 +925,11 @@ document.addEventListener('DOMContentLoaded', function() {
               updateDockState();
               const reminder = document.getElementById('unsavedReminder');
               if (reminder) reminder.classList.remove('show');
+              
+              // Save PDF directly to device
+              const fileName = `${details.saveentry || details.certificateNumber || 'certificate'}.pdf`;
+              await savePDFWithLocation(pdfBlob, fileName);
+
               showLoaderSuccess('Certificate Saved Successfully! 💾');
             } else {
               throw new Error(result.message || 'Server rejected saving.');

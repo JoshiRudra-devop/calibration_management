@@ -534,6 +534,7 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
   }
 
   const mergedPdf = await pdfLibObj.PDFDocument.create();
+  const appBaseUrl = (typeof SHREEJI_CONFIG !== 'undefined' && SHREEJI_CONFIG.appUrl) ? SHREEJI_CONFIG.appUrl : window.location.origin;
 
   // Load letterhead images if includeLetterhead is true (for SAVE or SHARE)
   let headerImg = null, footerImg = null, stampImg = null, signImg = null;
@@ -587,92 +588,121 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
 
         const pdfDoc = await pdfLibObj.PDFDocument.load(pdfBytes);
         const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+
+        // Generate QR Code PNG for this certificate if includeLetterhead is true
+        let certQrImg = null;
+        if (includeLetterhead && cert.cert_number && typeof generateQRDataURLSync === 'function') {
+          try {
+            const verifyUrl = `${appBaseUrl}/verify.php?cert=${encodeURIComponent(cert.cert_number)}`;
+            const qrDataUrl = generateQRDataURLSync(verifyUrl, 128);
+            if (qrDataUrl) {
+              const qrBytes = await fetch(qrDataUrl).then(r => r.arrayBuffer());
+              certQrImg = await mergedPdf.embedPng(qrBytes).catch(() => null);
+            }
+          } catch (qrErr) {
+            console.warn('QR code generation error:', qrErr);
+          }
+        }
+
         copiedPages.forEach((page) => {
+          const { width, height } = page.getSize();
+          const mmToPt = 2.83465;
+
+          if (!includeLetterhead) {
+            // PREVIEW & PRINT: Remove/white-out images of header, footer, stamp, sign, and QR code
+            // 1. Top Header image whiteout (top 33mm)
+            page.drawRectangle({
+              x: 0,
+              y: height - (33 * mmToPt),
+              width: width,
+              height: 33 * mmToPt,
+              color: PDFLib.rgb(1, 1, 1)
+            });
+
+            // 2. Bottom Footer image whiteout (bottom 27mm)
+            page.drawRectangle({
+              x: 0,
+              y: 0,
+              width: width,
+              height: 27 * mmToPt,
+              color: PDFLib.rgb(1, 1, 1)
+            });
+
+            // 3. Stamp image whiteout
+            page.drawRectangle({
+              x: 98 * mmToPt,
+              y: height - (254 * mmToPt),
+              width: 39 * mmToPt,
+              height: 39 * mmToPt,
+              color: PDFLib.rgb(1, 1, 1)
+            });
+
+            // 4. Sign image whiteout
+            page.drawRectangle({
+              x: 158 * mmToPt,
+              y: height - (244 * mmToPt),
+              width: 44 * mmToPt,
+              height: 14 * mmToPt,
+              color: PDFLib.rgb(1, 1, 1)
+            });
+
+            // 5. QR Code area whiteout
+            page.drawRectangle({
+              x: 6 * mmToPt,
+              y: height - (269 * mmToPt),
+              width: 26 * mmToPt,
+              height: 26 * mmToPt,
+              color: PDFLib.rgb(1, 1, 1)
+            });
+          } else {
+            // SAVE & SHARE: Draw letterhead images & QR Code
+            if (headerImg) {
+              page.drawImage(headerImg, {
+                x: 3 * mmToPt,
+                y: height - (33 * mmToPt),
+                width: 204 * mmToPt,
+                height: 30 * mmToPt
+              });
+            }
+            if (footerImg) {
+              page.drawImage(footerImg, {
+                x: 0,
+                y: 0,
+                width: width,
+                height: 27 * mmToPt
+              });
+            }
+            if (stampImg) {
+              page.drawImage(stampImg, {
+                x: 100 * mmToPt,
+                y: height - (252 * mmToPt),
+                width: 35 * mmToPt,
+                height: 35 * mmToPt
+              });
+            }
+            if (signImg) {
+              page.drawImage(signImg, {
+                x: 160 * mmToPt,
+                y: height - (242 * mmToPt),
+                width: 40 * mmToPt,
+                height: 10 * mmToPt
+              });
+            }
+            if (certQrImg) {
+              page.drawImage(certQrImg, {
+                x: 8 * mmToPt,
+                y: height - (267 * mmToPt),
+                width: 22 * mmToPt,
+                height: 22 * mmToPt
+              });
+            }
+          }
+
           mergedPdf.addPage(page);
           mergedPagesCount++;
         });
       } catch (err) {
         console.error(`Error merging PDF for ${cert.cert_number}:`, err);
-      }
-    }
-  }
-
-  // Apply Letterhead manipulation on every page in mergedPdf
-  const pageCount = mergedPdf.getPageCount();
-  for (let i = 0; i < pageCount; i++) {
-    const page = mergedPdf.getPage(i);
-    const { width, height } = page.getSize();
-
-    if (!includeLetterhead) {
-      // PREVIEW & PRINT: Remove/white-out images of header, footer, stamp, and sign
-      // 1. Top Header image whiteout (top 33mm)
-      page.drawRectangle({
-        x: 0,
-        y: height - (33 * 2.83465),
-        width: width,
-        height: 33 * 2.83465,
-        color: PDFLib.rgb(1, 1, 1)
-      });
-
-      // 2. Bottom Footer image whiteout (bottom 27mm)
-      page.drawRectangle({
-        x: 0,
-        y: 0,
-        width: width,
-        height: 27 * 2.83465,
-        color: PDFLib.rgb(1, 1, 1)
-      });
-
-      // 3. Stamp image whiteout
-      page.drawRectangle({
-        x: 98 * 2.83465,
-        y: height - (254 * 2.83465),
-        width: 39 * 2.83465,
-        height: 39 * 2.83465,
-        color: PDFLib.rgb(1, 1, 1)
-      });
-
-      // 4. Sign image whiteout
-      page.drawRectangle({
-        x: 158 * 2.83465,
-        y: height - (244 * 2.83465),
-        width: 44 * 2.83465,
-        height: 14 * 2.83465,
-        color: PDFLib.rgb(1, 1, 1)
-      });
-    } else {
-      // SAVE & SHARE: Draw letterhead images (header, footer, stamp, sign)
-      if (headerImg) {
-        page.drawImage(headerImg, {
-          x: 3 * 2.83465,
-          y: height - (33 * 2.83465),
-          width: 204 * 2.83465,
-          height: 30 * 2.83465
-        });
-      }
-      if (footerImg) {
-        page.drawImage(footerImg, {
-          x: 0,
-          y: 0,
-          width: width,
-          height: 27 * 2.83465
-        });
-      }
-      if (stampImg) {
-        page.drawImage(stampImg, {
-          x: 100 * 2.83465,
-          y: height - (252 * 2.83465),
-          width: 35 * 2.83465,
-          height: 35 * 2.83465
-        });
-      }
-      if (signImg) {
-        page.drawImage(signImg, {
-          x: 160 * 2.83465,
-          y: height - (242 * 2.83465),
-          width: 40 * 2.83465,
-          height: 10 * 2.83465
-        });
       }
     }
   }

@@ -76,7 +76,7 @@ $instrumentId = $instrument['id'] ?? null;
     window.INSTRUMENT_SLUG = 'hydrometer';
   </script>
   <script>
-    let stickerPdfBlob = null;
+    window.stickerPdfBlob = null;
       
     // Function to fetch form details
     window.getFormDetails = function() {
@@ -154,7 +154,99 @@ window.addCertificateDetails = function(doc, details)
       doc.text("PROPRIETOR", 170, sigY + 15);
 
 }
-  </script>
+  
+      window.stickerPdfBlob = null;
+      async function generateInfoSticker() {
+        const { jsPDF } = window.jspdf;
+        const width = 60 * 2.83465;
+        const height = 30 * 2.83465;
+        const doc = new jsPDF({
+          orientation: "landscape",
+          unit: "pt",
+          format: [width, height]
+        });
+        const details = (typeof safeGetFormDetails === 'function') ? safeGetFormDetails() : getFormDetails();
+        const primaryBlue = [19, 52, 165];
+        const accentRed = [228, 34, 21];
+        doc.setDrawColor(...primaryBlue);
+        doc.setLineWidth(3);
+        doc.rect(0, 0, width, height);
+
+        const logoImg = new Image();
+        logoImg.src = "../assets/images/logo.png";
+        await new Promise(resolve => { logoImg.onload = resolve; logoImg.onerror = resolve; });
+        if (logoImg.width) {
+          doc.addImage(logoImg, "PNG", 8, 4, 12, 16);
+        }
+
+        doc.setFont("times", "bold");
+        doc.setFontSize(13);
+        doc.setTextColor(...accentRed);
+        doc.text(window.PDF_COMPANY_NAME, 30, 13);
+
+        doc.setFont("times", "normal");
+        doc.setFontSize(6);
+        doc.setTextColor(...primaryBlue);
+        doc.text("SALES • SERVICE • REPAIRING • CALIBRATIONS", 30, 20, { align: "left" });
+
+        const tableLeft = 15;
+        const tableTop = 24;
+        const tableWidth = width - 30;
+        const rowHeight = 13;
+        const labelWidth = tableWidth * 0.4;
+        const tableData = [
+          { label: "SERIAL NO.", value: details.serialNo || details.certificateNumber || "N/A" },
+          { label: "MODEL", value: details.equipmentType || details.modelNo || "N/A" },
+          { label: "CALIB. DATE", value: details.calibrationDate || "N/A" },
+          { label: "NEXT DATE", value: details.nextCalibrationDate || "N/A" },
+        ];
+
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(1);
+        doc.rect(tableLeft, tableTop, tableWidth, rowHeight * tableData.length);
+        tableData.forEach((row, index) => {
+          const rowY = tableTop + (index * rowHeight);
+          if (index > 0) doc.line(tableLeft, rowY, tableLeft + tableWidth, rowY);
+          doc.line(tableLeft + labelWidth, rowY, tableLeft + labelWidth, rowY + rowHeight);
+          doc.setFillColor(255, 255, 255);
+          doc.rect(tableLeft, rowY, labelWidth, rowHeight, 'F');
+          const labelY = rowY + rowHeight / 2 + 1;
+          const valueY = rowY + rowHeight / 2 + 1;
+          doc.setFont("times", "bold");
+          doc.setFontSize(4.5);
+          doc.setTextColor(...primaryBlue);
+          doc.text(row.label, tableLeft + 4, labelY, { baseline: 'middle' });
+          doc.setFont("times", "normal");
+          doc.setFontSize(4.5);
+          doc.setTextColor(0, 0, 0);
+          doc.text(String(row.value), tableLeft + labelWidth + 5, valueY, { baseline: 'middle' });
+        });
+
+        window.stickerPdfBlob = doc.output('blob');
+        const pdfURL = URL.createObjectURL(stickerPdfBlob);
+        const frame = document.getElementById("stickerPreviewFrame");
+        if (frame) {
+          frame.src = pdfURL;
+          frame.style.display = "block";
+          frame.scrollIntoView({ behavior: 'smooth' });
+        }
+        const dockDownloadBtn = document.querySelector('.side-dock #downloadStickerBtn');
+        if (dockDownloadBtn) dockDownloadBtn.style.display = "block";
+      }
+
+      async function downloadSticker() {
+        if (!window.stickerPdfBlob) {
+          alert('Please generate the sticker first!');
+          return;
+        }
+        const details = (typeof safeGetFormDetails === 'function') ? safeGetFormDetails() : getFormDetails();
+        const fileName = ;
+        await savePDFWithLocation(window.stickerPdfBlob, fileName);
+      }
+
+    window.generateInfoSticker = generateInfoSticker;
+    window.downloadSticker = downloadSticker;
+</script>
 
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
