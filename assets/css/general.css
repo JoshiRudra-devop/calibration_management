@@ -583,12 +583,14 @@ h2.centered {
   grid-column: span 12;
 }
 
-/* Metadata Row (Certificate No & Dates) */
-#calibrationForm > .title_input_pair:has(#certificateNumber) {
-  grid-column: span 4;
+/* Metadata Row (Certificate No & Serial No) */
+#calibrationForm > .title_input_pair:has(#certificateNumber),
+#calibrationForm > .title_input_pair:has(#serialNo) {
+  grid-column: span 6;
 }
+
 #calibrationForm > .date {
-  grid-column: span 8;
+  grid-column: span 12;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -596,9 +598,7 @@ h2.centered {
 }
 
 /* Client Details Row */
-#calibrationForm > .title_input_pair:has(#partyName) {
-  grid-column: span 6;
-}
+#calibrationForm > .title_input_pair:has(#partyName),
 #calibrationForm > .title_input_pair:has(#siteLocation) {
   grid-column: span 6;
 }
@@ -606,18 +606,16 @@ h2.centered {
 /* Spec fields / Instrument details */
 #calibrationForm > .title_input_pair:has(#instrumentType),
 #calibrationForm > .title_input_pair:has(#size),
-#calibrationForm > .title_input_pair:has(#quantity) {
-  grid-column: span 6;
-}
-
+#calibrationForm > .title_input_pair:has(#quantity),
 #calibrationForm > .title_input_pair:has(#make),
 #calibrationForm > .title_input_pair:has(#modelNo),
-#calibrationForm > .title_input_pair:has(#serialNo),
 #calibrationForm > .title_input_pair:has(#capacity),
 #calibrationForm > .title_input_pair:has(#leastCount),
 #calibrationForm > .title_input_pair:has(#range),
-#calibrationForm > .title_input_pair:has(#division) {
-  grid-column: span 4;
+#calibrationForm > .title_input_pair:has(#division),
+#calibrationForm > .title_input_pair:has(#operated),
+#calibrationForm > .title_input_pair:has(#ring) {
+  grid-column: span 6;
 }
 
 /* Responsive Overrides */

@@ -560,18 +560,10 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
       
+      let endY = 195;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
-      doc.text(`CALIBRATION BY      :-   YOGESH BHAI`, 14, 199.5); 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 204.5);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 209.5);
-
-      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof tableStartY2 !== "undefined" ? tableStartY2 : (typeof finalY !== "undefined" ? finalY : (typeof Yalign !== "undefined" ? Yalign : (typeof hori_axis !== "undefined" ? hori_axis : 160)))));
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 5);
       doc.setFontSize(8.5);
       doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
