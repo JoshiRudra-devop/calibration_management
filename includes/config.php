@@ -15,6 +15,10 @@ $_httpHost = $_SERVER['HTTP_HOST'] ?? '';
 $_isLocal  = in_array($_httpHost, ['localhost', '127.0.0.1', '::1']) 
              || str_contains($_httpHost, 'localhost') 
              || str_contains($_httpHost, '127.0.0.1')
+             || str_contains(strtolower(__DIR__), 'xampp')
+             || str_contains(strtolower($_SERVER['DOCUMENT_ROOT'] ?? ''), 'xampp')
+             || preg_match('/^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/', $_httpHost)
+             || str_ends_with(explode(':', $_httpHost)[0], '.local')
              || (php_sapi_name() === 'cli' && empty($_httpHost));
 
 define('DB_HOST',     $_isLocal ? '127.0.0.1' : ($_env['DB_HOST'] ?? 'localhost'));
@@ -99,18 +103,52 @@ if (!headers_sent()) {
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        try {
-            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ]);
-        } catch (PDOException $e) {
-            error_log('DB connection failed: ' . $e->getMessage());
-            http_response_code(500);
-            die(json_encode(['success' => false, 'message' => 'Database connection failed. Please contact support.']));
+        $configsToTry = [
+            [
+                'host' => DB_HOST,
+                'port' => DB_PORT,
+                'user' => DB_USER,
+                'pass' => DB_PASS,
+                'name' => DB_NAME,
+            ]
+        ];
+
+        // If primary config is not local XAMPP, add local XAMPP as a fallback
+        if (DB_HOST !== '127.0.0.1' && DB_HOST !== 'localhost') {
+            $configsToTry[] = [
+                'host' => '127.0.0.1',
+                'port' => 3306,
+                'user' => 'root',
+                'pass' => '',
+                'name' => 'shreeji_instruments',
+            ];
+            $configsToTry[] = [
+                'host' => 'localhost',
+                'port' => 3306,
+                'user' => 'root',
+                'pass' => '',
+                'name' => 'shreeji_instruments',
+            ];
         }
+
+        $lastException = null;
+        foreach ($configsToTry as $c) {
+            try {
+                $dsn = "mysql:host={$c['host']};port={$c['port']};dbname={$c['name']};charset=utf8mb4";
+                $pdo = new PDO($dsn, $c['user'], $c['pass'], [
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES   => false,
+                ]);
+                return $pdo;
+            } catch (PDOException $e) {
+                $lastException = $e;
+            }
+        }
+
+        error_log('DB connection failed: ' . ($lastException ? $lastException->getMessage() : 'Unknown error'));
+        http_response_code(500);
+        die(json_encode(['success' => false, 'message' => 'Database connection failed. Please contact support.']));
     }
     return $pdo;
 }
