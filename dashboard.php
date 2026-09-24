@@ -489,12 +489,35 @@ function showLoaderSuccess(msg) {
 
 async function fetchFilteredCertificatesData() {
   const currentParams = new URLSearchParams(window.location.search);
-  const response = await fetch('api/get_filtered_certificates.php?' + currentParams.toString());
-  const result = await response.json();
-  if (!result.success || !result.data || !result.data.certificates) {
-    throw new Error(result.message || 'Failed to fetch filtered certificate records');
+  currentParams.set('_t', Date.now()); // Prevent browser GET caching
+  
+  const response = await fetch('api/get_filtered_certificates.php?' + currentParams.toString(), {
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server returned HTTP status ${response.status}`);
   }
-  return result.data.certificates;
+
+  const result = await response.json();
+  
+  let certs = null;
+  if (Array.isArray(result.certificates)) {
+    certs = result.certificates;
+  } else if (result.data && Array.isArray(result.data.certificates)) {
+    certs = result.data.certificates;
+  } else if (result.data && Array.isArray(result.data)) {
+    certs = result.data;
+  }
+
+  if (!certs || !Array.isArray(certs)) {
+    throw new Error(`No certificates found in response (${result.message || 'unknown error'})`);
+  }
+
+  return certs;
 }
 
 async function getCombinedPDFBlob() {
