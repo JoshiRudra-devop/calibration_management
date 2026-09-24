@@ -236,32 +236,62 @@ $instrumentId = $instrument['id'] ?? null;
         } else {
           tableHead = [['SR.NO', 'APPLIED WEIGHT IN (KG)', 'ACTUAL VALUE IN (g/kg)', 'UNCERTANITY AT 95% C.L. (COVARAGE FACTOR k=2)']];
         }
+
+        // Dynamically adjust table sizes and padding based on available space / row count
+        const numRows = data.length;
+        let cellPadding, minCellHeight, bodyFontSize, headFontSize, headMinHeight;
+        if (numRows <= 5) {
+          bodyFontSize = 10.5;
+          headFontSize = 11;
+          cellPadding = 3.0;
+          minCellHeight = 8.5;
+          headMinHeight = 11.0;
+        } else if (numRows <= 7) {
+          bodyFontSize = 10;
+          headFontSize = 10.5;
+          cellPadding = 2.2;
+          minCellHeight = 6.5;
+          headMinHeight = 9.5;
+        } else if (numRows <= 9) {
+          bodyFontSize = 9.5;
+          headFontSize = 10;
+          cellPadding = 1.5;
+          minCellHeight = 5.2;
+          headMinHeight = 8.0;
+        } else {
+          bodyFontSize = 9;
+          headFontSize = 9.5;
+          cellPadding = 1.2;
+          minCellHeight = 4.5;
+          headMinHeight = 7.0;
+        }
+
         doc.autoTable({
           head: tableHead,
           body: data,
           startY: tableStartY + 2,
           margin: { left: 14, right: 14 },
           styles: { 
-            fontSize: 10.5,
+            fontSize: bodyFontSize,
             lineColor: [0, 0, 0],
             textColor: [0, 0, 0],
             lineWidth: 0.3,
             halign: 'center',
             valign: 'middle',
-            cellPadding: 3.5,
-            minCellHeight: 9.5,
+            cellPadding: cellPadding,
+            minCellHeight: minCellHeight,
             fontStyle: 'bold'
           },
           headStyles: {
-            fontSize: 11,
+            fontSize: headFontSize,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
             lineWidth: 0.3,
             halign: 'center',
             valign: 'middle',
-            cellPadding: 4,
-            minCellHeight: 12
+            cellPadding: cellPadding + 0.5,
+            minCellHeight: headMinHeight
           },
           columnStyles: {
             0: { cellWidth: 20 },
@@ -275,15 +305,19 @@ $instrumentId = $instrument['id'] ?? null;
         });
       }
 
-      let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 2 : 180;
+      let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 3 : 180;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 7);
       doc.setFontSize(10.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 7);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 6);
-      doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", 14, endY += 6);
-      let sigY = Math.max(endY + 18, 225);
+
+      // Fail-safe: shift remarks if endY reaches QR code vertical zone (y >= 238)
+      const bulletX = endY >= 238 ? 36 : 14;
+
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", bulletX, endY += 6);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", bulletX, endY += 5.5);
+      doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", bulletX, endY += 5.5);
+      let sigY = Math.max(endY + 16, 230);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);

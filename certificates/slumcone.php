@@ -239,20 +239,18 @@ $instrumentId = $instrument['id'] ?? null;
             fillColor: [255, 255, 255]
           }
         });
-        let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : 180;
+        let endY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : hori_axis + 40)) + 4;
         doc.setFont("helvetica", "bold");
-        let endY = (typeof hori_axis !== "undefined" ? hori_axis : Yalign) + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
-      doc.setFontSize(10.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 7);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 6);
-      let sigY = Math.max(endY + 18, 225);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 15);
+        doc.setFontSize(11);
+        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+        doc.setFontSize(10.5);
+        doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 7);
+        doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 6);
+        let sigY = Math.max(endY + 18, 225);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+        doc.text("PROPRIETOR", 170, sigY + 15);
       }
     }
 
