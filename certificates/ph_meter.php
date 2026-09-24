@@ -75,11 +75,14 @@ $instrumentId = $instrument['id'] ?? null;
 
  
     window.getFormDetails = function() {
+      const useCertCheck = document.getElementById("useCertNoAsSerial");
+      const certNo = document.getElementById("certificateNumber") ? document.getElementById("certificateNumber").value : "";
+      const serialNoVal = document.getElementById("serialNo") ? document.getElementById("serialNo").value : "";
       return {
         certificateNumber: document.getElementById("certificateNumber").value,
+        serialNo: (useCertCheck && useCertCheck.checked) ? certNo : serialNoVal,
         calibrationDate: document.getElementById("calibrationDate").value.split("-").reverse().join("/"),
         make: document.getElementById("make").value,
-        serialNo: document.getElementById("certificateNumber") ? document.getElementById("certificateNumber").value : "",
         siteLocation: document.getElementById("siteLocation").value,
         partyName: document.getElementById("partyName").value,
         nextCalibrationDate: document.getElementById("nextCalibrationDate").value.split("-").reverse().join("/"),

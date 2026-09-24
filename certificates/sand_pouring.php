@@ -105,7 +105,7 @@ window.addCertificateDetails = function(doc, details)
   doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
   doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
   doc.text("equipment traceable to international standards.", 12, Yalign+=7);
-  doc.setFontSize(15);
+  doc.setFontSize(11);
   
   // Certificate Details
   doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
@@ -137,25 +137,18 @@ window.addCertificateDetails = function(doc, details)
   }
 
   doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
-  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, Yalign+=15);
-  doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (typeof Yalign !== 'undefined' ? Yalign : (typeof hori_axis !== 'undefined' ? hori_axis : 160)));
-      doc.setFont("helvetica", "bold");
-      
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
-      doc.setFontSize(8.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 5);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 4);
-      let sigY = Math.max(endY + 15, 225);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 15);
-
+  let endY = Yalign + 4;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 8);
+  doc.setFontSize(10.5);
+  doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 6);
+  doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 5);
+  let sigY = Math.max(endY + 15, 225);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
+  doc.text("PROPRIETOR", 170, sigY + 15);
 }
   </script>
 

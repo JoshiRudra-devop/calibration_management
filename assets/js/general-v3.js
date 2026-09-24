@@ -43,7 +43,61 @@ function addQRCodeToPDF(doc, certNumber) {
   return window.addQRCodeToPDF(doc, certNumber);
 }
 
+window.toggleCertNoAsSerial = function(checkboxElem) {
+  const useCertCheck = (checkboxElem && checkboxElem.nodeType) ? checkboxElem : (document.getElementById("useCertNoAsSerial") || (checkboxElem && typeof checkboxElem === 'object' && checkboxElem.target ? checkboxElem.target : null));
+  if (!useCertCheck) return;
+  
+  const container = useCertCheck.closest('form') || useCertCheck.closest('.container') || useCertCheck.closest('.card') || document;
+  const certNumInput = container.querySelector("#certificateNumber") || document.getElementById("certificateNumber");
+  const serialNoInput = container.querySelector("#serialNo") || document.getElementById("serialNo");
+  
+  if (!serialNoInput) return;
+  
+  if (useCertCheck.checked) {
+    if (certNumInput) {
+      serialNoInput.value = certNumInput.value;
+    }
+    serialNoInput.readOnly = true;
+    serialNoInput.style.backgroundColor = "#e2e8f0";
+  } else {
+    serialNoInput.readOnly = false;
+    serialNoInput.style.backgroundColor = "";
+  }
+};
+
+function initCertNoAsSerial() {
+  const checkboxes = document.querySelectorAll("#useCertNoAsSerial, [name='useCertNoAsSerial']");
+  checkboxes.forEach(cb => window.toggleCertNoAsSerial(cb));
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initCertNoAsSerial);
+} else {
+  initCertNoAsSerial();
+}
+window.addEventListener("load", initCertNoAsSerial);
+
+document.addEventListener("change", function(e) {
+  if (e.target && (e.target.id === "useCertNoAsSerial" || e.target.name === "useCertNoAsSerial")) {
+    window.toggleCertNoAsSerial(e.target);
+  }
+});
+
+document.addEventListener("input", function(e) {
+  if (e.target && e.target.id === "certificateNumber") {
+    const container = e.target.closest('form') || e.target.closest('.container') || e.target.closest('.card') || document;
+    const useCertCheck = container.querySelector("#useCertNoAsSerial") || document.getElementById("useCertNoAsSerial");
+    if (useCertCheck && useCertCheck.checked) {
+      window.toggleCertNoAsSerial(useCertCheck);
+    }
+  }
+});
+
 function safeGetFormDetails() {
+  const useCertCheck = document.getElementById("useCertNoAsSerial");
+  if (useCertCheck && useCertCheck.checked && typeof window.toggleCertNoAsSerial === 'function') {
+    window.toggleCertNoAsSerial(useCertCheck);
+  }
   if (typeof window.getFormDetails === 'function') {
     try {
       const res = window.getFormDetails();
