@@ -297,19 +297,20 @@ function drawFallbackCertificateContent(doc, details) {
       Yalign = curY;
     }
 
+    let endY = Math.max(Yalign + 6, 198);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+    doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
     doc.setFontSize(9);
     const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-    let rY = 212;
+    let rY = endY + 6;
     for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
     const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
     for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10.5);
-    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 228);
-    doc.text("PROPRIETOR", 170, 248);
+    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+    doc.text("PROPRIETOR", 170, 238);
   }
 }
 

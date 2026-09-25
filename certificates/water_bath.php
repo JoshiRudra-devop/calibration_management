@@ -220,7 +220,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
-      doc.text("PROPRIETOR", 170, 248);
+      doc.text("PROPRIETOR", 170, 238);
 
 }
     async function generateInfoSticker() {

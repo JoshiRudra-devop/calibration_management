@@ -228,26 +228,21 @@ window.addCertificateDetails = function(doc, details)
   });
 
   // move cursor below table
-  const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : tableStartY + (rows.length + 2) * 7;
-  doc.text(`CALIBRATION BY        :     YOGESH BHAI`, 14, afterTableY);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-      let endY = (afterTableY || (doc.lastAutoTable ? doc.lastAutoTable.finalY : Yalign)) + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
-      doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
-      doc.text("PROPRIETOR", 170, 248);
+  let endY = Math.max((doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY : 180) + 6, 198);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
+  doc.setFontSize(9);
+  const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
+  let rY = endY + 6;
+  for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+  const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
+  for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10.5);
+  doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+  doc.text("PROPRIETOR", 170, 238);
 
   
   if (typeof renderQRCode === 'function') {
