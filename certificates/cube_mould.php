@@ -242,7 +242,7 @@ $instrumentId = $instrument['id'] ?? null;
           if (!doc.autoTable) doc.autoTable = {};
           doc.autoTable.previous = { finalY: curY };
         }
-        let tableEndY = (doc.autoTable && doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : tableY + 40;
+        let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (tableY + 40));
         let footerY = Math.max(tableEndY + 2, 198);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
