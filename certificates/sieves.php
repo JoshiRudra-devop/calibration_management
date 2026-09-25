@@ -701,10 +701,9 @@ $instrumentId = $instrument['id'] ?? null;
             doc.text("CALIBRATION CERTIFICATE NO : " + masterCert, 14, yPosition); yPosition += 4;
 
             doc.setFont("helvetica", "bold"); 
-            doc.setFontSize(12); 
-
-            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 242);
-            doc.text("PROPRIETOR", 170, 256.8);
+            doc.setFontSize(10.5); 
+            doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
+            doc.text("PROPRIETOR", 170, 248);
         }
     };
 

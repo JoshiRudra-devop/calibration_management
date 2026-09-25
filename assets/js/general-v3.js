@@ -15,10 +15,10 @@ async function applyLetterhead(doc) {
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    if (header) doc.addImage(header, 'JPEG', 3,   3,   210, 30, undefined, 'FAST');
+    if (header) doc.addImage(header, 'JPEG', 3,   3,   204, 30, undefined, 'FAST');
     if (footer) doc.addImage(footer, 'JPEG', 0,   255, 210, 27, undefined, 'FAST');
-    if (stamp)  doc.addImage(stamp,  'JPEG', 100, 217, 35,  35, undefined, 'FAST');
-    if (sign)   doc.addImage(sign,   'JPEG', 160, 232, 40,  10, undefined, 'FAST');
+    if (stamp)  doc.addImage(stamp,  'JPEG', 110, 212, 35,  35, undefined, 'FAST');
+    if (sign)   doc.addImage(sign,   'JPEG', 160, 233, 38,  10, undefined, 'FAST');
   }
 }
 
@@ -33,7 +33,7 @@ window.addQRCodeToPDF = function(doc, certNumber) {
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         try {
-          doc.addImage(qrDataUrl, 'PNG', 8, 245, 22, 22, undefined, 'FAST');
+          doc.addImage(qrDataUrl, 'PNG', 8, 224, 25, 25, undefined, 'FAST');
         } catch (e) {}
       }
     }
@@ -821,29 +821,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      // Check/Request local storage directory permission immediately on click (user gesture!)
-      // Attempt local-storage directory setup — NON-BLOCKING.
-      // Missing/cancelled directory only skips the local file copy;
-      // the DB save always proceeds regardless.
-      if ('showDirectoryPicker' in window) {
-        try {
-          let dirHandle = await window.getSavedDirectoryHandle();
-          if (!dirHandle) {
-            try { dirHandle = await window.promptForDirectorySelection(); }
-            catch (e) { /* user cancelled — skip local save, continue to DB */ }
-          }
-          if (dirHandle) {
-            const hasPerm = await window.verifyPermission(dirHandle, true);
-            if (!hasPerm && window.SHREEJI_DEBUG) {
-              console.warn('Local storage write permission denied — skipping local save');
-            }
-          }
-        } catch (err) {
-          if (window.SHREEJI_DEBUG) console.error('Local storage setup error:', err);
-          // Don't return — proceed to DB save
-        }
-      }
-
       showLoader('Saving certificate...');
 
       try {
@@ -925,10 +902,6 @@ document.addEventListener('DOMContentLoaded', function() {
               updateDockState();
               const reminder = document.getElementById('unsavedReminder');
               if (reminder) reminder.classList.remove('show');
-              
-              // Save PDF directly to device
-              const fileName = `${details.saveentry || details.certificateNumber || 'certificate'}.pdf`;
-              await savePDFWithLocation(pdfBlob, fileName);
 
               showLoaderSuccess('Certificate Saved Successfully! 💾');
             } else {

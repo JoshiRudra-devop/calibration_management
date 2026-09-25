@@ -630,28 +630,28 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
 
             // 3. Stamp image whiteout
             page.drawRectangle({
-              x: 95 * mmToPt,
-              y: height - (256 * mmToPt),
-              width: 44 * mmToPt,
-              height: 42 * mmToPt,
+              x: 108 * mmToPt,
+              y: height - (249 * mmToPt),
+              width: 39 * mmToPt,
+              height: 39 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 4. Sign image whiteout
             page.drawRectangle({
-              x: 155 * mmToPt,
-              y: height - (246 * mmToPt),
-              width: 50 * mmToPt,
-              height: 18 * mmToPt,
+              x: 158 * mmToPt,
+              y: height - (245 * mmToPt),
+              width: 42 * mmToPt,
+              height: 14 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 5. QR Code area whiteout
             page.drawRectangle({
-              x: 5 * mmToPt,
-              y: height - (271 * mmToPt),
-              width: 28 * mmToPt,
-              height: 28 * mmToPt,
+              x: 6 * mmToPt,
+              y: height - (251 * mmToPt),
+              width: 29 * mmToPt,
+              height: 29 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
           }
