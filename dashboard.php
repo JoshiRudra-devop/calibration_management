@@ -594,9 +594,9 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
         const pdfDoc = await pdfLibObj.PDFDocument.load(pdfBytes);
         const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
 
-        // Generate QR Code PNG for this certificate if includeLetterhead is true
+        // Generate QR Code PNG for this certificate (needed for BOTH Preview/Print and Save/Share)
         let certQrImg = null;
-        if (includeLetterhead && cert.cert_number && typeof generateQRDataURLSync === 'function') {
+        if (cert.cert_number && typeof generateQRDataURLSync === 'function') {
           try {
             const verifyUrl = `${appBaseUrl}/verify.php?cert=${encodeURIComponent(cert.cert_number)}`;
             const qrDataUrl = generateQRDataURLSync(verifyUrl, 128);
@@ -613,55 +613,101 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
           const { width, height } = page.getSize();
           const mmToPt = 2.83465;
 
-          if (!includeLetterhead) {
-            // PREVIEW & PRINT: Remove/white-out images of header, footer, stamp, sign, and QR code
-            // 1. Top Header image whiteout (top 35mm)
-            page.drawRectangle({
-              x: 0,
-              y: height - (35 * mmToPt),
-              width: width,
-              height: 35 * mmToPt,
-              color: PDFLib.rgb(1, 1, 1)
-            });
+          // STEP 1: Always perform precise whiteout over the 5 image locations to strip old/legacy images cleanly
+          // 1. Top Header image whiteout (top 35mm)
+          page.drawRectangle({
+            x: 0,
+            y: height - (35 * mmToPt),
+            width: width,
+            height: 35 * mmToPt,
+            color: pdfLibObj.rgb(1, 1, 1)
+          });
 
-            // 2. Bottom Footer image whiteout (bottom 44mm / 125pt)
-            page.drawRectangle({
-              x: 0,
-              y: 0,
-              width: width,
-              height: 44 * mmToPt,
-              color: PDFLib.rgb(1, 1, 1)
-            });
+          // 2. Bottom Footer image whiteout (bottom 42mm / y=255..297mm)
+          page.drawRectangle({
+            x: 0,
+            y: 0,
+            width: width,
+            height: 42 * mmToPt,
+            color: pdfLibObj.rgb(1, 1, 1)
+          });
 
-            // 3. Stamp image whiteout
-            page.drawRectangle({
-              x: 95 * mmToPt,
-              y: height - (255 * mmToPt),
-              width: 45 * mmToPt,
-              height: 45 * mmToPt,
-              color: PDFLib.rgb(1, 1, 1)
-            });
+          // 3. Stamp image whiteout (x=108..147mm, y=210..249mm - isolated between REMARKS and FOR SHREEJI)
+          page.drawRectangle({
+            x: 108 * mmToPt,
+            y: (297 - 210 - 39) * mmToPt,
+            width: 39 * mmToPt,
+            height: 39 * mmToPt,
+            color: pdfLibObj.rgb(1, 1, 1)
+          });
 
-            // 4. Sign image whiteout
-            page.drawRectangle({
-              x: 155 * mmToPt,
-              y: height - (246 * mmToPt),
-              width: 48 * mmToPt,
-              height: 20 * mmToPt,
-              color: PDFLib.rgb(1, 1, 1)
-            });
+          // 4. Sign image whiteout (x=158..198mm, y=231..245mm - isolated between FOR SHREEJI and PROPRIETOR)
+          page.drawRectangle({
+            x: 158 * mmToPt,
+            y: (297 - 231 - 14) * mmToPt,
+            width: 40 * mmToPt,
+            height: 14 * mmToPt,
+            color: pdfLibObj.rgb(1, 1, 1)
+          });
 
-            // 5. QR Code area whiteout
-            page.drawRectangle({
-              x: 5 * mmToPt,
-              y: height - (255 * mmToPt),
-              width: 28 * mmToPt,
-              height: 32 * mmToPt,
-              color: PDFLib.rgb(1, 1, 1)
+          // 5. QR Code area whiteout (x=6..29mm, y=231..254mm - isolated below REMARKS)
+          page.drawRectangle({
+            x: 6 * mmToPt,
+            y: (297 - 231 - 23) * mmToPt,
+            width: 23 * mmToPt,
+            height: 23 * mmToPt,
+            color: pdfLibObj.rgb(1, 1, 1)
+          });
+
+          // STEP 2: Draw QR Code image in BOTH Preview/Print and Save/Share mode
+          if (certQrImg) {
+            page.drawImage(certQrImg, {
+              x: 8 * mmToPt,
+              y: height - ((233 + 19) * mmToPt),
+              width: 19 * mmToPt,
+              height: 19 * mmToPt
             });
           }
-          // Note: When includeLetterhead is true, the copied pages already contain full letterhead images & QR code.
-          // Re-drawing them here would cause overlapping/ghosting images.
+
+          // STEP 3: Draw Header, Footer, Stamp, Signature ONLY in Save/Share mode (includeLetterhead = true)
+          if (includeLetterhead) {
+            // Header Image: x=3, y=3, w=204, h=30mm
+            if (headerImg) {
+              page.drawImage(headerImg, {
+                x: 3 * mmToPt,
+                y: height - ((3 + 30) * mmToPt),
+                width: 204 * mmToPt,
+                height: 30 * mmToPt
+              });
+            }
+            // Footer Image: x=0, y=255, w=210, h=27mm
+            if (footerImg) {
+              page.drawImage(footerImg, {
+                x: 0,
+                y: height - ((255 + 27) * mmToPt),
+                width: 210 * mmToPt,
+                height: 27 * mmToPt
+              });
+            }
+            // Stamp Image: x=110, y=212, w=35, h=35mm
+            if (stampImg) {
+              page.drawImage(stampImg, {
+                x: 110 * mmToPt,
+                y: height - ((212 + 35) * mmToPt),
+                width: 35 * mmToPt,
+                height: 35 * mmToPt
+              });
+            }
+            // Signature Image: x=160, y=233, w=38, h=10mm
+            if (signImg) {
+              page.drawImage(signImg, {
+                x: 160 * mmToPt,
+                y: height - ((233 + 10) * mmToPt),
+                width: 38 * mmToPt,
+                height: 10 * mmToPt
+              });
+            }
+          }
 
           mergedPdf.addPage(page);
           mergedPagesCount++;

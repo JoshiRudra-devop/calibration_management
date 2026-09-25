@@ -297,12 +297,19 @@ function drawFallbackCertificateContent(doc, details) {
       Yalign = curY;
     }
 
-    doc.setFontSize(12);
-    doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, Yalign + 10);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 145, 230);
-    doc.text("PROPRIETOR", 170, 245);
+    doc.setFontSize(10);
+    doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+    doc.setFontSize(9);
+    const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
+    let rY = 212;
+    for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+    const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
+    for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 228);
+    doc.text("PROPRIETOR", 170, 248);
   }
 }
 
@@ -433,7 +440,7 @@ function showLoader(message = 'Processing...') {
 }
 
 function showLoaderProgress(message = 'Processing...', percentage = 0) {
-  const overlay = document.getElementById('customLoaderOverlay');
+  const overlay = document.getElementById('customLoaderOverlay') || document.getElementById('loaderOverlay');
   const text = document.getElementById('loaderText');
   const spinner = document.getElementById('loaderSpinner');
   const tick = document.getElementById('loaderTick');
@@ -462,6 +469,7 @@ function showLoaderProgress(message = 'Processing...', percentage = 0) {
     }
   }
 }
+window.showLoaderProgress = showLoaderProgress;
 
 function hideLoader() {
   const overlay = document.getElementById('customLoaderOverlay') || document.getElementById('loaderOverlay');
@@ -649,6 +657,9 @@ async function generatePDFblankpg() {
 
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
+    if (typeof addQRCodeToPDF === 'function') {
+      addQRCodeToPDF(doc, details.certificateNumber);
+    }
 
     const pdfBlob = doc.output('blob');
     const fileName = `${details.saveentry || 'certificate'}.pdf`;

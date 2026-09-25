@@ -64,7 +64,9 @@ $baseWhere = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
 $sql = "
     SELECT c.id, c.cert_number, c.party_name, c.site_location, 
            it.label AS instrument_label, it.slug AS instrument_slug, 
-           c.calibration_date, c.next_due_date, c.pdf_url
+           c.calibration_date, c.next_due_date, c.make, c.model_no, c.serial_no,
+           c.capacity, c.size_val, c.quantity, c.operated_type, c.ring_type,
+           c.form_data, c.pdf_url
     FROM   certificates c
     JOIN   instrument_types it ON it.id = c.instrument_type_id
 " . $baseWhere . " ORDER BY c.created_at DESC";
