@@ -92,11 +92,16 @@ if (($pdfData === false || $httpCode !== 200) && function_exists('stream_context
 
 // Verify that the retrieved binary content is actually a valid PDF (%PDF magic bytes)
 if ($pdfData === false || strlen($pdfData) < 4 || substr($pdfData, 0, 4) !== '%PDF') {
-    http_response_code(502);
+    // Fail-safe fallback: Redirect directly to remote PDF URL to avoid Bad Gateway error in browser
+    if (filter_var($url, FILTER_VALIDATE_URL) && (str_starts_with($url, 'http://') || str_starts_with($url, 'https://'))) {
+        header("Location: " . $url);
+        exit;
+    }
+    http_response_code(404);
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to fetch valid PDF binary stream from target URL. Remote status code: ' . $httpCode,
+        'message' => 'Failed to fetch valid PDF binary stream from target URL.',
         'url' => $url
     ]);
     exit;
