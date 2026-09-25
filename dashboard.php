@@ -566,7 +566,12 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
     let loadedCount = 0;
     for (const cert of pdfCerts) {
       loadedCount++;
-      showLoader(`Merging certificate PDF ${loadedCount} of ${pdfCerts.length} (${cert.cert_number})...`);
+      const pct = Math.round((loadedCount / pdfCerts.length) * 100);
+      if (typeof showLoaderProgress === 'function') {
+        showLoaderProgress(`Processing Certificates... ${cert.cert_number}`, pct);
+      } else {
+        showLoader(`Merging certificate PDF ${loadedCount} of ${pdfCerts.length} (${cert.cert_number})...`);
+      }
       
       try {
         const proxyUrl = 'api/proxy_pdf.php?url=' + encodeURIComponent(cert.pdf_url);
@@ -610,48 +615,48 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
 
           if (!includeLetterhead) {
             // PREVIEW & PRINT: Remove/white-out images of header, footer, stamp, sign, and QR code
-            // 1. Top Header image whiteout (top 33mm)
+            // 1. Top Header image whiteout (top 35mm)
             page.drawRectangle({
               x: 0,
-              y: height - (33 * mmToPt),
+              y: height - (35 * mmToPt),
               width: width,
-              height: 33 * mmToPt,
+              height: 35 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
-            // 2. Bottom Footer image whiteout (bottom 27mm)
+            // 2. Bottom Footer image whiteout (bottom 44mm / 125pt)
             page.drawRectangle({
               x: 0,
               y: 0,
               width: width,
-              height: 27 * mmToPt,
+              height: 44 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 3. Stamp image whiteout
             page.drawRectangle({
-              x: 108 * mmToPt,
-              y: height - (249 * mmToPt),
-              width: 39 * mmToPt,
-              height: 39 * mmToPt,
+              x: 95 * mmToPt,
+              y: height - (255 * mmToPt),
+              width: 45 * mmToPt,
+              height: 45 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 4. Sign image whiteout
             page.drawRectangle({
-              x: 158 * mmToPt,
-              y: height - (245 * mmToPt),
-              width: 42 * mmToPt,
-              height: 14 * mmToPt,
+              x: 155 * mmToPt,
+              y: height - (246 * mmToPt),
+              width: 48 * mmToPt,
+              height: 20 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 5. QR Code area whiteout
             page.drawRectangle({
-              x: 6 * mmToPt,
-              y: height - (254 * mmToPt),
-              width: 23 * mmToPt,
-              height: 23 * mmToPt,
+              x: 5 * mmToPt,
+              y: height - (255 * mmToPt),
+              width: 28 * mmToPt,
+              height: 32 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
           }

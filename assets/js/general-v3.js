@@ -432,6 +432,37 @@ function showLoader(message = 'Processing...') {
   }
 }
 
+function showLoaderProgress(message = 'Processing...', percentage = 0) {
+  const overlay = document.getElementById('customLoaderOverlay');
+  const text = document.getElementById('loaderText');
+  const spinner = document.getElementById('loaderSpinner');
+  const tick = document.getElementById('loaderTick');
+  
+  if (overlay) {
+    overlay.classList.add('active');
+    const safePct = Math.min(100, Math.max(0, Math.round(percentage)));
+    if (text) text.textContent = `${message} (${safePct}%)`;
+    if (spinner) spinner.style.display = 'block';
+    if (tick) tick.style.display = 'none';
+
+    let progressTrack = spinner.querySelector('.loader-progress-track');
+    if (!progressTrack) {
+      progressTrack = document.createElement('div');
+      progressTrack.className = 'loader-progress-track';
+      progressTrack.style.cssText = 'width: 240px; height: 12px; background: #e2e8f0; border-radius: 6px; margin: 12px auto; overflow: hidden; position: relative; border: 1px solid #cbd5e1;';
+      const fill = document.createElement('div');
+      fill.className = 'loader-progress-fill';
+      fill.style.cssText = 'width: 0%; height: 100%; background: linear-gradient(90deg, #1334a5, #00796b); transition: width 0.25s ease; border-radius: 6px;';
+      progressTrack.appendChild(fill);
+      spinner.appendChild(progressTrack);
+    }
+    const fill = progressTrack.querySelector('.loader-progress-fill');
+    if (fill) {
+      fill.style.width = `${safePct}%`;
+    }
+  }
+}
+
 function hideLoader() {
   const overlay = document.getElementById('customLoaderOverlay') || document.getElementById('loaderOverlay');
   if (overlay) overlay.classList.remove('active');
