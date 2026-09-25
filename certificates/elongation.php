@@ -170,15 +170,19 @@ $instrumentId = $instrument['id'] ?? null;
       let endY = tableStartY2 + 4;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 7);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, endY += 7);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, endY += 6);
-      let sigY = Math.max(endY + 18, 225);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 211);
+      doc.setFontSize(9.5);
+      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 82);
+      let rY = 217;
+      for (let line of rem1) { doc.text(line, 14, rY); rY += 5; }
+      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 82);
+      for (let line of rem2) { doc.text(line, 14, rY); rY += 5; }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 15);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 242);
+      doc.text("PROPRIETOR", 170, 256.8);
     }
     // --- Sticker logic ---
     async function generateInfoSticker() {

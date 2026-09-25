@@ -630,73 +630,33 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
 
             // 3. Stamp image whiteout
             page.drawRectangle({
-              x: 98 * mmToPt,
-              y: height - (254 * mmToPt),
-              width: 39 * mmToPt,
-              height: 39 * mmToPt,
+              x: 95 * mmToPt,
+              y: height - (256 * mmToPt),
+              width: 44 * mmToPt,
+              height: 42 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 4. Sign image whiteout
             page.drawRectangle({
-              x: 158 * mmToPt,
-              y: height - (244 * mmToPt),
-              width: 44 * mmToPt,
-              height: 14 * mmToPt,
+              x: 155 * mmToPt,
+              y: height - (246 * mmToPt),
+              width: 50 * mmToPt,
+              height: 18 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
 
             // 5. QR Code area whiteout
             page.drawRectangle({
-              x: 6 * mmToPt,
-              y: height - (269 * mmToPt),
-              width: 26 * mmToPt,
-              height: 26 * mmToPt,
+              x: 5 * mmToPt,
+              y: height - (271 * mmToPt),
+              width: 28 * mmToPt,
+              height: 28 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
-          } else {
-            // SAVE & SHARE: Draw letterhead images & QR Code
-            if (headerImg) {
-              page.drawImage(headerImg, {
-                x: 3 * mmToPt,
-                y: height - (33 * mmToPt),
-                width: 204 * mmToPt,
-                height: 30 * mmToPt
-              });
-            }
-            if (footerImg) {
-              page.drawImage(footerImg, {
-                x: 0,
-                y: 0,
-                width: width,
-                height: 27 * mmToPt
-              });
-            }
-            if (stampImg) {
-              page.drawImage(stampImg, {
-                x: 100 * mmToPt,
-                y: height - (252 * mmToPt),
-                width: 35 * mmToPt,
-                height: 35 * mmToPt
-              });
-            }
-            if (signImg) {
-              page.drawImage(signImg, {
-                x: 160 * mmToPt,
-                y: height - (242 * mmToPt),
-                width: 40 * mmToPt,
-                height: 10 * mmToPt
-              });
-            }
-            if (certQrImg) {
-              page.drawImage(certQrImg, {
-                x: 8 * mmToPt,
-                y: height - (267 * mmToPt),
-                width: 22 * mmToPt,
-                height: 22 * mmToPt
-              });
-            }
           }
+          // Note: When includeLetterhead is true, the copied pages already contain full letterhead images & QR code.
+          // Re-drawing them here would cause overlapping/ghosting images.
 
           mergedPdf.addPage(page);
           mergedPagesCount++;
@@ -733,22 +693,32 @@ async function exportCombinedPDF() {
     showLoader('Building combined PDF file with full letterhead images...');
     const blob = await getCombinedPDFBlob(true);
     
-    const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
-
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = blobUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    
-    setTimeout(() => {
-      if (link.parentNode) document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-    }, 5000);
-
-    showLoaderSuccess('Combined PDF saved directly to device! 📄✨');
+    showLoader('Uploading combined PDF to Cloudinary...');
+    const reader = new FileReader();
+    reader.onloadend = async function() {
+      try {
+        const base64data = reader.result;
+        const response = await fetch('api/upload_combined_pdf.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': typeof SHREEJI_CONFIG !== 'undefined' ? SHREEJI_CONFIG.csrfToken : ''
+          },
+          body: JSON.stringify({ pdf_base64: base64data })
+        });
+        const data = await response.json();
+        if (data.success && data.url) {
+          showLoaderSuccess('Combined PDF saved to Cloudinary! ☁️✨');
+          window.open(data.url, '_blank');
+        } else {
+          throw new Error(data.message || 'Upload to Cloudinary failed');
+        }
+      } catch (uploadErr) {
+        hideLoader();
+        alert('Cloudinary Save Error: ' + uploadErr.message);
+      }
+    };
+    reader.readAsDataURL(blob);
   } catch (err) {
     hideLoader();
     alert('Export Error: ' + err.message);

@@ -308,20 +308,19 @@ $instrumentId = $instrument['id'] ?? null;
       let endY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 3 : 180;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY += 7);
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-
-      // Fail-safe: shift remarks if endY reaches QR code vertical zone (y >= 238)
-      const bulletX = endY >= 238 ? 36 : 14;
-
-      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", bulletX, endY += 6);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", bulletX, endY += 5.5);
-      doc.text("• NOTE: Uncertainty is calculated at a confidence level of 95% (k=2).", bulletX, endY += 5.5);
-      let sigY = Math.max(endY + 16, 230);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 211);
+      doc.setFontSize(9.5);
+      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 82);
+      let rY = 217;
+      for (let line of rem1) { doc.text(line, 14, rY); rY += 5; }
+      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 82);
+      for (let line of rem2) { doc.text(line, 14, rY); rY += 5; }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 15);
+      doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 242);
+      doc.text("PROPRIETOR", 170, 256.8);
     }
     // --- Sticker logic ---
     async function generateInfoSticker() {

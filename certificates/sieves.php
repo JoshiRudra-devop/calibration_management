@@ -703,8 +703,8 @@ $instrumentId = $instrument['id'] ?? null;
             doc.setFont("helvetica", "bold"); 
             doc.setFontSize(12); 
 
-            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, Math.max(yPosition + 12, 230));
-            doc.text("PROPRIETOR", 170, Math.max(yPosition + 25, 245));
+            doc.text("FOR, " + window.PDF_COMPANY_NAME, 145, 242);
+            doc.text("PROPRIETOR", 170, 256.8);
         }
     };
 
