@@ -246,7 +246,7 @@ window.addCertificateDetails = function(doc, details)
           return;
         }
         const details = (typeof safeGetFormDetails === 'function') ? safeGetFormDetails() : getFormDetails();
-        const fileName = ;
+        const fileName = `${details.saveentry || 'sticker'}_sticker.pdf`;
         await savePDFWithLocation(window.stickerPdfBlob, fileName);
       }
 

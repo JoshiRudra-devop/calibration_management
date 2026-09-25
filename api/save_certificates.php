@@ -209,20 +209,30 @@ try {
                   ($pdfUrl ? ", pdf_public_id = ?, pdf_url = ?" : "") . "
                 WHERE id = ?";
         
+        $fd = is_array($data['form_data'] ?? null) ? $data['form_data'] : [];
+        $makeVal     = clean($data['make']          ?? ($fd['make'] ?? ''));
+        $modelVal    = clean($data['model_no']      ?? ($fd['modelNo'] ?? ($fd['model_no'] ?? '')));
+        $serialVal   = clean($data['serial_no']     ?? ($fd['serialNo'] ?? ($fd['serial_no'] ?? '')));
+        $capacityVal = clean($data['capacity']      ?? ($fd['capacity'] ?? ''));
+        $sizeVal     = clean($data['size_val']      ?? ($data['size'] ?? ($fd['size'] ?? '')));
+        $quantityVal = (int)($data['quantity']      ?? ($fd['quantity'] ?? 0));
+        $operatedVal = clean($data['operated_type'] ?? ($fd['operated_type'] ?? ''));
+        $ringVal     = clean($data['ring_type']     ?? ($fd['ring_type'] ?? ''));
+
         $params = [
             $partyId,
             $partyName,
-            clean($data['site_location']   ?? ''),
+            clean($data['site_location']   ?? ($fd['siteLocation'] ?? '')),
             $data['calibration_date'],
             $data['next_due_date'],
-            clean($data['make']            ?? ''),
-            clean($data['model_no']        ?? ''),
-            clean($data['serial_no']       ?? ''),
-            clean($data['capacity']        ?? ''),
-            clean($data['size_val']        ?? ''),
-            (int)($data['quantity']        ?? 0),
-            clean($data['operated_type']   ?? ''),
-            clean($data['ring_type']       ?? ''),
+            $makeVal,
+            $modelVal,
+            $serialVal,
+            $capacityVal,
+            $sizeVal,
+            $quantityVal,
+            $operatedVal,
+            $ringVal,
             $formData
         ];
         
@@ -239,6 +249,16 @@ try {
         $db->prepare("DELETE FROM ctm_readings WHERE certificate_id = ?")->execute([$certId]);
         $db->prepare("DELETE FROM cube_serials WHERE certificate_id = ?")->execute([$certId]);
     } else {
+        $fd = is_array($data['form_data'] ?? null) ? $data['form_data'] : [];
+        $makeVal     = clean($data['make']          ?? ($fd['make'] ?? ''));
+        $modelVal    = clean($data['model_no']      ?? ($fd['modelNo'] ?? ($fd['model_no'] ?? '')));
+        $serialVal   = clean($data['serial_no']     ?? ($fd['serialNo'] ?? ($fd['serial_no'] ?? '')));
+        $capacityVal = clean($data['capacity']      ?? ($fd['capacity'] ?? ''));
+        $sizeVal     = clean($data['size_val']      ?? ($data['size'] ?? ($fd['size'] ?? '')));
+        $quantityVal = (int)($data['quantity']      ?? ($fd['quantity'] ?? 0));
+        $operatedVal = clean($data['operated_type'] ?? ($fd['operated_type'] ?? ''));
+        $ringVal     = clean($data['ring_type']     ?? ($fd['ring_type'] ?? ''));
+
         $sql = "INSERT INTO certificates
                   (cert_number, instrument_type_id, party_id, party_name, site_location,
                    calibration_date, next_due_date, make, model_no, serial_no,
@@ -251,17 +271,17 @@ try {
             $instrType['id'],
             $partyId,
             $partyName,
-            clean($data['site_location']   ?? ''),
+            clean($data['site_location']   ?? ($fd['siteLocation'] ?? '')),
             $data['calibration_date'],
             $data['next_due_date'],
-            clean($data['make']            ?? ''),
-            clean($data['model_no']        ?? ''),
-            clean($data['serial_no']       ?? ''),
-            clean($data['capacity']        ?? ''),
-            clean($data['size_val']        ?? ''),
-            (int)($data['quantity']        ?? 0),
-            clean($data['operated_type']   ?? ''),
-            clean($data['ring_type']       ?? ''),
+            $makeVal,
+            $modelVal,
+            $serialVal,
+            $capacityVal,
+            $sizeVal,
+            $quantityVal,
+            $operatedVal,
+            $ringVal,
             $pdfPublicId,
             $pdfUrl,
             $_SESSION['user_id']           ?? null,

@@ -905,10 +905,14 @@ async function generateUnifiedPDF() {
         // Draw certificate details on the overridden document
         if (typeof iframeWindow.addCertificateDetails === 'function') {
           iframeWindow.addCertificateDetails(doc, details);
+        } else if (typeof iframeWindow.safeAddCertificateDetails === 'function') {
+          iframeWindow.safeAddCertificateDetails(doc, details);
         }
         
         // Draw images/letterhead on the overridden document
-        if (typeof iframeWindow.addImg === 'function') {
+        if (typeof iframeWindow.applyLetterhead === 'function') {
+          await iframeWindow.applyLetterhead(doc);
+        } else if (typeof iframeWindow.addImg === 'function') {
           iframeWindow.addImg(doc, details);
         }
 

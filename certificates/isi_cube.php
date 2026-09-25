@@ -206,8 +206,6 @@ $instrumentId = $instrument['id'] ?? null;
       return Yalign;
     }
 
-        }
-
     window.addCertificateDetails = function(doc, details) {
       details = details || {};
       let qty = parseInt(details.quantity);
@@ -384,7 +382,7 @@ $instrumentId = $instrument['id'] ?? null;
           return;
         }
         const details = (typeof safeGetFormDetails === 'function') ? safeGetFormDetails() : getFormDetails();
-        const fileName = ;
+        const fileName = `${details.saveentry || 'sticker'}_sticker.pdf`;
         await savePDFWithLocation(window.stickerPdfBlob, fileName);
       }
 
