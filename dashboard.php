@@ -592,7 +592,12 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
         }
 
         const pdfDoc = await pdfLibObj.PDFDocument.load(pdfBytes);
-        const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        let pagesToCopy = pdfDoc.getPageIndices();
+        const isMultiPageInstrument = cert.instrument_slug === 'cube_mould' || cert.instrument_slug === 'sieves';
+        if (!isMultiPageInstrument && pagesToCopy.length > 1) {
+          pagesToCopy = [0];
+        }
+        const copiedPages = await mergedPdf.copyPages(pdfDoc, pagesToCopy);
 
         // Generate QR Code PNG for this certificate (needed for BOTH Preview/Print and Save/Share)
         let certQrImg = null;
