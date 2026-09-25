@@ -168,8 +168,6 @@ $instrumentId = $instrument['id'] ?? null;
       return Yalign;
     }
 
-        }
-
     window.addCertificateDetails = function(doc, details) {
       details = details || {};
       let qty = parseInt(details.quantity);
@@ -245,7 +243,7 @@ $instrumentId = $instrument['id'] ?? null;
           doc.autoTable.previous = { finalY: curY };
         }
         let tableEndY = (doc.autoTable && doc.autoTable.previous && typeof doc.autoTable.previous.finalY === 'number') ? doc.autoTable.previous.finalY : tableY + 40;
-        let footerY = Math.max(endY + 2, 198);
+        let footerY = Math.max(tableEndY + 2, 198);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
         doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
@@ -359,7 +357,7 @@ $instrumentId = $instrument['id'] ?? null;
           return;
         }
         const details = (typeof safeGetFormDetails === 'function') ? safeGetFormDetails() : getFormDetails();
-        const fileName = ;
+        const fileName = `${details.saveentry || 'sticker'}_sticker.pdf`;
         await savePDFWithLocation(window.stickerPdfBlob, fileName);
       }
 
