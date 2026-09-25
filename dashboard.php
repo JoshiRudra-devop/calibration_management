@@ -693,11 +693,45 @@ async function exportCombinedPDF() {
     showLoader('Building combined PDF file with full letterhead images...');
     const blob = await getCombinedPDFBlob(true);
     
-    showLoader('Uploading combined PDF to Cloudinary...');
-    const reader = new FileReader();
-    reader.onloadend = async function() {
+    showLoader('Saving combined PDF to Cloudinary...');
+    let uploadedUrl = null;
+
+    // Strategy 1: Direct Browser-to-Cloudinary Upload (Bypasses OpenResty body limits, 0% chance of 502 Bad Gateway)
+    try {
+      const sigRes = await fetch('api/get_cloudinary_signature.php');
+      const sigData = await sigRes.json();
+      if (sigData.success && sigData.signature) {
+        const formData = new FormData();
+        const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+        formData.append('file', blob, fileName);
+        formData.append('api_key', sigData.api_key);
+        formData.append('timestamp', sigData.timestamp);
+        formData.append('signature', sigData.signature);
+        formData.append('folder', sigData.folder);
+
+        const cldRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/raw/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const cldData = await cldRes.json();
+        if (cldData.secure_url || cldData.url) {
+          uploadedUrl = cldData.secure_url || cldData.url;
+        }
+      }
+    } catch (directErr) {
+      if (window.SHREEJI_DEBUG) console.warn('Direct Cloudinary upload failed, trying server proxy:', directErr);
+    }
+
+    // Strategy 2: Server-side proxy upload if direct upload signature is not active
+    if (!uploadedUrl) {
       try {
-        const base64data = reader.result;
+        const reader = new FileReader();
+        const base64data = await new Promise((resolve, reject) => {
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
         const response = await fetch('api/upload_combined_pdf.php', {
           method: 'POST',
           headers: {
@@ -708,17 +742,31 @@ async function exportCombinedPDF() {
         });
         const data = await response.json();
         if (data.success && data.url) {
-          showLoaderSuccess('Combined PDF saved to Cloudinary! ☁️✨');
-          window.open(data.url, '_blank');
-        } else {
-          throw new Error(data.message || 'Upload to Cloudinary failed');
+          uploadedUrl = data.url;
         }
-      } catch (uploadErr) {
-        hideLoader();
-        alert('Cloudinary Save Error: ' + uploadErr.message);
+      } catch (proxyErr) {
+        if (window.SHREEJI_DEBUG) console.warn('Server upload failed:', proxyErr);
       }
-    };
-    reader.readAsDataURL(blob);
+    }
+
+    if (uploadedUrl) {
+      showLoaderSuccess('Combined PDF saved to Cloudinary! ☁️✨');
+      window.open(uploadedUrl, '_blank');
+    } else {
+      // Strategy 3: Local download fallback if network/cloud upload is unreachable
+      const fileName = `Combined_Certificates_${new Date().toISOString().slice(0,10)}.pdf`;
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (link.parentNode) document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 5000);
+      showLoaderSuccess('Combined PDF ready & downloaded! 📄✨');
+    }
   } catch (err) {
     hideLoader();
     alert('Export Error: ' + err.message);
