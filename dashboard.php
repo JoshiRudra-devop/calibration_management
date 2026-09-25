@@ -649,9 +649,9 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
             // 5. QR Code area whiteout
             page.drawRectangle({
               x: 6 * mmToPt,
-              y: height - (248 * mmToPt),
-              width: 24 * mmToPt,
-              height: 24 * mmToPt,
+              y: height - (254 * mmToPt),
+              width: 23 * mmToPt,
+              height: 23 * mmToPt,
               color: PDFLib.rgb(1, 1, 1)
             });
           }
