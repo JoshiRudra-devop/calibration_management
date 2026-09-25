@@ -92,56 +92,54 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setFontSize(15);
         doc.setFont("helvetica", "bold");   
         doc.text(`DATE:${details.calibrationDate}`, 155, Yalign);
-        doc.text(`REF No:${details.certificateNumber}`, 10, Yalign)
+        doc.text(`REF No:${details.certificateNumber}`, 10, Yalign);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(25);
-        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign+=15, { align: 'center' });
-        doc.setFontSize(15);
-        doc.text(`FOR , ${details.make}  AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
-        doc.text(`MODLE : ${details.modelNo}  ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign+=7, { align: 'center' });
+        doc.setFontSize(22);
+        doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign += 12, { align: 'center' });
+        doc.setFontSize(13);
+        doc.text(`FOR , ${details.make} AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign += 6, { align: 'center' });
+        doc.text(`MODEL : ${details.modelNo} ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign += 6, { align: 'center' });
         const partyPrefix = "NAME OF PARTY         :     ";
         const partyPrefixWidth = doc.getTextWidth(partyPrefix);
         const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-        Yalign += 11;
+        Yalign += 9;
         doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
         for (let i = 1; i < partyLines.length; i++) {
-          Yalign += 5;
+          Yalign += 4.5;
           doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
         }
-        doc.text(`EQUIPMENT NAME      :     AUTO LEVEL`, 14, Yalign+=9);
-        doc.text(`MAKE                            :     ${details.make}`, 14, Yalign+=9);
-        doc.text(`MODEL NO                   :     ${details.modelNo}`, 14, Yalign+=9);
-        doc.text(`SERIAL NO                   :     ${details.serialNo}`, 14, Yalign+=9);
-        doc.text(`DATE                             :     ${details.calibrationDate}`, 14, Yalign+=9);
-        doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=9);
-        doc.setFontSize(12);
-        doc.text(`This is to certify that ${details.make} Automatic Level-${details.modelNo} Serial No ${details.serialNo} Been Checked`, 14, Yalign+=10);
-        doc.text(` By us as under One year warranty.`, 14, Yalign+=5);
-        doc.text(`1. Level was kept At a distance of 20 meter from staff-A and 30 meter from Staff-B, Which`, 14, Yalign+=10);
-        doc.text(`were Pre-fixed at same level in our workshop (permanent bench-mark of same elevation).`, 14, Yalign+=5);
-        doc.text(`2. Reading of Staff-A was taken as 1,600`, 14, Yalign+=10);
-        doc.text(`3. Reading of Staff-B was taken as 1,600.`, 14, Yalign+=10);
-        doc.text(`Hence error is NIL (Within the tolerance Level). Therefore, instrument is found free from`, 14, Yalign+=10);
-        doc.text(`collimation error as of Date.`, 14, Yalign+=5);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
+        doc.setFontSize(10.5);
+        doc.text(`EQUIPMENT NAME      :     AUTO LEVEL`, 14, Yalign += 7);
+        doc.text(`MAKE                            :     ${details.make}`, 14, Yalign += 7);
+        doc.text(`MODEL NO                   :     ${details.modelNo}`, 14, Yalign += 7);
+        doc.text(`SERIAL NO                   :     ${details.serialNo}`, 14, Yalign += 7);
+        doc.text(`DATE                             :     ${details.calibrationDate}`, 14, Yalign += 7);
+        doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign += 7);
+        doc.setFontSize(10);
+        doc.text(`This is to certify that ${details.make} Automatic Level-${details.modelNo} Serial No ${details.serialNo} Been Checked`, 14, Yalign += 8);
+        doc.text(`By us as under One year warranty.`, 14, Yalign += 4.5);
+        doc.text(`1. Level was kept At a distance of 20 meter from staff-A and 30 meter from Staff-B, Which`, 14, Yalign += 7);
+        doc.text(`were Pre-fixed at same level in our workshop (permanent bench-mark of same elevation).`, 14, Yalign += 4.5);
+        doc.text(`2. Reading of Staff-A was taken as 1.600 m`, 14, Yalign += 7);
+        doc.text(`3. Reading of Staff-B was taken as 1.600 m`, 14, Yalign += 7);
+        doc.text(`Hence error is NIL (Within the tolerance Level). Therefore, instrument is found free from`, 14, Yalign += 7);
+        doc.text(`collimation error as of Date.`, 14, Yalign += 4.5);
 
-      let endY = Yalign + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
-      doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
-      doc.text("PROPRIETOR", 170, 248);
+        let endY = Math.max(Yalign + 8, 198);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
+        doc.setFontSize(9);
+        const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
+        let rY = endY + 6;
+        for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+        const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
+        for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10.5);
+        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+        doc.text("PROPRIETOR", 170, 238);
       }
      
       async function generateInfoSticker() {

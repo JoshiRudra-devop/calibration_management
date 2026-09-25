@@ -122,45 +122,45 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
 
-      doc.text(`DATE                               :     ${details.calibrationDate}`, 14, Yalign += 8);
-      doc.text(`NEXT DUE DATE            :     ${details.nextCalibrationDate}`, 14, Yalign += 8);
-      doc.setFontSize(10);
+      doc.text(`DATE                               :     ${details.calibrationDate}`, 14, Yalign += 7);
+      doc.text(`NEXT DUE DATE            :     ${details.nextCalibrationDate}`, 14, Yalign += 7);
+      doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");
-      doc.text(`i. GENERAL CHECKING AS UNDER. `, 14, Yalign+=8);
-      doc.text(`•Diaphragm of the Instrument checked. Found Satisfactory.`, 14, Yalign+=5);
-      doc.text(`•Optical Plummet checked in all 360 Degrees. Found Satisfactory.`, 14, Yalign+=5);
-      doc.text(`•Bubble checked in all 360 degrees. Found Accurate.`, 14, Yalign+=5);
-      doc.text(`ii. HORIZONTAL CIRCLE CHECKED AS UNDER. `, 14, Yalign+=8);
-      doc.text(`•Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`, 14, Yalign+=5);
-      doc.text(`•Telescope reversed. Point sighted Y' approx. 15 meter away from instrument. `, 14, Yalign+=5);
-      doc.text(`•Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again. `, 14, Yalign+=5);
-      doc.text(`•Telescope reversed. It automatically sighted point 'Y' Error - Nil.`, 14, Yalign+=5);
-      doc.text(`iii. VERTICAL CIRCLE CHECKED AS UNDER.`, 14, Yalign+=8);
-      doc.text(`•Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument). `, 14, Yalign+=5);
-      doc.text(`•Vertical Circle reading was 90 degree, O minute, O second.`, 14, Yalign+=5);
-      doc.text(`•Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270  `, 14, Yalign+=5);
-      doc.text(` degrees, 0 minutes, 0 seconds, Hence Error-Nil. `, 14, Yalign+=5);
-      doc.text(`•Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign+=5);
-      doc.setFontSize(12);
+      doc.text(`i. GENERAL CHECKING AS UNDER. `, 14, Yalign += 6);
+      doc.setFont("helvetica", "normal");
+      doc.text(`• Diaphragm of the Instrument checked. Found Satisfactory.`, 14, Yalign += 4.2);
+      doc.text(`• Optical Plummet checked in all 360 Degrees. Found Satisfactory.`, 14, Yalign += 4.2);
+      doc.text(`• Bubble checked in all 360 degrees. Found Accurate.`, 14, Yalign += 4.2);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
+      doc.text(`ii. HORIZONTAL CIRCLE CHECKED AS UNDER. `, 14, Yalign += 6);
+      doc.setFont("helvetica", "normal");
+      doc.text(`• Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`, 14, Yalign += 4.2);
+      doc.text(`• Telescope reversed. Point sighted Y' approx. 15 meter away from instrument. `, 14, Yalign += 4.2);
+      doc.text(`• Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again. `, 14, Yalign += 4.2);
+      doc.text(`• Telescope reversed. It automatically sighted point 'Y' Error - Nil.`, 14, Yalign += 4.2);
+      doc.setFont("helvetica", "bold");
+      doc.text(`iii. VERTICAL CIRCLE CHECKED AS UNDER.`, 14, Yalign += 6);
+      doc.setFont("helvetica", "normal");
+      doc.text(`• Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument). `, 14, Yalign += 4.2);
+      doc.text(`• Vertical Circle reading was 90 degree, O minute, O second.`, 14, Yalign += 4.2);
+      doc.text(`• Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270 degrees, 0 minutes, 0 seconds, Hence Error-Nil.`, 14, Yalign += 4.2);
+      doc.text(`• Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign += 4.2);
 
-      let endY = Yalign + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      let endY = Math.max(Yalign + 8, 198);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = endY + 6;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
-      doc.text("PROPRIETOR", 170, 248);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+      doc.text("PROPRIETOR", 170, 238);
     }
     
     // --- Sticker logic ---
