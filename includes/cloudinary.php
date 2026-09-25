@@ -66,15 +66,20 @@ function cloudinaryUpload(string $filePathOrData, string $publicId, bool $isRawD
 
     $opts = [
         'http' => [
-            'method'  => 'POST',
-            'header'  => "Content-Type: multipart/form-data; boundary={$boundary}\r\n" .
-                         "Content-Length: " . strlen($body) . "\r\n",
-            'content' => $body,
-            'timeout' => 60,
+            'method'        => 'POST',
+            'header'        => "Content-Type: multipart/form-data; boundary={$boundary}\r\n" .
+                               "Content-Length: " . strlen($body) . "\r\n",
+            'content'       => $body,
+            'timeout'       => 60,
+            'ignore_errors' => true,
+        ],
+        'ssl' => [
+            'verify_peer'      => false,
+            'verify_peer_name' => false,
         ],
     ];
 
-    $response = file_get_contents($url, false, stream_context_create($opts));
+    $response = @file_get_contents($url, false, stream_context_create($opts));
 
     if ($response === false) {
         // Fallback: try cURL
@@ -111,11 +116,12 @@ function cloudinaryCurl(string $url, array $fields, string $fileContent, string 
         CURLOPT_POSTFIELDS     => $postFields,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 60,
-        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
     ]);
     $response = curl_exec($ch);
     curl_close($ch);
-    unlink($tmpFile);
+    @unlink($tmpFile);
 
     return $response;
 }
