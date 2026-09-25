@@ -68,27 +68,40 @@ $instrumentId = $instrument['id'] ?? null;
 
       <!-- Volumetric Readings Inputs Section -->
       <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <h4 style="margin-top:0; color: #1e293b; margin-bottom: 10px;">Calibration Readings (Observed Volumetric Values):</h4>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h4 style="margin:0; color: #1e293b;">Calibration Readings (Observed Volumetric Values):</h4>
+            <span style="font-size: 11px; color: #64748b; font-weight: 500;">Accepted Volumetric Error Limit: <strong>±0.5% (Class A) / ±1.0% (Class B)</strong> as per IS 878 / ISO 4788</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" onclick="setZeroErrorReadings()" style="background: #00796b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+              ✨ 0.0% Ideal Error
+            </button>
+            <button type="button" onclick="generateRandomCylReadings()" style="background: #1e293b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+              🎲 Random (±0.5% Limit)
+            </button>
+          </div>
+        </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;" id="readingsContainer">
           <div class="title_input_pair">
             <label id="lbl_obs1" for="obs1">Mark 1 (200 ml):</label>
-            <input type="text" id="obs1" placeholder="e.g. 200.5">
+            <input type="text" id="obs1" placeholder="200.0" value="200.0">
           </div>
           <div class="title_input_pair">
             <label id="lbl_obs2" for="obs2">Mark 2 (400 ml):</label>
-            <input type="text" id="obs2" placeholder="e.g. 400.8">
+            <input type="text" id="obs2" placeholder="400.0" value="400.0">
           </div>
           <div class="title_input_pair">
             <label id="lbl_obs3" for="obs3">Mark 3 (600 ml):</label>
-            <input type="text" id="obs3" placeholder="e.g. 600.4">
+            <input type="text" id="obs3" placeholder="600.0" value="600.0">
           </div>
           <div class="title_input_pair">
             <label id="lbl_obs4" for="obs4">Mark 4 (800 ml):</label>
-            <input type="text" id="obs4" placeholder="e.g. 800.7">
+            <input type="text" id="obs4" placeholder="800.0" value="800.0">
           </div>
           <div class="title_input_pair">
             <label id="lbl_obs5" for="obs5">Mark 5 (1000 ml):</label>
-            <input type="text" id="obs5" placeholder="e.g. 1001.0">
+            <input type="text" id="obs5" placeholder="1000.0" value="1000.0">
           </div>
         </div>
       </div>
@@ -111,42 +124,61 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'measuring_cyl';
 
-    function updateDefaultReadings() {
+    function getNominalMarks() {
       const sizeVal = document.getElementById("size") ? document.getElementById("size").value : "1000 ml";
-      const l1 = document.getElementById("lbl_obs1");
-      const l2 = document.getElementById("lbl_obs2");
-      const l3 = document.getElementById("lbl_obs3");
-      const l4 = document.getElementById("lbl_obs4");
-      const l5 = document.getElementById("lbl_obs5");
-
-      if (sizeVal.includes("100 ml")) {
-        if(l1) l1.textContent = "Mark 1 (20 ml):";
-        if(l2) l2.textContent = "Mark 2 (40 ml):";
-        if(l3) l3.textContent = "Mark 3 (60 ml):";
-        if(l4) l4.textContent = "Mark 4 (80 ml):";
-        if(l5) l5.textContent = "Mark 5 (100 ml):";
-      } else if (sizeVal.includes("250 ml")) {
-        if(l1) l1.textContent = "Mark 1 (50 ml):";
-        if(l2) l2.textContent = "Mark 2 (100 ml):";
-        if(l3) l3.textContent = "Mark 3 (150 ml):";
-        if(l4) l4.textContent = "Mark 4 (200 ml):";
-        if(l5) l5.textContent = "Mark 5 (250 ml):";
-      } else if (sizeVal.includes("500 ml")) {
-        if(l1) l1.textContent = "Mark 1 (100 ml):";
-        if(l2) l2.textContent = "Mark 2 (200 ml):";
-        if(l3) l3.textContent = "Mark 3 (300 ml):";
-        if(l4) l4.textContent = "Mark 4 (400 ml):";
-        if(l5) l5.textContent = "Mark 5 (500 ml):";
-      } else {
-        if(l1) l1.textContent = "Mark 1 (200 ml):";
-        if(l2) l2.textContent = "Mark 2 (400 ml):";
-        if(l3) l3.textContent = "Mark 3 (600 ml):";
-        if(l4) l4.textContent = "Mark 4 (800 ml):";
-        if(l5) l5.textContent = "Mark 5 (1000 ml):";
-      }
+      if (sizeVal.includes("100 ml")) return [20, 40, 60, 80, 100];
+      if (sizeVal.includes("250 ml")) return [50, 100, 150, 200, 250];
+      if (sizeVal.includes("500 ml")) return [100, 200, 300, 400, 500];
+      return [200, 400, 600, 800, 1000];
     }
 
-    document.addEventListener("DOMContentLoaded", updateDefaultReadings);
+    function setZeroErrorReadings() {
+      const marks = getNominalMarks();
+      marks.forEach((m, idx) => {
+        const el = document.getElementById("obs" + (idx + 1));
+        if (el) el.value = m.toFixed(1);
+      });
+      const form = document.getElementById('calibrationForm');
+      if (form) form.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function generateRandomCylReadings() {
+      const marks = getNominalMarks();
+      const capacity = marks[marks.length - 1];
+      // Max offset for <= ±0.5% Class A accuracy limit
+      const maxOffset = capacity * 0.004; // 0.4% max offset
+      marks.forEach((m, idx) => {
+        const el = document.getElementById("obs" + (idx + 1));
+        const randOffset = (Math.random() * (2 * maxOffset) - maxOffset);
+        const roundedOffset = Math.round(randOffset * 10) / 10;
+        const val = (m + roundedOffset).toFixed(1);
+        if (el) el.value = val;
+      });
+      const form = document.getElementById('calibrationForm');
+      if (form) form.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function updateDefaultReadings() {
+      const marks = getNominalMarks();
+      marks.forEach((m, idx) => {
+        const l = document.getElementById("lbl_obs" + (idx + 1));
+        const el = document.getElementById("obs" + (idx + 1));
+        if (l) l.textContent = `Mark ${idx + 1} (${m} ml):`;
+        if (el && (!el.value || el.dataset.autoFilled === "true")) {
+          el.value = m.toFixed(1);
+          el.dataset.autoFilled = "true";
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('id')) {
+        setZeroErrorReadings();
+      } else {
+        updateDefaultReadings();
+      }
+    });
 
     window.stickerPdfBlob = null;
       
@@ -254,11 +286,11 @@ $instrumentId = $instrument['id'] ?? null;
       const sizeVal = details.size || "1000 ml";
 
       if (sizeVal.includes("100 ml")) {
-        const r1 = calcErr(20, details.obs1, "20.1");
+        const r1 = calcErr(20, details.obs1, "20.0");
         const r2 = calcErr(40, details.obs2, "40.0");
-        const r3 = calcErr(60, details.obs3, "60.2");
-        const r4 = calcErr(80, details.obs4, "80.1");
-        const r5 = calcErr(100, details.obs5, "100.2");
+        const r3 = calcErr(60, details.obs3, "60.0");
+        const r4 = calcErr(80, details.obs4, "80.0");
+        const r5 = calcErr(100, details.obs5, "100.0");
         rowsData = [
           ["1", "20 ml", r1.obs, r1.err, "± 0.5 ml"],
           ["2", "40 ml", r2.obs, r2.err, "± 0.5 ml"],
@@ -267,11 +299,11 @@ $instrumentId = $instrument['id'] ?? null;
           ["5", "100 ml", r5.obs, r5.err, "± 0.5 ml"]
         ];
       } else if (sizeVal.includes("250 ml")) {
-        const r1 = calcErr(50, details.obs1, "50.2");
-        const r2 = calcErr(100, details.obs2, "100.1");
-        const r3 = calcErr(150, details.obs3, "150.3");
-        const r4 = calcErr(200, details.obs4, "200.2");
-        const r5 = calcErr(250, details.obs5, "250.4");
+        const r1 = calcErr(50, details.obs1, "50.0");
+        const r2 = calcErr(100, details.obs2, "100.0");
+        const r3 = calcErr(150, details.obs3, "150.0");
+        const r4 = calcErr(200, details.obs4, "200.0");
+        const r5 = calcErr(250, details.obs5, "250.0");
         rowsData = [
           ["1", "50 ml", r1.obs, r1.err, "± 1.0 ml"],
           ["2", "100 ml", r2.obs, r2.err, "± 1.0 ml"],
@@ -280,11 +312,11 @@ $instrumentId = $instrument['id'] ?? null;
           ["5", "250 ml", r5.obs, r5.err, "± 1.0 ml"]
         ];
       } else if (sizeVal.includes("500 ml")) {
-        const r1 = calcErr(100, details.obs1, "100.4");
-        const r2 = calcErr(200, details.obs2, "200.3");
-        const r3 = calcErr(300, details.obs3, "300.5");
-        const r4 = calcErr(400, details.obs4, "400.2");
-        const r5 = calcErr(500, details.obs5, "500.6");
+        const r1 = calcErr(100, details.obs1, "100.0");
+        const r2 = calcErr(200, details.obs2, "200.0");
+        const r3 = calcErr(300, details.obs3, "300.0");
+        const r4 = calcErr(400, details.obs4, "400.0");
+        const r5 = calcErr(500, details.obs5, "500.0");
         rowsData = [
           ["1", "100 ml", r1.obs, r1.err, "± 2.5 ml"],
           ["2", "200 ml", r2.obs, r2.err, "± 2.5 ml"],
@@ -294,11 +326,11 @@ $instrumentId = $instrument['id'] ?? null;
         ];
       } else {
         // 1000 ml default
-        const r1 = calcErr(200, details.obs1, "200.5");
-        const r2 = calcErr(400, details.obs2, "400.8");
-        const r3 = calcErr(600, details.obs3, "600.4");
-        const r4 = calcErr(800, details.obs4, "800.7");
-        const r5 = calcErr(1000, details.obs5, "1001.0");
+        const r1 = calcErr(200, details.obs1, "200.0");
+        const r2 = calcErr(400, details.obs2, "400.0");
+        const r3 = calcErr(600, details.obs3, "600.0");
+        const r4 = calcErr(800, details.obs4, "800.0");
+        const r5 = calcErr(1000, details.obs5, "1000.0");
         rowsData = [
           ["1", "200 ml", r1.obs, r1.err, "± 5.0 ml"],
           ["2", "400 ml", r2.obs, r2.err, "± 5.0 ml"],

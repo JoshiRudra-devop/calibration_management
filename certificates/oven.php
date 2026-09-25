@@ -64,47 +64,60 @@ $instrumentId = $instrument['id'] ?? null;
 
       <!-- Temperature Readings Section -->
       <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <h4 style="margin-top:0; color: #1e293b; margin-bottom: 12px;">Temperature Calibration Readings (°C):</h4>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h4 style="margin:0; color: #1e293b;">Temperature Calibration Readings (°C):</h4>
+            <span style="font-size: 11px; color: #64748b; font-weight: 500;">Accepted Thermal Error Limit: <strong>±1.0% of set temp / ±2.0 °C to ±5.0 °C</strong> as per IS 6365 / IS 2720</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" onclick="setZeroErrorOvenReadings()" style="background: #00796b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+              ✨ 0.0% Ideal Error
+            </button>
+            <button type="button" onclick="generateRandomOvenReadings()" style="background: #1e293b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+              🎲 Random (±1% Limit)
+            </button>
+          </div>
+        </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
           <div class="title_input_pair">
             <label for="ind1">50 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind1" placeholder="Ind: 50.2" value="50.2">
+              <input type="text" id="ind1" placeholder="Ind: 50.0" value="50.0">
               <input type="text" id="mst1" placeholder="Mst: 50.0" value="50.0">
             </div>
           </div>
           <div class="title_input_pair">
             <label for="ind2">100 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind2" placeholder="Ind: 100.5" value="100.5">
+              <input type="text" id="ind2" placeholder="Ind: 100.0" value="100.0">
               <input type="text" id="mst2" placeholder="Mst: 100.0" value="100.0">
             </div>
           </div>
           <div class="title_input_pair">
             <label for="ind3">150 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind3" placeholder="Ind: 150.3" value="150.3">
+              <input type="text" id="ind3" placeholder="Ind: 150.0" value="150.0">
               <input type="text" id="mst3" placeholder="Mst: 150.0" value="150.0">
             </div>
           </div>
           <div class="title_input_pair">
             <label for="ind4">200 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind4" placeholder="Ind: 200.4" value="200.4">
+              <input type="text" id="ind4" placeholder="Ind: 200.0" value="200.0">
               <input type="text" id="mst4" placeholder="Mst: 200.0" value="200.0">
             </div>
           </div>
           <div class="title_input_pair">
             <label for="ind5">250 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind5" placeholder="Ind: 250.6" value="250.6">
+              <input type="text" id="ind5" placeholder="Ind: 250.0" value="250.0">
               <input type="text" id="mst5" placeholder="Mst: 250.0" value="250.0">
             </div>
           </div>
           <div class="title_input_pair">
             <label for="ind6">300 °C - Indicated / Master (°C):</label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="ind6" placeholder="Ind: 300.5" value="300.5">
+              <input type="text" id="ind6" placeholder="Ind: 300.0" value="300.0">
               <input type="text" id="mst6" placeholder="Mst: 300.0" value="300.0">
             </div>
           </div>
@@ -129,6 +142,45 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'oven';
 
+    function setZeroErrorOvenReadings() {
+      const setTemps = [50, 100, 150, 200, 250, 300];
+      setTemps.forEach((temp, idx) => {
+        const i = idx + 1;
+        const mstEl = document.getElementById("mst" + i);
+        const indEl = document.getElementById("ind" + i);
+        if (mstEl) mstEl.value = temp.toFixed(1);
+        if (indEl) indEl.value = temp.toFixed(1);
+      });
+      const form = document.getElementById('calibrationForm');
+      if (form) form.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function generateRandomOvenReadings() {
+      const setTemps = [50, 100, 150, 200, 250, 300];
+      setTemps.forEach((temp, idx) => {
+        const i = idx + 1;
+        const mstEl = document.getElementById("mst" + i);
+        const indEl = document.getElementById("ind" + i);
+        if (mstEl) mstEl.value = temp.toFixed(1);
+
+        // Max allowable offset in °C for <= 1.0% error limit (max offset 0.8% of temp, capped at 1.5°C)
+        const maxOffset = Math.min(1.5, temp * 0.008);
+        const randOffset = (Math.random() * (2 * maxOffset) - maxOffset);
+        const roundedOffset = Math.round(randOffset * 10) / 10;
+        const indVal = (temp + roundedOffset).toFixed(1);
+        if (indEl) indEl.value = indVal;
+      });
+      const form = document.getElementById('calibrationForm');
+      if (form) form.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('id')) {
+        setZeroErrorOvenReadings();
+      }
+    });
+
     window.stickerPdfBlob = null;
       
     // Function to fetch form details
@@ -146,17 +198,17 @@ $instrumentId = $instrument['id'] ?? null;
         make: document.getElementById("make") ? document.getElementById("make").value : "",
         size: document.getElementById("size") ? document.getElementById("size").value : "",
         capacity: document.getElementById("capacity") ? document.getElementById("capacity").value : "",
-        ind1: document.getElementById("ind1") ? document.getElementById("ind1").value : "50.2",
+        ind1: document.getElementById("ind1") ? document.getElementById("ind1").value : "50.0",
         mst1: document.getElementById("mst1") ? document.getElementById("mst1").value : "50.0",
-        ind2: document.getElementById("ind2") ? document.getElementById("ind2").value : "100.5",
+        ind2: document.getElementById("ind2") ? document.getElementById("ind2").value : "100.0",
         mst2: document.getElementById("mst2") ? document.getElementById("mst2").value : "100.0",
-        ind3: document.getElementById("ind3") ? document.getElementById("ind3").value : "150.3",
+        ind3: document.getElementById("ind3") ? document.getElementById("ind3").value : "150.0",
         mst3: document.getElementById("mst3") ? document.getElementById("mst3").value : "150.0",
-        ind4: document.getElementById("ind4") ? document.getElementById("ind4").value : "200.4",
+        ind4: document.getElementById("ind4") ? document.getElementById("ind4").value : "200.0",
         mst4: document.getElementById("mst4") ? document.getElementById("mst4").value : "200.0",
-        ind5: document.getElementById("ind5") ? document.getElementById("ind5").value : "250.6",
+        ind5: document.getElementById("ind5") ? document.getElementById("ind5").value : "250.0",
         mst5: document.getElementById("mst5") ? document.getElementById("mst5").value : "250.0",
-        ind6: document.getElementById("ind6") ? document.getElementById("ind6").value : "300.5",
+        ind6: document.getElementById("ind6") ? document.getElementById("ind6").value : "300.0",
         mst6: document.getElementById("mst6") ? document.getElementById("mst6").value : "300.0",
         saveentry: `Oven_${document.getElementById("partyName") ? document.getElementById("partyName").value : ""}_${certNo}`
       };
