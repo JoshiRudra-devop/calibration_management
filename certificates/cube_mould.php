@@ -58,8 +58,6 @@ $instrumentId = $instrument['id'] ?? null;
       
 
   <script src="<?= APP_URL ?>/assets/js/general-v3.js?v=3.6.0&t=<?= time() ?>"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
   <script>
     console.log("Cube Mould script block parsing...");
     window.INSTRUMENT_SLUG = 'cube_mould';
@@ -188,111 +186,80 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     window.addCertificateDetails = function(doc, details) {
-      try {
-        details = details || {};
+      details = details || {};
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setDrawColor(0, 0, 0);
+
+      let qty = parseInt(details.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        qty = 1;
+      }
+      let sizeStr = details.size || "";
+      let parts = sizeStr.includes("x") || sizeStr.includes("X") 
+        ? sizeStr.split(/x/i).map(s => s.trim()) 
+        : [sizeStr, "", ""];
+      let length = parts[0] || "";
+      let height = parts[1] || parts[0] || "";
+      let width  = parts[2] || parts[0] || "";
+
+      const headers = [["SR.NO", "LENGTH", "HEIGHT", "WIDTH"]];
+      const allRows = [];
+      for (let i = 1; i <= qty; i++) {
+        allRows.push([i, length, height, width]);
+      }
+      const pageCount = Math.ceil(allRows.length / 10);
+      for (let page = 0; page < pageCount; page++) {
+        if (page > 0) doc.addPage();
+        let pageRows = allRows.slice(page * 10, page * 10 + 10);
+        let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
+        let pageDetails = { ...details, certificateNumber: refNo };
+        let tableY = drawHeader(doc, pageDetails, 50, false);
         
-        // Ensure text and draw colors are explicitly set to black
-        doc.setTextColor(0, 0, 0);
-        doc.setDrawColor(0, 0, 0);
-
-        let qty = parseInt(details.quantity);
-        if (isNaN(qty) || qty <= 0) {
-          qty = 1;
-        }
-        let sizeStr = details.size || "";
-        // Case-insensitive split on 'x' or 'X'
-        let parts = sizeStr.includes("x") || sizeStr.includes("X") 
-          ? sizeStr.split(/x/i).map(s => s.trim()) 
-          : [sizeStr, "", ""];
-        let length = parts[0] || "";
-        let height = parts[1] || "";
-        let width = parts[2] || "";
-
-        const headers = [["SR.NO", "LENGTH", "HEIGHT", "WIDTH"]];
-        const allRows = [];
-        for (let i = 1; i <= qty; i++) {
-          allRows.push([i, length, height, width]);
-        }
-        const pageCount = Math.ceil(allRows.length / 10);
-        for (let page = 0; page < pageCount; page++) {
-          if (page > 0) doc.addPage();
-          let pageRows = allRows.slice(page * 10, page * 10 + 10);
-          let refNo = incrementCertificateNumber(details.certificateNumber || "", page);
-          let pageDetails = { ...details, certificateNumber: refNo };
-          let tableY = drawHeader(doc, pageDetails, 50, false);
-          if (typeof doc.autoTable === 'function') {
-            try {
-              doc.autoTable({
-                head: headers,
-                body: pageRows,
-                startY: tableY + 1,
-                styles: {
-                  fontSize: 12,
-                  lineColor: [0, 0, 0],
-                  textColor: [0, 0, 0],
-                  lineWidth: 0.2,
-                  halign: 'center',
-                  valign: 'middle'
-                },
-                headStyles: {
-                  fontSize: 15,
-                  fillColor: [255, 255, 255],
-                  textColor: [0, 0, 0],
-                  lineColor: [0, 0, 0],
-                  lineWidth: 0.2,
-                  halign: 'center',
-                  valign: 'middle'
-                },
-                alternateRowStyles: {
-                  fillColor: [255, 255, 255]
-                }
-              });
-            } catch (ae) {
-              console.error("autoTable error in cube_mould.php:", ae);
-            }
-          } else {
-            let curY = tableY + 5;
-            doc.setFontSize(14);
-            doc.rect(14, curY, 180, 8);
-            doc.text("SR.NO", 20, curY + 6);
-            doc.text("LENGTH", 60, curY + 6);
-            doc.text("HEIGHT", 110, curY + 6);
-            doc.text("WIDTH", 160, curY + 6);
-            curY += 8;
-            doc.setFontSize(12);
-            for (let r of pageRows) {
-              doc.rect(14, curY, 180, 8);
-              doc.text(String(r[0]), 20, curY + 6);
-              doc.text(String(r[1]), 60, curY + 6);
-              doc.text(String(r[2]), 110, curY + 6);
-              doc.text(String(r[3]), 160, curY + 6);
-              curY += 8;
-            }
-            if (!doc.autoTable) doc.autoTable = {};
-            doc.autoTable.previous = { finalY: curY };
+        doc.autoTable({
+          head: headers,
+          body: pageRows,
+          startY: tableY + 1,
+          margin: { left: 14, right: 14 },
+          styles: {
+            fontSize: 12,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle'
+          },
+          headStyles: {
+            fontSize: 14,
+            fillColor: [255, 255, 255],
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.2,
+            halign: 'center',
+            valign: 'middle'
+          },
+          alternateRowStyles: {
+            fillColor: [255, 255, 255]
           }
-          let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous && doc.autoTable.previous.finalY) ? doc.autoTable.previous.finalY : (tableY + 40));
-          let footerY = Math.max(tableEndY + 2, 198);
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(10);
-          doc.setTextColor(0, 0, 0);
-          doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
-          doc.setFontSize(9);
-          const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-          let rY = footerY + 6;
-          for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-          const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-          for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(10.5);
-          doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
-          doc.text("PROPRIETOR", 170, 238);
-        }
-      } catch (err) {
-        console.error("Error generating certificate details:", err);
-        if (typeof Toast !== 'undefined') {
-          Toast.error("Error building PDF content: " + err.message);
-        }
+        });
+
+        let tableEndY = doc.lastAutoTable ? doc.lastAutoTable.finalY : (tableY + 40);
+        let footerY = Math.max(tableEndY + 2, 198);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
+        doc.setFontSize(9);
+        const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
+        let rY = footerY + 6;
+        for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+        const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
+        for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10.5);
+        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+        doc.text("PROPRIETOR", 170, 238);
       }
     };
     function addCertificateDetails(doc, details) {

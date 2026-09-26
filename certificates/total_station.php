@@ -63,8 +63,7 @@ $instrumentId = $instrument['id'] ?? null;
     const INSTRUMENT_ID = <?= json_encode($instrumentId) ?>;
     window.INSTRUMENT_SLUG = 'total_station';
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
+<script>
     window.stickerPdfBlob = null;
   
     window.getFormDetails = function() {
