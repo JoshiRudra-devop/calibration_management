@@ -675,14 +675,14 @@ $instrumentId = $instrument['id'] ?? null;
             doc.text("•REFERENCE STANDARD NO.IS-2-1960.", 14, yPosition); yPosition += 5;
 
             const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
-            const masterName = master.name || "DIGITAL VERNIER CALIPER";
-            const masterSerial = master.serial_no || "ACCUPLUS/13-200";
-            const masterRange = master.range_capacity || "0-200MM";
-            const masterLc = master.least_count || '0.001" (0.01MM)';
-            const masterCalib = master.calib_date || "02/08/2026";
-            const masterDue = master.due_date || "01/08/2027";
-            const masterCert = master.cert_no || "62";
-            const masterLab = master.calibrated_by || "IDEMI CALIBRATION LABORATORY";
+            const masterName = master.name || "DIGITAL CALIPER";
+            const masterSerial = master.serial_no || "Accu Plus / 13-200 (DC-01)";
+            const masterRange = master.range_capacity || "0-200 mm";
+            const masterLc = master.least_count || '0.01 mm';
+            const masterCalib = master.calib_date || "02/10/2025";
+            const masterDue = master.due_date || "01/10/2026";
+            const masterCert = master.cert_no || "1025/392/001";
+            const masterLab = master.calibrated_by || "ACLPL, AHMEDABAD";
 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(8.5);

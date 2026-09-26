@@ -96,7 +96,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
         doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign += 12, { align: 'center' });
-        doc.setFontSize(13);
+        doc.setFontSize(10.5);
         doc.text(`FOR , ${details.make} AUTO LEVEL`, doc.internal.pageSize.getWidth() / 2, Yalign += 6, { align: 'center' });
         doc.text(`MODEL : ${details.modelNo} ,SR NO:- ${details.serialNo}`, doc.internal.pageSize.getWidth() / 2, Yalign += 6, { align: 'center' });
         const partyPrefix = "NAME OF PARTY         :     ";
@@ -116,6 +116,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(`DATE                             :     ${details.calibrationDate}`, 14, Yalign += 7);
         doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign += 7);
         doc.setFontSize(10);
+       
         doc.text(`This is to certify that ${details.make} Automatic Level-${details.modelNo} Serial No ${details.serialNo} Been Checked`, 14, Yalign += 8);
         doc.text(`By us as under One year warranty.`, 14, Yalign += 4.5);
         doc.text(`1. Level was kept At a distance of 20 meter from staff-A and 30 meter from Staff-B, Which`, 14, Yalign += 7);
@@ -124,17 +125,10 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(`3. Reading of Staff-B was taken as 1.600 m`, 14, Yalign += 7);
         doc.text(`Hence error is NIL (Within the tolerance Level). Therefore, instrument is found free from`, 14, Yalign += 7);
         doc.text(`collimation error as of Date.`, 14, Yalign += 4.5);
-
-        let endY = Math.max(Yalign + 8, 198);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
-        doc.setFontSize(9);
-        const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-        let rY = endY + 6;
-        for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-        const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-        for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+        
+        doc.text(`CALIBRATED BY: YOGESH B JOSHI`, 14, Yalign += 7);
+        doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, Yalign += 7);
+        doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, Yalign += 4.5);
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10.5);

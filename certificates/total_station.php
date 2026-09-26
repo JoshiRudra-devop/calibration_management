@@ -178,17 +178,10 @@ $instrumentId = $instrument['id'] ?? null;
         }
       }
 
-      let endY = Math.max(Yalign + 6, 195);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
+      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, Yalign += 15);
       doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = endY + 6;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-
+      doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, Yalign += 7);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, Yalign += 7);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);

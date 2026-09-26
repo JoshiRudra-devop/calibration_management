@@ -219,13 +219,6 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(22);
       doc.text("TEST REPORT FOR HOT AIR OVEN", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-      
-      if (details.size) {
-        Yalign += 7;
-        doc.setFontSize(14);
-        doc.text(`CHAMBER SIZE: ${details.size}`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-      }
-
       doc.setFontSize(10.5);
       Yalign += 12;
       doc.text(`DATE:-${details.calibrationDate}`, 155, Yalign);
@@ -327,24 +320,16 @@ $instrumentId = $instrument['id'] ?? null;
       const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_thermo') : {};
       masterY += 6;
       doc.setFontSize(9);
-      doc.text('EQUIPMENT NAME :- ' + (master.name || 'DIGITAL TEMPERATURE INDICATOR WITH SENSOR'), 14, masterY);
-      doc.text('CALIBRATION BY :- ' + (master.calibrated_by || 'ACCURATE CALIBRATION, AHMEDABAD'), 105, masterY);
+      doc.text('EQUIPMENT NAME :- ' + (master.name || 'DIGITAL THERMOMETER'), 14, masterY);
+      doc.text('CALIBRATION BY :- ' + (master.calibrated_by || 'ACLPL, AHMEDABAD'), 105, masterY);
       masterY += 5;
       doc.text('CALIBRATION DATE :- ' + (master.calib_date || '02/08/2026'), 14, masterY);
       doc.text('NEXT DUE DATE  :- ' + (master.due_date || '01/08/2027'), 105, masterY);
-
-      // Dynamic Footer & Remarks
-      let footerY = Math.max(masterY + 6, 195);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
+      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, masterY += 15);
       doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = footerY + 6;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• Temperature calibration carried out using standard master digital temperature indicator with RTD/Thermocouple sensors.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-
+      doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, masterY += 7);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, masterY += 7);
+    
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);

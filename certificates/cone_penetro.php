@@ -112,27 +112,19 @@ $instrumentId = $instrument['id'] ?? null;
       const prefixWidth = doc.getTextWidth(siteLocPrefix);
       const maxWidth = 180 - prefixWidth; // adjust as needed according to your layout
       const siteLocLines = doc.splitTextToSize(details.siteLocation, maxWidth);
-      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 10);
+      doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
       for (let i = 1; i < siteLocLines.length; i++) {
         doc.text(siteLocLines[i], 14 + prefixWidth , Yalign +=10);
       }
       Yalign += ((siteLocLines.length - 1)+5) ;
       doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
 
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-
-      let footerY = Math.max(Yalign + 10, 195);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
+      doc.text(`CALIBRATED BY: YOGESH B JOSHI`, 14, Yalign += 15);
       doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = footerY + 6;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+
+      doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, Yalign += 7);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, Yalign += 7);
+      
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);

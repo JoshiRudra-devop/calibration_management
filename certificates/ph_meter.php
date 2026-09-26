@@ -152,11 +152,9 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableStartY2+=10);
       doc.text('NOTE: This Certificate Refer To The Value Obtained At The Time Of Calibration, Environment', 14, tableStartY2+=5);
       doc.text('Condition During Calibration 25°C ± 2°C', 14, tableStartY2+=5);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = tableStartY2;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+      doc.setFontSize(9);
+      doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableStartY2 += 7);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableStartY2 += 7);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
