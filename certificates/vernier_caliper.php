@@ -206,7 +206,7 @@ $instrumentId = $instrument['id'] ?? null;
       let Yalign = 50;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(22);
-      doc.text("CALIBRATION CERTIFICATE FOR VERNIER CALIPER", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+      doc.text("CALIBRATION CERTIFICATE ", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
       
       if (details.size) {
         Yalign += 7;
