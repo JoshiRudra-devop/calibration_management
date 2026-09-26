@@ -208,11 +208,6 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(22);
       doc.text("CALIBRATION CERTIFICATE ", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
       
-      if (details.size) {
-        Yalign += 7;
-        doc.setFontSize(13);
-        doc.text(`RANGE: ${details.size}  |  LEAST COUNT: ${details.leastCount} mm`, doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-      }
 
       doc.setFontSize(10);
       Yalign += 12;
