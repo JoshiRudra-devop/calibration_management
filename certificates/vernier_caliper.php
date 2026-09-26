@@ -299,18 +299,21 @@ $instrumentId = $instrument['id'] ?? null;
           halign: 'center'
         },
         headStyles: {
-          fillColor: [245, 247, 250],
+          fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
           fontStyle: 'bold',
           halign: 'center',
           lineColor: [0, 0, 0],
           lineWidth: 0.2
         },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
+        },
         theme: 'grid',
         margin: { left: 14, right: 14 }
       });
 
-      let endY = Math.max((doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY : 180) + 6, 198);
+      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 8 : Yalign + 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
@@ -321,10 +324,11 @@ $instrumentId = $instrument['id'] ?? null;
       const rem2 = doc.splitTextToSize("• Calibration carried out using standard gauge blocks traceable to National Standards as per IS 3651 / ISO 13385-1.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
 
+      let sigY = Math.max(rY + 6, 220);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
-      doc.text("PROPRIETOR", 170, 238);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, sigY);
+      doc.text("PROPRIETOR", 170, sigY + 10);
     };
 
     let leastCount = 0.01;

@@ -128,25 +128,57 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFont("helvetica", "bold");
       doc.text(`i. GENERAL CHECKING AS UNDER. `, 14, Yalign += 6);
       doc.setFont("helvetica", "normal");
-      doc.text(`• Diaphragm of the Instrument checked. Found Satisfactory.`, 14, Yalign += 4.2);
-      doc.text(`• Optical Plummet checked in all 360 Degrees. Found Satisfactory.`, 14, Yalign += 4.2);
-      doc.text(`• Bubble checked in all 360 degrees. Found Accurate.`, 14, Yalign += 4.2);
+      
+      const checkLines1 = [
+        `• Diaphragm of the Instrument checked. Found Satisfactory.`,
+        `• Optical Plummet checked in all 360 Degrees. Found Satisfactory.`,
+        `• Bubble checked in all 360 degrees. Found Accurate.`
+      ];
+      for (let cl of checkLines1) {
+        const lines = doc.splitTextToSize(cl, 175);
+        for (let idx = 0; idx < lines.length; idx++) {
+          Yalign += (idx === 0 ? 4.2 : 3.8);
+          doc.text(lines[idx], idx === 0 ? 14 : 18, Yalign);
+        }
+      }
+
       doc.setFont("helvetica", "bold");
       doc.text(`ii. HORIZONTAL CIRCLE CHECKED AS UNDER. `, 14, Yalign += 6);
       doc.setFont("helvetica", "normal");
-      doc.text(`• Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`, 14, Yalign += 4.2);
-      doc.text(`• Telescope reversed. Point sighted Y' approx. 15 meter away from instrument. `, 14, Yalign += 4.2);
-      doc.text(`• Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again. `, 14, Yalign += 4.2);
-      doc.text(`• Telescope reversed. It automatically sighted point 'Y' Error - Nil.`, 14, Yalign += 4.2);
+      
+      const checkLines2 = [
+        `• Set Circle reading 0 degree, 0 minute, 0 second, point sighted 'X' approx. 30 meter away from the instrument.`,
+        `• Telescope reversed. Point sighted Y' approx. 15 meter away from instrument.`,
+        `• Alidade rotated through 180 degrees, O minute, O second, sighted point 'X' again.`,
+        `• Telescope reversed. It automatically sighted point 'Y' Error - Nil.`
+      ];
+      for (let cl of checkLines2) {
+        const lines = doc.splitTextToSize(cl, 175);
+        for (let idx = 0; idx < lines.length; idx++) {
+          Yalign += (idx === 0 ? 4.2 : 3.8);
+          doc.text(lines[idx], idx === 0 ? 14 : 18, Yalign);
+        }
+      }
+
       doc.setFont("helvetica", "bold");
       doc.text(`iii. VERTICAL CIRCLE CHECKED AS UNDER.`, 14, Yalign += 6);
       doc.setFont("helvetica", "normal");
-      doc.text(`• Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument). `, 14, Yalign += 4.2);
-      doc.text(`• Vertical Circle reading was 90 degree, O minute, O second.`, 14, Yalign += 4.2);
-      doc.text(`• Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270 degrees, 0 minutes, 0 seconds, Hence Error-Nil.`, 14, Yalign += 4.2);
-      doc.text(`• Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`, 14, Yalign += 4.2);
+      
+      const checkLines3 = [
+        `• Sighted Telescope at a clearly defined object. (Point 'X' approx. 30 meter away from the Instrument).`,
+        `• Vertical Circle reading was 90 degree, O minute, O second.`,
+        `• Reversed Telescope, rotated alidade through 180 degrees, sighted same point, vertical circle Reading was 270 degrees, 0 minutes, 0 seconds, Hence Error-Nil.`,
+        `• Therefore the Electronic Total Station is certified as free from collimation error as date & Error - Nil.`
+      ];
+      for (let cl of checkLines3) {
+        const lines = doc.splitTextToSize(cl, 175);
+        for (let idx = 0; idx < lines.length; idx++) {
+          Yalign += (idx === 0 ? 4.2 : 3.8);
+          doc.text(lines[idx], idx === 0 ? 14 : 18, Yalign);
+        }
+      }
 
-      let endY = Math.max(Yalign + 8, 198);
+      let endY = Math.max(Yalign + 6, 195);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);

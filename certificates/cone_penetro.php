@@ -118,21 +118,18 @@ $instrumentId = $instrument['id'] ?? null;
       }
       Yalign += ((siteLocLines.length - 1)+5) ;
       doc.text(`NEXT DUE DATE         :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
-      doc.text(`CALIBRATION BY       :     YOGESH BHAI`, 14, Yalign+=15);
 
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
 
-      let endY = Yalign + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
+      let footerY = Math.max(Yalign + 10, 195);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = footerY + 6;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }

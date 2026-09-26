@@ -499,8 +499,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // â”€â”€ Preview PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function preview() {
-  if (!form || !form.checkValidity()) {
-    alert('Please fill all required fields');
+  const activeForm = document.getElementById('calibrationForm') || document.querySelector('form');
+  if (activeForm && !activeForm.checkValidity()) {
+    activeForm.reportValidity();
+    const firstInvalid = activeForm.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+    if (typeof Toast !== 'undefined') {
+      Toast.warn('Please fill out all required fields before previewing.');
+    } else {
+      alert('Please fill out all required fields before previewing.');
+    }
     return;
   }
 
@@ -510,9 +518,15 @@ async function preview() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
-    // Add certificate details using the template's addCertificateDetails function
+    // Add certificate details using template's addCertificateDetails function
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
+    
+    // Apply letterhead (header, footer, stamp, signature) for preview
+    if (typeof applyLetterhead === 'function') {
+      await applyLetterhead(doc);
+    }
+    
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -529,16 +543,29 @@ async function preview() {
     }
     
     hideLoader();
+    if (typeof Toast !== 'undefined') {
+      Toast.success('PDF preview ready!');
+    }
   } catch (error) {
-    alert('Error generating preview: ' + error.message);
+    console.error('Error generating preview:', error);
     hideLoader();
+    if (typeof Toast !== 'undefined') {
+      Toast.error('Error generating preview: ' + error.message);
+    } else {
+      alert('Error generating preview: ' + error.message);
+    }
   }
 }
 
-// â”€â”€ Print Certificate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Print Certificate ──────────────────────────────────
 async function printBlankCertificate() {
-  if (!form || !form.checkValidity()) {
-    alert('Please fill all required fields');
+  const activeForm = document.getElementById('calibrationForm') || document.querySelector('form');
+  if (activeForm && !activeForm.checkValidity()) {
+    activeForm.reportValidity();
+    const firstInvalid = activeForm.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+    if (typeof Toast !== 'undefined') Toast.warn('Please fill all required fields before printing.');
+    else alert('Please fill all required fields before printing.');
     return;
   }
 
@@ -550,6 +577,9 @@ async function printBlankCertificate() {
     
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
+    if (typeof applyLetterhead === 'function') {
+      await applyLetterhead(doc);
+    }
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -558,20 +588,28 @@ async function printBlankCertificate() {
     const printWindow = window.open(pdfUrl);
     
     setTimeout(() => {
-      printWindow.print();
+      if (printWindow) printWindow.print();
     }, 500);
     
     showLoaderSuccess('Print dialog opened!');
+    if (typeof Toast !== 'undefined') Toast.success('Print dialog opened!');
   } catch (error) {
-    alert('Error printing: ' + error.message);
+    console.error('Error printing:', error);
     hideLoader();
+    if (typeof Toast !== 'undefined') Toast.error('Error printing: ' + error.message);
+    else alert('Error printing: ' + error.message);
   }
 }
 
-// â”€â”€ Share PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Share PDF ──────────────────────────────────────────
 async function sharePDF() {
-  if (!form || !form.checkValidity()) {
-    alert('Please fill all required fields');
+  const activeForm = document.getElementById('calibrationForm') || document.querySelector('form');
+  if (activeForm && !activeForm.checkValidity()) {
+    activeForm.reportValidity();
+    const firstInvalid = activeForm.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+    if (typeof Toast !== 'undefined') Toast.warn('Please fill all required fields before sharing.');
+    else alert('Please fill all required fields before sharing.');
     return;
   }
 
@@ -583,7 +621,9 @@ async function sharePDF() {
     
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
-    await applyLetterhead(doc);
+    if (typeof applyLetterhead === 'function') {
+      await applyLetterhead(doc);
+    }
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -600,22 +640,31 @@ async function sharePDF() {
         text: 'Calibration Certificate from Shreeji Instruments'
       });
       showLoaderSuccess('Shared successfully!');
+      if (typeof Toast !== 'undefined') Toast.success('Shared successfully!');
     } else {
       window.open(pdfUrl);
       showLoaderSuccess('Download started!');
+      if (typeof Toast !== 'undefined') Toast.info('PDF downloaded for sharing.');
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
-      alert('Error sharing: ' + error.message);
-    }
+    console.error('Error sharing PDF:', error);
     hideLoader();
+    if (error.name !== 'AbortError') {
+      if (typeof Toast !== 'undefined') Toast.error('Error sharing: ' + error.message);
+      else alert('Error sharing: ' + error.message);
+    }
   }
 }
 
-// â”€â”€ Generate PDF with Letterhead â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Generate PDF with Letterhead ───────────────────────
 async function generatePDF() {
-  if (!form || !form.checkValidity()) {
-    alert('Please fill all required fields');
+  const activeForm = document.getElementById('calibrationForm') || document.querySelector('form');
+  if (activeForm && !activeForm.checkValidity()) {
+    activeForm.reportValidity();
+    const firstInvalid = activeForm.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+    if (typeof Toast !== 'undefined') Toast.warn('Please fill all required fields before generating PDF.');
+    else alert('Please fill all required fields before generating PDF.');
     return;
   }
 
@@ -627,7 +676,9 @@ async function generatePDF() {
 
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
-    await applyLetterhead(doc);
+    if (typeof applyLetterhead === 'function') {
+      await applyLetterhead(doc);
+    }
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }
@@ -637,16 +688,24 @@ async function generatePDF() {
     await savePDFWithLocation(pdfBlob, fileName);
     
     showLoaderSuccess('PDF Downloaded!');
+    if (typeof Toast !== 'undefined') Toast.success('PDF downloaded successfully!');
   } catch (error) {
-    alert('Error generating PDF: ' + error.message);
+    console.error('Error generating PDF:', error);
     hideLoader();
+    if (typeof Toast !== 'undefined') Toast.error('Error generating PDF: ' + error.message);
+    else alert('Error generating PDF: ' + error.message);
   }
 }
 
-// â”€â”€ Generate PDF without Letterhead â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Generate PDF without Letterhead ───────────────────
 async function generatePDFblankpg() {
-  if (!form || !form.checkValidity()) {
-    alert('Please fill all required fields');
+  const activeForm = document.getElementById('calibrationForm') || document.querySelector('form');
+  if (activeForm && !activeForm.checkValidity()) {
+    activeForm.reportValidity();
+    const firstInvalid = activeForm.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+    if (typeof Toast !== 'undefined') Toast.warn('Please fill all required fields before generating PDF.');
+    else alert('Please fill all required fields before generating PDF.');
     return;
   }
 
@@ -667,9 +726,12 @@ async function generatePDFblankpg() {
     await savePDFWithLocation(pdfBlob, fileName);
     
     showLoaderSuccess('PDF Downloaded!');
+    if (typeof Toast !== 'undefined') Toast.success('PDF downloaded (blank format)!');
   } catch (error) {
-    alert('Error generating PDF: ' + error.message);
+    console.error('Error generating PDF:', error);
     hideLoader();
+    if (typeof Toast !== 'undefined') Toast.error('Error generating PDF: ' + error.message);
+    else alert('Error generating PDF: ' + error.message);
   }
 }
 

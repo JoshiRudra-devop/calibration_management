@@ -167,15 +167,13 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text('CALIBRATION DATE :-' + (master.calib_date || '02/08/2026'), 14, tableStartY2+=7);
       doc.text('NEXT DUE DATE  :-' + (master.due_date || '01/08/2027'), 100, tableStartY2);
 
-      let endY = tableStartY2 + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      let footerY = Math.max(tableStartY2 + 6, 195);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = footerY + 6;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }

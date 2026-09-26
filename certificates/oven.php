@@ -269,6 +269,8 @@ $instrumentId = $instrument['id'] ?? null;
       const headers = ["SR. NO.", "SET TEMP. (°C)", "INDICATED TEMP. (°C)", "MASTER TEMP. (°C)", "ERROR (°C)"];
 
       // Draw Header Row
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.35);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       let curX = startX;
@@ -316,13 +318,29 @@ $instrumentId = $instrument['id'] ?? null;
         curY += rowHeight;
       }
 
-      // Footer & Remarks at standard grid positions
+      // Master Instrument Details Section
+      let masterY = curY + 6;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION', doc.internal.pageSize.getWidth() / 2, masterY, { align: 'center' });
+      
+      const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_thermo') : {};
+      masterY += 6;
+      doc.setFontSize(9);
+      doc.text('EQUIPMENT NAME :- ' + (master.name || 'DIGITAL TEMPERATURE INDICATOR WITH SENSOR'), 14, masterY);
+      doc.text('CALIBRATION BY :- ' + (master.calibrated_by || 'ACCURATE CALIBRATION, AHMEDABAD'), 105, masterY);
+      masterY += 5;
+      doc.text('CALIBRATION DATE :- ' + (master.calib_date || '02/08/2026'), 14, masterY);
+      doc.text('NEXT DUE DATE  :- ' + (master.due_date || '01/08/2027'), 105, masterY);
+
+      // Dynamic Footer & Remarks
+      let footerY = Math.max(masterY + 6, 195);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = footerY + 6;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• Temperature calibration carried out using standard master digital temperature indicator with RTD/Thermocouple sensors.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }

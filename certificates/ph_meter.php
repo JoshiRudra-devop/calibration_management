@@ -149,29 +149,11 @@ $instrumentId = $instrument['id'] ?? null;
       let tableStartY2=doc.autoTable.previous.finalY;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text('NOTE: This Certificate Refer To The Value Obtained At The Time Of Calibration, Environment', 14, tableStartY2+=10);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, tableStartY2+=10);
+      doc.text('NOTE: This Certificate Refer To The Value Obtained At The Time Of Calibration, Environment', 14, tableStartY2+=5);
       doc.text('Condition During Calibration 25°C ± 2°C', 14, tableStartY2+=5);
-      doc.text('Detail Of Standard Use For Calibration:', 14, tableStartY2+=8);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text('STANDARD BUFFER SOLUTION & DISTILLED WATER', 14, tableStartY2+=6);
-      doc.setFont("helvetica", "bold");
-      doc.text('Note: This Certificate Refer The Value Obtained At The Time Of Calibration', 14, tableStartY2+=8);
-
-      doc.setFont("helvetica", "bold"); 
-      doc.setFontSize(12); 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8.5);
-
-      let endY = tableStartY2 + 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
-      doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = tableStartY2;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }

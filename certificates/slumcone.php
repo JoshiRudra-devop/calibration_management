@@ -157,54 +157,54 @@ $instrumentId = $instrument['id'] ?? null;
         let pageCertNo = incrementCertificateNumber(details.certificateNumber || "", page);
         let pageSerialNo = details.useCertNoAsSerial ? pageCertNo : incrementCertificateNumber(details.serialNo || "", page);
 
-        let Yalign = 50;
+        let Yalign = 48;
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(25);
+        doc.setFontSize(24);
         doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
-        doc.setFontSize(12);
+        doc.setFontSize(11);
         const maxWidth = doc.internal.pageSize.getWidth() - 24; // 12px margin on both sides
         
         const para1 = window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
         const lines1 = doc.splitTextToSize(para1, maxWidth);
-        doc.text(lines1, 12, Yalign += 15);
-        Yalign += (lines1.length * 6); // Add height for paragraph 1
+        doc.text(lines1, 12, Yalign += 11);
+        Yalign += (lines1.length * 5); // Height for paragraph 1
         
-        let hori_axis = Yalign + 5;
+        let hori_axis = Yalign + 4;
         const para2 = "From the below test this is to certify that the Slump test apparatus is meeting necessary requirements as per IS: 7320-1974 within the permissible limit.";
         const lines2 = doc.splitTextToSize(para2, maxWidth);
-        doc.text(lines2, 12, hori_axis += 9);
-        hori_axis += (lines2.length * 6) - 5; // Add height for paragraph 2
+        doc.text(lines2, 12, hori_axis);
+        hori_axis += (lines2.length * 5); // Height for paragraph 2
 
         doc.setFontSize(10);
         // Certificate Details
-        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 10);
+        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 8);
         doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
         const partyPrefix = "NAME OF PARTY       :-    ";
         const partyPrefixWidth = doc.getTextWidth(partyPrefix);
         const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-        hori_axis += 10;
+        hori_axis += 8;
         doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
         for (let i = 1; i < partyLines.length; i++) {
           hori_axis += 4.5;
           doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
         }
 
-        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 10);
-        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make}`, 14, hori_axis += 10);
+        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 8);
+        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make}`, 14, hori_axis += 8);
 
         const siteLocPrefix = "SITE LOCATION          :-    ";
         const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
         const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
-        hori_axis += 10;
+        hori_axis += 8;
         doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
         for (let i = 1; i < siteLocLines.length; i++) {
           hori_axis += 4.5;
           doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
         }
 
-        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 14, hori_axis += 10);
-        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 10, { align: 'center' });
+        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 14, hori_axis += 8);
+        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 8, { align: 'center' });
 
         const data = [
           ["TOP DIA", "100 + 3.0 - 1.5", " 100.10"],
@@ -215,7 +215,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.autoTable({
           head: [['  ', 'AS PER IS(MM)', 'ACTUAL MEASURED(AVG. OF THREE)']],
           body: data,
-          startY: hori_axis + 5,
+          startY: hori_axis + 4,
           styles: {
             fontSize: 9.5,
             textColor: [0, 0, 0],
@@ -239,22 +239,21 @@ $instrumentId = $instrument['id'] ?? null;
             fillColor: [255, 255, 255]
           }
         });
-        let endY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : hori_axis + 40)) + 4;
+        let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : hori_axis + 30);
+        let footerY = Math.max(tableEndY + 6, 195);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
+        doc.setFontSize(10);
+        doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
+        doc.setFontSize(9);
+        const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
+        let rY = footerY + 6;
+        for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+        const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
+        for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
         doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
-      doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
-      doc.text("PROPRIETOR", 170, 238);
+        doc.setFontSize(10.5);
+        doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
+        doc.text("PROPRIETOR", 170, 238);
       }
     }
 

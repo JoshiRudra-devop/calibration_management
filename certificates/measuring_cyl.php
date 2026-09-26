@@ -262,6 +262,8 @@ $instrumentId = $instrument['id'] ?? null;
       const headers = ["SR. NO.", "NOMINAL VOL. (ml)", "OBSERVED VOL. (ml)", "ERROR (ml)", "TOLERANCE (± ml)"];
 
       // Draw Header Row
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.35);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       let curX = startX;
@@ -355,13 +357,14 @@ $instrumentId = $instrument['id'] ?? null;
         curY += rowHeight;
       }
 
-      // Footer & Remarks at standard grid positions
+      // Footer & Remarks positioned dynamically
+      let footerY = Math.max(curY + 8, 195);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
+      let rY = footerY + 6;
       for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
       const rem2 = doc.splitTextToSize("• Calibration carried out using standard volumetric gravimetric procedure as per IS 878 / ISO 4788.", 85);
       for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }

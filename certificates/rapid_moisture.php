@@ -79,47 +79,47 @@ $instrumentId = $instrument['id'] ?? null;
     }
 
     window.addCertificateDetails = function(doc, details) {
-      let Yalign = 46;
+      let Yalign = 44;
 
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(25);
+      doc.setFontSize(24);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
      
-      doc.setFontSize(10);
+      doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");   
-      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=12);
+      doc.text(`DATE:${details.calibrationDate}`, 155, Yalign+=10);
       doc.text(`REF NO                          :-    ${details.certificateNumber}`, 14, Yalign);
 
       const partyPrefix = "NAME OF PARTY          :     ";
       const partyPrefixWidth = doc.getTextWidth(partyPrefix);
       const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-      Yalign += 5;
+      Yalign += 4.5;
       doc.text(partyPrefix + (partyLines[0] || ""), 14, Yalign);
       for (let i = 1; i < partyLines.length; i++) {
-        Yalign += 4.5;
+        Yalign += 4;
         doc.text(partyLines[i], 14 + partyPrefixWidth, Yalign);
       }
 
-      doc.text(`EQUIPMENT NAME       :     RAPID MOISTURE METER`, 14, Yalign += 5);
-      doc.text(`RANGE                           :     0-50 %`, 14, Yalign += 5);
-      doc.text(`SERIAL NO / MAKE       :     ${details.serialNo} / ${details.make}`, 14, Yalign += 5);
+      doc.text(`EQUIPMENT NAME       :     RAPID MOISTURE METER`, 14, Yalign += 4.5);
+      doc.text(`RANGE                           :     0-50 %`, 14, Yalign += 4.5);
+      doc.text(`SERIAL NO / MAKE       :     ${details.serialNo} / ${details.make}`, 14, Yalign += 4.5);
 
       if (details.siteLocation) {
         const siteLocPrefix = "SITE LOCATION            :     ";
         const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
         const siteLocLines = doc.splitTextToSize(details.siteLocation, 180 - siteLocPrefixWidth);
-        Yalign += 5;
+        Yalign += 4.5;
         doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
         for (let i = 1; i < siteLocLines.length; i++) {
-          Yalign += 4.5;
-          doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
+          Yalign += 4;
+          doc.text(siteLocPrefix + (siteLocLines[i] || ""), 14 + siteLocPrefixWidth, Yalign);
         }
       }
 
-      doc.text(`NEXT DUE DATE           :     ${details.nextCalibrationDate}`, 14, Yalign += 5);
+      doc.text(`NEXT DUE DATE           :     ${details.nextCalibrationDate}`, 14, Yalign += 4.5);
 
-      doc.setFontSize(9);
-      doc.text("TABLE TO CONVERT RAPID MOISTURE METER READING TO PERCENTAGE MOISTURE CONTENT ON DRY WEIGHT BASIS.", 14, Yalign+=5);
+      doc.setFontSize(8.5);
+      doc.text("TABLE TO CONVERT RAPID MOISTURE METER READING TO PERCENTAGE MOISTURE CONTENT ON DRY WEIGHT BASIS.", 14, Yalign+=4.5);
 
       const head = [
         [
@@ -161,7 +161,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.autoTable({
         head: head,
         body: data,
-        startY: Yalign+=3,
+        startY: Yalign + 2,
         theme: 'grid',
         styles: {
             lineColor: [0, 0, 0],
@@ -169,33 +169,34 @@ $instrumentId = $instrument['id'] ?? null;
             lineWidth: 0.2,
             halign: 'center',
             valign: 'middle',
-            fontSize: 8.2,
+            fontSize: 7.5,
             fontStyle: 'bold',
-            cellPadding: 0.4
+            cellPadding: 0.25,
+            minCellHeight: 3.5
         },
         headStyles: {
-            fontSize: 8.2,
+            fontSize: 7.5,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
             halign: 'center',
-            valign: 'middle'
+            valign: 'middle',
+            cellPadding: 0.3
         }
       });
 
-      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 2 : 180;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : 180;
+      let footerY = Math.max(tableEndY + 4, 195);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, footerY);
       doc.setFontSize(9);
       const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = 212;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
+      let rY = footerY + 5;
+      for (let line of rem1) { doc.text(line, 14, rY); rY += 4; }
       const rem2 = doc.splitTextToSize("• This certificate refers to the value obtained at the time of calibration.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
+      for (let line of rem2) { doc.text(line, 14, rY); rY += 4; }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
