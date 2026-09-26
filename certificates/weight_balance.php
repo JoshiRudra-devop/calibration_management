@@ -310,11 +310,10 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(9);
       doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableEndY += 7);
       doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableEndY += 7);
-      let sigY = Math.max(tableEndY + 6, 220);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 10);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
+      doc.text("PROPRIETOR", 170, 238);
     }
     // --- Sticker logic ---
     async function generateInfoSticker() {

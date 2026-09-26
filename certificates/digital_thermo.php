@@ -163,11 +163,10 @@ $instrumentId = $instrument['id'] ?? null;
         }
       });
       let tableStartY2 = doc.autoTable.previous.finalY;
-      Yalign = tableStartY2 + 15;
-      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, Yalign += 15);
+      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableStartY2 += 15);
     doc.setFontSize(9);
-    doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, Yalign += 7);
-    doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, Yalign += 7);
+    doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableStartY2 += 7);
+    doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableStartY2 += 4.5);
     
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);

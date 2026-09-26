@@ -170,21 +170,21 @@ $instrumentId = $instrument['id'] ?? null;
         }
     });
     let tableStartY2=doc.autoTable.previous.finalY;
+    doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableStartY2 += 10);
+    doc.setFontSize(9);
     const master = (typeof getMasterDetails === 'function') ? getMasterDetails('digital_vernier_caliper') : {};
-    // Additional section
     doc.text('DETAILS OF STANDARD EQUIPMENT USED FOR CALIBRATION',  doc.internal.pageSize.getWidth() / 2, tableStartY2+=10, { align: 'center' });
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
     doc.text('EQUIPMENT NAME  :-' + (master.name || 'DIGITAL CALIPER'), 14, tableStartY2+=7);
     doc.text('CALIBRATION BY :-' + (master.calibrated_by || 'ACLPL, AHMEDABAD'), 100,  tableStartY2);
     doc.text('CALIBRATION DATE :-' + (master.calib_date || '02/10/2025'), 14, tableStartY2+=7);
     doc.text('NEXT DUE DATE  :-' + (master.due_date || '01/10/2026'), 100, tableStartY2);
-    doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableStartY2 += 15);
-    doc.setFontSize(9);
+    
     doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableStartY2 += 7);
     doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableStartY2 += 7);
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(10.5);
-    doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
+    doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
     doc.text("PROPRIETOR", 170, 238);
   }
    // --- Sticker logic ---

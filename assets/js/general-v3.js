@@ -18,7 +18,7 @@ async function applyLetterhead(doc) {
     if (header) doc.addImage(header, 'JPEG', 3,   3,   204, 30, undefined, 'FAST');
     if (footer) doc.addImage(footer, 'JPEG', 0,   255, 210, 27, undefined, 'FAST');
     if (stamp)  doc.addImage(stamp,  'JPEG', 113, 215, 28,  28, undefined, 'FAST');
-    if (sign)   doc.addImage(sign,   'JPEG', 162, 226, 34,  6, undefined, 'FAST');
+    if (sign)   doc.addImage(sign,   'JPEG', 162, 225, 34.5, 8, undefined, 'FAST');
   }
 }
 

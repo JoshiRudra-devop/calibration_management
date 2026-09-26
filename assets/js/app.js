@@ -396,7 +396,7 @@ async function addLetterhead(doc) {
     doc.addImage(header, 'JPEG', 3, 3, 210, 30);
     doc.addImage(footer, 'JPEG', 0, 255, 210, 27);
     doc.addImage(stamp,  'JPEG', 103, 220, 28, 28);
-    doc.addImage(sign,   'JPEG', 162, 226, 34, 6);
+    doc.addImage(sign,   'JPEG', 162, 225, 34.5, 8);
   } catch (e) {
     console.warn('Letterhead images not loaded', e);
   }

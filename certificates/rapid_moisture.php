@@ -189,13 +189,13 @@ $instrumentId = $instrument['id'] ?? null;
       let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : 180;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-     doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableEndY += 15);
+     doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableEndY += 4.5);
       doc.setFontSize(9);
       doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableEndY += 7);
-      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableEndY += 7);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableEndY += 4.5);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
       doc.text("PROPRIETOR", 170, 238);
     }
     

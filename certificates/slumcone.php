@@ -246,7 +246,7 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableEndY += 7);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10.5);
-        doc.text("FOR, " + window.PDF_COMPANY_NAME, 150, 228);
+        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
         doc.text("PROPRIETOR", 170, 238);
       }
     }

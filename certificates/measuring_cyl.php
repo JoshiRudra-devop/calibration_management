@@ -356,7 +356,7 @@ $instrumentId = $instrument['id'] ?? null;
         }
         curY += rowHeight;
       }
-
+      doc.setFont("helvetica", "bold");
       doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, curY += 15);
       doc.setFontSize(9);
       doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, curY += 7);
