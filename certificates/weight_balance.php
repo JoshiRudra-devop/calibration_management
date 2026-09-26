@@ -211,7 +211,7 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text(`CAPACITY & MAKE    :-     ${details.capacity} & ${details.make}`, 14, y);
       y += 9;
       doc.text(`SR NO                          :-     ${details.serialNo}`, 14, y);
-      doc.text(`NEXT DUE DATE        :-     ${details.nextCalibrationDate}`, 140, y);
+      doc.text(`NEXT DUE DATE:-     ${details.nextCalibrationDate}`, 140, y);
 
       y += 9;
       const siteLocPrefix = "SITE LOCATION          :-     ";
