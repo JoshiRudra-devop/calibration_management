@@ -279,13 +279,14 @@ $instrumentId = $instrument['id'] ?? null;
         ]);
       });
 
-      const tableStartY = Yalign + 10;
+      const tableStartY = Yalign + 8;
       doc.autoTable({
         startY: tableStartY,
         head: [["S. NO.", "NOMINAL VALUE (mm)", "OUTSIDE MEASURED (mm)", "INSIDE MEASURED (mm)", "DEPTH MEASURED (mm)", "ERROR (mm)", "TOLERANCE (± mm)"]],
         body: rows,
         styles: {
-          fontSize: 8.5,
+          fontSize: 9,
+          cellPadding: 3.2,
           textColor: [0, 0, 0],
           fillColor: [255, 255, 255],
           lineColor: [0, 0, 0],
@@ -293,6 +294,8 @@ $instrumentId = $instrument['id'] ?? null;
           halign: 'center'
         },
         headStyles: {
+          fontSize: 9.5,
+          cellPadding: 3.5,
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
           fontStyle: 'bold',
@@ -307,22 +310,16 @@ $instrumentId = $instrument['id'] ?? null;
         margin: { left: 14, right: 14 }
       });
 
-      let endY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY + 8 : Yalign + 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, endY);
+      doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
       doc.setFontSize(9);
-      const rem1 = doc.splitTextToSize("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      let rY = endY + 6;
-      for (let line of rem1) { doc.text(line, 14, rY); rY += 4.5; }
-      const rem2 = doc.splitTextToSize("• Calibration carried out using standard gauge blocks traceable to National Standards as per IS 3651 / ISO 13385-1.", 85);
-      for (let line of rem2) { doc.text(line, 14, rY); rY += 4.5; }
-
-      let sigY = Math.max(rY + 6, 220);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, sigY);
-      doc.text("PROPRIETOR", 170, sigY + 10);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 234);
+      doc.text("PROPRIETOR", 170, 248);
     };
 
     let leastCount = 0.01;

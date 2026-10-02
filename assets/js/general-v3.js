@@ -17,8 +17,8 @@ async function applyLetterhead(doc) {
     doc.setPage(i);
     if (header) doc.addImage(header, 'JPEG', 3,   3,   204, 30, undefined, 'FAST');
     if (footer) doc.addImage(footer, 'JPEG', 0,   267, 210, 30, undefined, 'FAST');
-    if (stamp)  doc.addImage(stamp,  'JPEG', 113, 215, 28,  28, undefined, 'FAST');
-    if (sign)   doc.addImage(sign,   'JPEG', 162, 225, 34.5, 8, undefined, 'FAST');
+    if (stamp)  doc.addImage(stamp,  'JPEG', 113, 225, 28,  28, undefined, 'FAST');
+    if (sign)   doc.addImage(sign,   'JPEG', 162, 236, 34.5, 8, undefined, 'FAST');
   }
 }
 
@@ -33,7 +33,7 @@ window.addQRCodeToPDF = function(doc, certNumber) {
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         try {
-          doc.addImage(qrDataUrl, 'PNG', 8, 233, 19, 19, undefined, 'FAST');
+          doc.addImage(qrDataUrl, 'PNG', 8, 236, 19, 19, undefined, 'FAST');
         } catch (e) {}
       }
     }

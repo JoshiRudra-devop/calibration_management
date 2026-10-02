@@ -160,17 +160,17 @@ $instrumentId = $instrument['id'] ?? null;
           fillColor: [255, 255, 255]
         }
       });
-      let tableStartY2 = doc.autoTable.previous.finalY;
-      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableStartY2 += 15);
-    doc.setFontSize(9);
-    doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableStartY2 += 7);
-    doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableStartY2 += 4.5);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, 206);
+      doc.setFontSize(9);
+      doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, 212);
+      doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, 217);
     
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
-      doc.text("PROPRIETOR", 170, 238);
-
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 235);
+      doc.text("PROPRIETOR", 170, 249);
     }
     
     // --- Sticker logic ---

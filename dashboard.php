@@ -668,7 +668,7 @@ async function getCombinedPDFBlob(includeLetterhead = true) {
           if (certQrImg) {
             page.drawImage(certQrImg, {
               x: 8 * mmToPt,
-              y: height - ((233 + 19) * mmToPt),
+              y: height - ((236 + 19) * mmToPt),
               width: 19 * mmToPt,
               height: 19 * mmToPt
             });
