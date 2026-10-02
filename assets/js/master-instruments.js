@@ -1,8 +1,24 @@
 /* assets/js/master-instruments.js - Central Master Equipment Helper */
 window.getMasterDetails = function(slug) {
-  if (window.MASTER_INSTRUMENTS && window.MASTER_INSTRUMENTS[slug]) {
-    return window.MASTER_INSTRUMENTS[slug];
+  const aliasMap = {
+    'vernier_caliper': 'digital_vernier_caliper',
+    'digital_caliper': 'digital_vernier_caliper',
+    'caliper': 'digital_vernier_caliper',
+    'vernier': 'digital_vernier_caliper',
+    'digital_thermo': 'standard_thermometer'
+  };
+  const targetSlug = aliasMap[slug] || slug;
+
+  if (window.MASTER_INSTRUMENTS) {
+    if (window.MASTER_INSTRUMENTS[slug]) return window.MASTER_INSTRUMENTS[slug];
+    if (window.MASTER_INSTRUMENTS[targetSlug]) return window.MASTER_INSTRUMENTS[targetSlug];
+    for (const [aKey, tKey] of Object.entries(aliasMap)) {
+      if (tKey === slug && window.MASTER_INSTRUMENTS[aKey]) {
+        return window.MASTER_INSTRUMENTS[aKey];
+      }
+    }
   }
+
   const defaults = {
     'digital_vernier_caliper': {
       slug: 'digital_vernier_caliper',
@@ -53,5 +69,5 @@ window.getMasterDetails = function(slug) {
       traceability: 'TRACEABLE TO NATIONAL STANDARDS THROUGH ARSH CALIBRATION LABORATORY PVT. LTD. (Cert Nos: 1025/392/003-007)'
     }
   };
-  return defaults[slug] || defaults['digital_vernier_caliper'];
+  return defaults[slug] || defaults[targetSlug] || defaults['digital_vernier_caliper'];
 };

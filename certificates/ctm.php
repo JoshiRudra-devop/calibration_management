@@ -389,6 +389,7 @@ $instrumentId = $instrument['id'] ?? null;
     };
 
     window.addCertificateDetails = function(doc, details) {
+      details = details || {};
       doc.setFont("helvetica", "bold");
       doc.setFontSize(25);
       doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, 46, { align: "center" });
@@ -397,8 +398,8 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       let curY = 56;
-      doc.text(`DATE:-${details.calibrationDate}`, 160, curY);
-      doc.text(`REF NO                       :-    ${details.certificateNumber}`, 14, curY);
+      doc.text(`DATE:-${details.calibrationDate || ''}`, 160, curY);
+      doc.text(`REF NO                       :-    ${details.certificateNumber || ''}`, 14, curY);
 
       curY += 9;
       const partyPrefix = "NAME OF PARTY       :-    ";
@@ -411,12 +412,12 @@ $instrumentId = $instrument['id'] ?? null;
       }
 
       curY += 9;
-      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated} )`, 14, curY);
+      doc.text(`EQUIPMENT NAME    :-    CUBE TESTING MACHINE ( ${details.operated || 'ELECTRICAL OPERATED'} )`, 14, curY);
       curY += 9;
-      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity}  /  ${details.make}`, 14, curY);
+      doc.text(`CAPACITY  / MAKE    :-    ${details.capacity || ''}  /  ${details.make || ''}`, 14, curY);
       curY += 9;
-      doc.text(`SERIAL NO                  :-    ${details.serialNo}`, 14, curY);
-      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate}`, 140, curY);
+      doc.text(`SERIAL NO                  :-    ${details.serialNo || ''}`, 14, curY);
+      doc.text(`NEXT DUE DATE:-${details.nextCalibrationDate || ''}`, 140, curY);
 
       curY += 9;
       const siteLocPrefix = "SITE LOCATION         :-    ";
@@ -430,7 +431,10 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");
-      let RING = String(details.ring);
+      let RING = String(details.ring || "");
+      if (!RING || RING === 'undefined' || RING === 'null' || RING === '') {
+        RING = "1000KN";
+      }
 
       curY += 9;
       if(RING === "1000KN"){
@@ -467,7 +471,7 @@ $instrumentId = $instrument['id'] ?? null;
             let textValue = "";
             if (j === 0) textValue = fixedValuesColumn1[i];
             else if (j === 1) textValue = fixedValuesColumn2[i];
-            else textValue = details.inputs1000[i] || "";
+            else textValue = (details.inputs1000 && details.inputs1000[i]) ? details.inputs1000[i] : "";
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
@@ -509,7 +513,7 @@ $instrumentId = $instrument['id'] ?? null;
             let textValue = "";
             if (j === 0) textValue = fixedValuesColumn1[i];
             else if (j === 1) textValue = fixedValuesColumn2[i];
-            else textValue = details.inputs2000[i] || "";
+            else textValue = (details.inputs2000 && details.inputs2000[i]) ? details.inputs2000[i] : "";
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
@@ -551,7 +555,7 @@ $instrumentId = $instrument['id'] ?? null;
             let textValue = "";
             if (j === 0) textValue = fixedValuesColumn1[i];
             else if (j === 1) textValue = fixedValuesColumn2[i];
-            else textValue = details.inputs2000new[i] || "";
+            else textValue = (details.inputs2000new && details.inputs2000new[i]) ? details.inputs2000new[i] : "";
 
             const textWidth = doc.getTextWidth(textValue);
             const centeredX = x + (cellWidth - textWidth) / 2;
@@ -565,8 +569,8 @@ $instrumentId = $instrument['id'] ?? null;
       doc.setFontSize(10);
       doc.text("CALIBRATED BY: YOGESH B JOSHI", 14, 206);
       doc.setFontSize(9);
-     doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 85);
-      doc.text("• This certificate refers to the value obtained at the time of calibration.", 85);
+      doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+      doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
       doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);

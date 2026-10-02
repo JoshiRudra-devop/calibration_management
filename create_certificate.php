@@ -846,7 +846,7 @@ function validateAllForms() {
   return true;
 }
 
-async function generateUnifiedPDF() {
+async function generateUnifiedPDF(includeLetterhead = true) {
   if (!validateAllForms()) return null;
   
   const iframes = document.querySelectorAll('.instrument-iframe');
@@ -868,7 +868,7 @@ async function generateUnifiedPDF() {
     const iframeWindow = iframe.contentWindow;
     
     // Pre-load images inside the iframe asynchronously if prepareImages is defined
-    if (typeof iframeWindow.prepareImages === 'function') {
+    if (includeLetterhead && typeof iframeWindow.prepareImages === 'function') {
       try {
         await iframeWindow.prepareImages();
       } catch (e) {
@@ -909,11 +909,13 @@ async function generateUnifiedPDF() {
           iframeWindow.safeAddCertificateDetails(doc, details);
         }
         
-        // Draw images/letterhead on the overridden document
-        if (typeof iframeWindow.applyLetterhead === 'function') {
-          await iframeWindow.applyLetterhead(doc);
-        } else if (typeof iframeWindow.addImg === 'function') {
-          iframeWindow.addImg(doc, details);
+        // Draw images/letterhead on the overridden document ONLY if includeLetterhead is true (for save/share)
+        if (includeLetterhead) {
+          if (typeof iframeWindow.applyLetterhead === 'function') {
+            await iframeWindow.applyLetterhead(doc);
+          } else if (typeof iframeWindow.addImg === 'function') {
+            iframeWindow.addImg(doc, details);
+          }
         }
 
         // Draw QR Code on the overridden document
@@ -940,7 +942,7 @@ async function previewAllCertificates() {
   
   Loader.show('Generating unified preview...');
   try {
-    const doc = await generateUnifiedPDF();
+    const doc = await generateUnifiedPDF(true);
     if (!doc) {
       Loader.hide();
       return;
@@ -963,7 +965,7 @@ async function printAllCertificates() {
   
   Loader.show('Preparing unified print...');
   try {
-    const doc = await generateUnifiedPDF();
+    const doc = await generateUnifiedPDF(false);
     if (!doc) {
       Loader.hide();
       return;
@@ -979,7 +981,7 @@ async function printAllCertificates() {
       }
       setTimeout(() => URL.revokeObjectURL(pdfUrl), 5000);
     }, 500);
-    Loader.success('Print dialog opened! ðŸ–¨ï¸');
+    Loader.success('Print dialog opened! 🖨️');
   } catch (err) {
     if (window.SHREEJI_DEBUG) console.error(err);
     Loader.error('Failed to print: ' + err.message);
@@ -991,7 +993,7 @@ async function shareUnifiedPDF() {
   
   Loader.show('Generating combined PDF to share...');
   try {
-    const doc = await generateUnifiedPDF();
+    const doc = await generateUnifiedPDF(true);
     if (!doc) {
       Loader.hide();
       return;
@@ -1089,7 +1091,7 @@ async function saveAllCertificates(forceSave = false) {
   if (!forceSave) {
     Loader.show('Generating unified preview for verification...');
     try {
-      const doc = await generateUnifiedPDF();
+      const doc = await generateUnifiedPDF(true);
       Loader.hide();
       if (doc) {
         const pdfBlob = doc.output('blob');
@@ -1191,7 +1193,7 @@ async function saveAllCertificates(forceSave = false) {
   if (errorCount === 0 && successCount > 0) {
     Loader.show('Generating combined PDF...');
     try {
-      const doc = await generateUnifiedPDF();
+      const doc = await generateUnifiedPDF(true);
       if (doc) {
         const pdfBlob = doc.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);

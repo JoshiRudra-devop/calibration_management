@@ -149,14 +149,37 @@ function getMasterInstruments(): array {
     foreach ($rows as $r) {
         $dict[$r['slug']] = $r;
     }
+    // Alias mapping for Vernier Caliper / Digital Caliper and Thermometer
+    $aliasMap = [
+        'vernier_caliper'        => 'digital_vernier_caliper',
+        'digital_caliper'        => 'digital_vernier_caliper',
+        'caliper'                => 'digital_vernier_caliper',
+        'vernier'                => 'digital_vernier_caliper',
+        'digital_thermo'  => 'standard_thermometer'
+    ];
+    foreach ($aliasMap as $alias => $mainSlug) {
+        if (isset($dict[$mainSlug]) && !isset($dict[$alias])) {
+            $dict[$alias] = $dict[$mainSlug];
+        } else if (isset($dict[$alias]) && !isset($dict[$mainSlug])) {
+            $dict[$mainSlug] = $dict[$alias];
+        }
+    }
     return $dict;
 }
 
 function getMasterInstrument(string $slug): ?array {
     initMasterInstrumentsTable();
+    $aliasMap = [
+        'vernier_caliper'        => 'digital_vernier_caliper',
+        'digital_caliper'        => 'digital_vernier_caliper',
+        'caliper'                => 'digital_vernier_caliper',
+        'vernier'                => 'digital_vernier_caliper',
+        'digital_thermo'         => 'standard_thermometer'
+    ];
+    $targetSlug = $aliasMap[$slug] ?? $slug;
     $db = getDB();
-    $stmt = $db->prepare("SELECT * FROM `master_instruments` WHERE `slug` = ? LIMIT 1");
-    $stmt->execute([$slug]);
+    $stmt = $db->prepare("SELECT * FROM `master_instruments` WHERE `slug` = ? OR `slug` = ? LIMIT 1");
+    $stmt->execute([$slug, $targetSlug]);
     $res = $stmt->fetch();
     return $res ?: null;
 }

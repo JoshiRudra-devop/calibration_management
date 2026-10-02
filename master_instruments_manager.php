@@ -36,6 +36,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 clean($fields['traceability'] ?? ''),
                 $slug
             ]);
+
+            // Sync Vernier Caliper / Digital Caliper aliases
+            $caliperSlugs = ['digital_vernier_caliper', 'vernier_caliper', 'digital_caliper', 'caliper'];
+            if (in_array($slug, $caliperSlugs, true)) {
+                foreach ($caliperSlugs as $aliasSlug) {
+                    if ($aliasSlug !== $slug) {
+                        $stmt->execute([
+                            clean($fields['name'] ?? ''),
+                            clean($fields['serial_no'] ?? ''),
+                            clean($fields['range_capacity'] ?? ''),
+                            clean($fields['least_count'] ?? ''),
+                            clean($fields['calib_date'] ?? ''),
+                            clean($fields['due_date'] ?? ''),
+                            clean($fields['cert_no'] ?? ''),
+                            clean($fields['calibrated_by'] ?? ''),
+                            clean($fields['traceability'] ?? ''),
+                            $aliasSlug
+                        ]);
+                    }
+                }
+            }
         }
         $message = 'Master Instrument Calibration details updated successfully! All certificates will now use these updated details.';
     }

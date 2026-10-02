@@ -16,7 +16,7 @@ async function applyLetterhead(doc) {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     if (header) doc.addImage(header, 'JPEG', 3,   3,   204, 30, undefined, 'FAST');
-    if (footer) doc.addImage(footer, 'JPEG', 0,   255, 210, 27, undefined, 'FAST');
+    if (footer) doc.addImage(footer, 'JPEG', 0,   267, 210, 30, undefined, 'FAST');
     if (stamp)  doc.addImage(stamp,  'JPEG', 113, 215, 28,  28, undefined, 'FAST');
     if (sign)   doc.addImage(sign,   'JPEG', 162, 225, 34.5, 8, undefined, 'FAST');
   }
@@ -160,32 +160,35 @@ function safeGetFormDetails() {
 }
 
 function safeAddCertificateDetails(doc, details) {
-  let success = false;
+  let executed = false;
   if (typeof window.addCertificateDetails === 'function') {
     try {
       window.addCertificateDetails(doc, details);
-      success = true;
+      executed = true;
     } catch (e) {
       console.error("Error executing window.addCertificateDetails:", e);
+      executed = true; // Mark executed so fallback drawer does not double-draw over custom details
     }
   }
-  if (!success && typeof addCertificateDetails === 'function') {
+  if (!executed && typeof addCertificateDetails === 'function') {
     try {
       addCertificateDetails(doc, details);
-      success = true;
+      executed = true;
     } catch (e) {
       console.error("Error executing addCertificateDetails:", e);
+      executed = true;
     }
   }
-  if (!success && window.parent && typeof window.parent.addCertificateDetails === 'function') {
+  if (!executed && window.parent && typeof window.parent.addCertificateDetails === 'function') {
     try {
       window.parent.addCertificateDetails(doc, details);
-      success = true;
+      executed = true;
     } catch (e) {
       console.error("Error executing window.parent.addCertificateDetails:", e);
+      executed = true;
     }
   }
-  if (!success) {
+  if (!executed) {
     console.warn("No custom addCertificateDetails executed. Running universal fallback drawer.");
     drawFallbackCertificateContent(doc, details);
   }
@@ -522,7 +525,7 @@ async function preview() {
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
     
-    // Apply letterhead (header, footer, stamp, signature) for preview
+    // Apply letterhead images (header, footer, stamp, sign)
     if (typeof applyLetterhead === 'function') {
       await applyLetterhead(doc);
     }
@@ -577,9 +580,9 @@ async function printBlankCertificate() {
     
     const details = safeGetFormDetails();
     safeAddCertificateDetails(doc, details);
-    if (typeof applyLetterhead === 'function') {
-      await applyLetterhead(doc);
-    }
+    
+    // Images (header, footer, stamp, sign) are excluded during printing as requested
+    
     if (typeof addQRCodeToPDF === 'function') {
       addQRCodeToPDF(doc, details.certificateNumber);
     }

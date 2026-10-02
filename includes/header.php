@@ -47,6 +47,9 @@ $expiringMasters = !empty($_SESSION['user_id']) ? checkMasterInstrumentsExpirati
     };
     // Centralized Master Instruments Data
     window.MASTER_INSTRUMENTS = <?= json_encode($masterInstDict, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+  </script>
+  <script src="<?= APP_URL ?>/assets/js/master-instruments.js"></script>
+  <script>
     // Set window.SHREEJI_DEBUG = true in browser console to enable debug logging.
     window.SHREEJI_DEBUG = false;
     
