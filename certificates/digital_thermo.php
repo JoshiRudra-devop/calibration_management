@@ -169,8 +169,8 @@ $instrumentId = $instrument['id'] ?? null;
     
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 235);
-      doc.text("PROPRIETOR", 170, 249);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 236);
+      doc.text("PROPRIETOR", 170, 254);
     }
     
     // --- Sticker logic ---

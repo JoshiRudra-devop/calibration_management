@@ -96,54 +96,122 @@ $instrumentId = $instrument['id'] ?? null;
 
 window.addCertificateDetails = function(doc, details)
 {
-  let Yalign = 50;
+  details = details || {};
+  let Yalign = 46;
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(25);
+  doc.setFontSize(24);
   doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-  doc.setFontSize(12);
-  doc.text(window.PDF_COMPANY_NAME + ": Calibration laboratory certifies that the instrument has been inspected,", 12, Yalign+=10);
-  doc.text("tested,and calibrated in accordance with documented procedures using measuring and test", 12, Yalign+=7);
-  doc.text("equipment traceable to international standards.", 12, Yalign+=7);
+  
+  doc.setFontSize(10.5);
+  doc.setFont("helvetica", "normal");
+  const headerPara = (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS") + ": Calibration laboratory certifies that the instrument has been inspected, tested, and calibrated in accordance with documented procedures using measuring and test equipment traceable to international standards.";
+  const headerLines = doc.splitTextToSize(headerPara, 182);
+  doc.text(headerLines, 14, Yalign += 9);
+  Yalign += (headerLines.length * 4.5);
+
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   
   // Certificate Details
-  doc.text(`DATE: ${details.calibrationDate}`, 140, Yalign+=15);
-  doc.text(`REF NO                         :     ${details.certificateNumber}`, 14, Yalign);
+  Yalign += 8;
+  doc.text(`DATE: ${details.calibrationDate || ''}`, 155, Yalign);
+  doc.text(`REF NO                         :     ${details.certificateNumber || ''}`, 14, Yalign);
   
-  // --- Party Name with wrapping (only value, not prefix) ---
+  // --- Party Name with wrapping ---
   const partyNamePrefix = "NAME OF PARTY         :     ";
   const prefixWidth = doc.getTextWidth(partyNamePrefix);
   const maxWidth = 180 - prefixWidth;
-  const partyNameLines = doc.splitTextToSize(details.partyName, maxWidth);
+  const partyNameLines = doc.splitTextToSize(details.partyName || "", maxWidth);
   
-  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign += 15);
+  Yalign += 8.5;
+  doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign);
   for (let i = 1; i < partyNameLines.length; i++) {
-    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign += 7);
+    Yalign += 5;
+    doc.text(partyNameLines[i], 14 + prefixWidth, Yalign);
   }
-  doc.text(`EQUIPMENT NAME      :     SAND POURING CYLINDER   `, 14, Yalign+=15);
-  doc.text(`SIZE                               :    ${details.size} `, 14, Yalign+=15);
-  doc.text(`SERIAL NO                    :     ${details.serialNo}`, 14, Yalign+=15);
   
-  // --- Site Location with wrapping (only value, not prefix) ---
+  Yalign += 8.5;
+  doc.text(`EQUIPMENT NAME      :     SAND POURING CYLINDER`, 14, Yalign);
+  Yalign += 8.5;
+  doc.text(`SIZE                               :     ${details.size || '150 MM'}`, 14, Yalign);
+  Yalign += 8.5;
+  doc.text(`SERIAL NO                    :     ${details.serialNo || ''}`, 14, Yalign);
+  
+  // --- Site Location with wrapping ---
   const siteLocPrefix = "SITE LOCATION            :     ";
   const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
   const siteLocMaxWidth = 180 - siteLocPrefixWidth;
-  const siteLocLines = doc.splitTextToSize(details.siteLocation, siteLocMaxWidth);
+  const siteLocLines = doc.splitTextToSize(details.siteLocation || "", siteLocMaxWidth);
   
-  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign += 15);
+  Yalign += 8.5;
+  doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
   for (let i = 1; i < siteLocLines.length; i++) {
-    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign += 7);
+    Yalign += 5;
+    doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
   }
 
-  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate}`, 14, Yalign+=15);
-  doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, Yalign += 15);
+  Yalign += 8.5;
+  doc.text(`NEXT DUE DATE          :     ${details.nextCalibrationDate || ''}`, 14, Yalign);
+
+  // Calibration Observation Table (IS: 2720 Part 28 Static Readings)
+  Yalign += 8.5;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("CALIBRATION OBSERVATION (AS PER IS: 2720 PART-28)", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
+
+  const sizeStr = (details.size || '150 MM').toUpperCase();
+  const actualDia = sizeStr.includes('100') ? '100.10 MM' : (sizeStr.includes('200') ? '200.15 MM' : '150.10 MM');
+  
+  const calibData = [
+    [ '1', 'Internal Diameter of Pouring Cylinder', sizeStr, actualDia ],
+    [ '2', 'Height of Pouring Cylinder', '600 ± 2.0 MM', '600.20 MM' ],
+    [ '3', 'Internal Diameter of Calibrating Container', sizeStr, actualDia ],
+    [ '4', 'Volume of Calibrating Container', sizeStr.includes('100') ? '1000 cm³' : '2250 cm³', sizeStr.includes('100') ? '1000.40 cm³' : '2250.50 cm³' ],
+    [ '5', 'Mean Weight of Sand in Cone', 'As per Calibration', '465.00 g' ],
+    [ '6', 'Bulk Density of Standard Sand', '1.42 ± 0.05 g/cm³', '1.425 g/cm³' ]
+  ];
+
+  doc.autoTable({
+    head: [['S. NO.', 'PARAMETER / SPECIFICATION', 'AS PER IS REQUIREMENT', 'ACTUAL MEASURED']],
+    body: calibData,
+    startY: Yalign + 4,
+    styles: {
+      fontSize: 8.5,
+      cellPadding: 2,
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle'
+    },
+    headStyles: {
+      fontSize: 9,
+      cellPadding: 2.5,
+      fontStyle: 'bold',
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.2,
+      halign: 'center',
+      valign: 'middle'
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255]
+    },
+    theme: 'grid',
+    margin: { left: 14, right: 14 }
+  });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("CALIBRATED BY          :     YOGESH B JOSHI", 14, 206);
   doc.setFontSize(9);
-  doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, Yalign += 7);
-  doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, Yalign += 7);
+  doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+  doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
-  doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
-  doc.text("PROPRIETOR", 170, 238);
+  doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 236);
+  doc.text("PROPRIETOR", 170, 254);
 }
   
       window.stickerPdfBlob = null;

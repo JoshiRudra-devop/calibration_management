@@ -203,18 +203,17 @@ $instrumentId = $instrument['id'] ?? null;
     };
 
     window.addCertificateDetails = function(doc, details) {
-      let Yalign = 50;
+      let Yalign = 46;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.text("CALIBRATION CERTIFICATE ", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
-      
+      doc.setFontSize(24);
+      doc.text("CALIBRATION CERTIFICATE", doc.internal.pageSize.getWidth() / 2, Yalign, { align: 'center' });
 
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       Yalign += 12;
-      doc.text(`DATE:- ${details.calibrationDate}`, 155, Yalign);
-      doc.text(`REF NO                            :-     ${details.certificateNumber}`, 14, Yalign);
+      doc.text(`DATE:- ${details.calibrationDate || ''}`, 155, Yalign);
+      doc.text(`REF NO                            :-     ${details.certificateNumber || ''}`, 14, Yalign);
 
-      Yalign += 7;
+      Yalign += 8.5;
       const partyNamePrefix = "NAME OF PARTY           :-     ";
       const prefixWidth = doc.getTextWidth(partyNamePrefix);
       const maxWidth = 180 - prefixWidth;
@@ -222,19 +221,19 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.text(partyNamePrefix + (partyNameLines[0] || ""), 14, Yalign);
       for (let i = 1; i < partyNameLines.length; i++) {
-        Yalign += 4.5;
+        Yalign += 5;
         doc.text(partyNameLines[i], 14 + prefixWidth, Yalign);
       }
 
-      Yalign += 7;
+      Yalign += 8.5;
       doc.text(`EQUIPMENT NAME         :-     VERNIER CALIPER ( ${details.type || 'DIGITAL'} )`, 14, Yalign);
-      Yalign += 7;
+      Yalign += 8.5;
       doc.text(`MAKE / MODEL                :-     ${details.make || 'STANDARD'}`, 14, Yalign);
-      Yalign += 7;
+      Yalign += 8.5;
       doc.text(`SERIAL NO                     :-     ${details.serialNo || 'N/A'}`, 14, Yalign);
-      doc.text(`NEXT DUE DATE:-     ${details.nextCalibrationDate}`, 135, Yalign);
+      doc.text(`NEXT DUE DATE:-     ${details.nextCalibrationDate || ''}`, 135, Yalign);
 
-      Yalign += 7;
+      Yalign += 8.5;
       const siteLocPrefix = "SITE LOCATION               :-     ";
       const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
       const siteLocMaxWidth = 180 - siteLocPrefixWidth;
@@ -242,7 +241,7 @@ $instrumentId = $instrument['id'] ?? null;
 
       doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, Yalign);
       for (let i = 1; i < siteLocLines.length; i++) {
-        Yalign += 4.5;
+        Yalign += 5;
         doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, Yalign);
       }
 
@@ -318,8 +317,8 @@ $instrumentId = $instrument['id'] ?? null;
       doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 234);
-      doc.text("PROPRIETOR", 170, 248);
+      doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 236);
+      doc.text("PROPRIETOR", 170, 254);
     };
 
     let leastCount = 0.01;

@@ -174,35 +174,40 @@ $instrumentId = $instrument['id'] ?? null;
         doc.text(lines2, 12, hori_axis);
         hori_axis += (lines2.length * 5); // Height for paragraph 2
 
-        doc.setFontSize(10);
+        doc.setFontSize(11);
         // Certificate Details
-        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 8);
-        doc.text(`DATE: ${details.calibrationDate}`, 155, hori_axis);
+        doc.text(`REF NO                       :-    ${pageCertNo}`, 14, hori_axis += 9);
+        doc.text(`DATE: ${details.calibrationDate || ''}`, 155, hori_axis);
         const partyPrefix = "NAME OF PARTY       :-    ";
         const partyPrefixWidth = doc.getTextWidth(partyPrefix);
         const partyLines = doc.splitTextToSize(details.partyName || "", 180 - partyPrefixWidth);
-        hori_axis += 8;
+        hori_axis += 9;
         doc.text(partyPrefix + (partyLines[0] || ""), 14, hori_axis);
         for (let i = 1; i < partyLines.length; i++) {
-          hori_axis += 4.5;
+          hori_axis += 5;
           doc.text(partyLines[i], 14 + partyPrefixWidth, hori_axis);
         }
 
-        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis += 8);
-        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make}`, 14, hori_axis += 8);
+        hori_axis += 9;
+        doc.text(`EQUIPMENT NAME    :-    SLUMCONE `, 14, hori_axis);
+        hori_axis += 9;
+        doc.text(`SERIAL NO / MAKE    :-    ${pageSerialNo} / ${details.make || ''}`, 14, hori_axis);
 
         const siteLocPrefix = "SITE LOCATION          :-    ";
         const siteLocPrefixWidth = doc.getTextWidth(siteLocPrefix);
         const siteLocLines = doc.splitTextToSize(details.siteLocation || "", 180 - siteLocPrefixWidth);
-        hori_axis += 8;
+        hori_axis += 9;
         doc.text(siteLocPrefix + (siteLocLines[0] || ""), 14, hori_axis);
         for (let i = 1; i < siteLocLines.length; i++) {
-          hori_axis += 4.5;
+          hori_axis += 5;
           doc.text(siteLocLines[i], 14 + siteLocPrefixWidth, hori_axis);
         }
 
-        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate}`, 14, hori_axis += 8);
-        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis += 8, { align: 'center' });
+        hori_axis += 9;
+        doc.text(`NEXT DUE DATE         :-    ${details.nextCalibrationDate || ''}`, 14, hori_axis);
+        hori_axis += 9;
+        doc.setFont("helvetica", "bold");
+        doc.text("SPECIFICATIONS:-", doc.internal.pageSize.getWidth() / 2, hori_axis, { align: 'center' });
 
         const data = [
           ["TOP DIA", "100 + 3.0 - 1.5", " 100.10"],
@@ -213,39 +218,42 @@ $instrumentId = $instrument['id'] ?? null;
         doc.autoTable({
           head: [['  ', 'AS PER IS(MM)', 'ACTUAL MEASURED(AVG. OF THREE)']],
           body: data,
-          startY: hori_axis + 4,
+          startY: hori_axis + 5,
           styles: {
-            fontSize: 9.5,
+            fontSize: 10,
             textColor: [0, 0, 0],
             lineColor: [87, 86, 85],
             lineWidth: 0.2,
-            halign: 'center',  // horizontal align to center
-            valign: 'middle',  // vertical align to middle
-            cellPadding: 0.5,
+            halign: 'center',
+            valign: 'middle',
+            cellPadding: 2.5,
             fontStyle: 'bold'
           },
           headStyles: {
-            fontSize: 10.5,
+            fontSize: 11,
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
-            halign: 'center',  // horizontal align to center
-            valign: 'middle',  // vertical align to middle
+            halign: 'center',
+            valign: 'middle',
+            cellPadding: 3
           },
           alternateRowStyles: {
             fillColor: [255, 255, 255]
           }
         });
-        let tableEndY = (doc.lastAutoTable && doc.lastAutoTable.finalY) ? doc.lastAutoTable.finalY : ((doc.autoTable && doc.autoTable.previous) ? doc.autoTable.previous.finalY : hori_axis + 30);
-        doc.text(`CALIBRATED BY          :     YOGESH B JOSHI`, 14, tableEndY += 15);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text("CALIBRATED BY          :     YOGESH B JOSHI", 14, 206);
         doc.setFontSize(9);
-        doc.text(`• REMARKS: This certificate is valid for 12 months from the date of calibration.`, 14, tableEndY += 7);
-        doc.text(`• This certificate refers to the value obtained at the time of calibration.`, 14, tableEndY += 7);
+        doc.text("• REMARKS: This certificate is valid for 12 months from the date of calibration.", 14, 212);
+        doc.text("• This certificate refers to the value obtained at the time of calibration.", 14, 217);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10.5);
-        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 224);
-        doc.text("PROPRIETOR", 170, 238);
+        doc.text("FOR, " + (window.PDF_COMPANY_NAME || "SHREEJI INSTRUMENTS"), 150, 236);
+        doc.text("PROPRIETOR", 170, 254);
       }
     }
 
